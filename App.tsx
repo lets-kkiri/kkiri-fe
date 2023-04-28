@@ -3,6 +3,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from './src/pages/Home';
+import CreateMoim from './src/pages/CreateMoim';
 // import {useState} from 'react';
 
 export type LoggedInParamList = {
@@ -25,10 +26,16 @@ function App() {
   return (
     <NavigationContainer>
       <Tab.Navigator>
+        <Tab.Screen name="Home" component={Home} options={{title: '홈'}} />
         <Tab.Screen
-          name="Orders"
+          name="Create"
+          component={CreateMoim}
+          options={{title: ''}}
+        />
+        <Tab.Screen
+          name="Mypage"
           component={Home}
-          options={{title: 'Home Page'}}
+          options={{title: '마이페이지'}}
         />
       </Tab.Navigator>
     </NavigationContainer>
