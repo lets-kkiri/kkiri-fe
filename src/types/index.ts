@@ -4,4 +4,5 @@ export type RootStackParamList = {
   Tab: undefined;
   Setting: undefined;
   Notification: undefined;
+  Chatroom: {roomId: number};
 };

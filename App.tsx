@@ -12,6 +12,7 @@ import TabNavigator from './src/components/TabNavigator';
 
 // Types
 import {RootStackParamList} from './src/types';
+import Chatroom from './src/pages/Chatroom';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -19,11 +20,6 @@ export type LoggedInParamList = {
   Delivery: undefined;
   Complete: {orderId: string};
 };
-
-// export type RootStackParamList = {
-//   SignIn: undefined;
-//   SignUp: undefined;
-// };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -46,6 +42,11 @@ function App() {
           name="Notification"
           component={Notification}
           options={{title: '알림센터'}}
+        />
+        <Stack.Screen
+          name="Chatroom"
+          component={Chatroom}
+          options={{title: '채팅방'}}
         />
       </Stack.Navigator>
     </NavigationContainer>
