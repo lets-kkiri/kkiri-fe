@@ -13,6 +13,7 @@ import TabNavigator from './src/components/TabNavigator';
 // Types
 import {RootStackParamList} from './src/types';
 import Chatroom from './src/pages/Chatroom';
+import CreateMoim from './src/pages/CreateMoim';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -47,6 +48,11 @@ function App() {
           name="Chatroom"
           component={Chatroom}
           options={{title: '채팅방'}}
+        />
+        <Stack.Screen
+          name="CreateMoim"
+          component={CreateMoim}
+          options={{title: '모임 생성'}}
         />
       </Stack.Navigator>
     </NavigationContainer>
