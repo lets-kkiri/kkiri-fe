@@ -9,7 +9,9 @@ function Home() {
     <View>
       <Button
         title="채팅방 입장"
-        onPress={() => navigation.navigate('Chatroom', {roomId: 1})}
+        onPress={() =>
+          navigation.navigate('Chatroom', {navigation: navigation, roomId: 1})
+        }
       />
     </View>
   );
