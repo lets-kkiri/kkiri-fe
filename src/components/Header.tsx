@@ -9,6 +9,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 // import Setting_icon from '../assets/icons/setting.svg';
 const Notifi = require('../assets/icons/notification.svg');
 const Setting_icon = require('../assets/icons/setting.svg');
+const logo = require('../assets/logo.svg');
 
 const Header = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -16,7 +17,7 @@ const Header = () => {
   return (
     <View>
       <TouchableHighlight onPress={() => navigation.navigate('Home')}>
-        <Text>끼리</Text>
+        <WithLocalSvg asset={logo} height={24} />
       </TouchableHighlight>
       <TouchableHighlight onPress={() => navigation.navigate('Notification')}>
         <WithLocalSvg asset={Notifi} width={24} height={24} />

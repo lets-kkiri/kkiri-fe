@@ -4,7 +4,10 @@ import {Text, View} from 'react-native';
 function Home() {
   return (
     <View>
-      <Text>홈 화면입니다</Text>
+      <Button
+        title="채팅방 입장"
+        onPress={() => navigation.navigate('Chatroom', {roomId: 1})}
+      />
     </View>
   );
 }
