@@ -20,7 +20,8 @@
     "react-native-screens": "^3.20.0",
     "react-native-svg": "^13.9.0",
     "react-native-websocket": "^1.0.2",
-    "socket.io-client": "^4.6.1"
+    "socket.io-client": "^4.6.1",
+    "styled-components": "^5.3.10"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
