@@ -27,6 +27,9 @@ function Map() {
     );
   }, []);
 
+  console.log(myPosition?.latitude);
+  console.log(myPosition?.longitude);
+
   return (
     <View>
       <NaverMapView
@@ -42,7 +45,7 @@ function Map() {
               latitude: myPosition.latitude,
               longitude: myPosition.longitude,
             }}
-            caption={{text: '지니'}}
+            caption={{text: '나'}}
           />
         )}
       </NaverMapView>

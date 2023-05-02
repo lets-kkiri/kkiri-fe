@@ -6,6 +6,7 @@ export type RootStackParamList = {
   Notification: undefined;
   Chatroom: {roomId: number};
   Map: undefined;
+  RealtimeLocation: undefined;
 };
 
 // 단일 메시지

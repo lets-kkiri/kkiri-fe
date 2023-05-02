@@ -18,6 +18,7 @@ import CreateMoim from './src/pages/CreateMoim';
 
 // hooks
 import usePermissions from './src/hooks/usePermissions';
+import RealtimeLocation from './src/pages/RealtimeLocation';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -63,6 +64,11 @@ function App() {
           name="Map"
           component={Map}
           options={{title: '실시간 위치'}}
+        />
+        <Stack.Screen
+          name="RealtimeLocation"
+          component={RealtimeLocation}
+          options={{title: '모임원 실시간 위치'}}
         />
       </Stack.Navigator>
     </NavigationContainer>
