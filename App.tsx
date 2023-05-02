@@ -5,6 +5,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 // Page
 import Setting from './src/pages/Setting';
 import Notification from './src/pages/Notification';
+import Map from './src/pages/Map';
 
 // Components
 import Header from './src/components/Header';
@@ -12,6 +13,8 @@ import TabNavigator from './src/components/TabNavigator';
 
 // Types
 import {RootStackParamList} from './src/types';
+import Chatroom from './src/pages/Chatroom';
+import CreateMoim from './src/pages/CreateMoim';
 
 // hooks
 import usePermissions from './src/hooks/usePermissions';
@@ -22,11 +25,6 @@ export type LoggedInParamList = {
   Delivery: undefined;
   Complete: {orderId: string};
 };
-
-// export type RootStackParamList = {
-//   SignIn: undefined;
-//   SignUp: undefined;
-// };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -50,6 +48,21 @@ function App() {
           name="Notification"
           component={Notification}
           options={{title: '알림센터'}}
+        />
+        <Stack.Screen
+          name="Chatroom"
+          component={Chatroom}
+          options={{title: '채팅방'}}
+        />
+        <Stack.Screen
+          name="CreateMoim"
+          component={CreateMoim}
+          options={{title: '모임 생성'}}
+        />
+        <Stack.Screen
+          name="Map"
+          component={Map}
+          options={{title: '실시간 위치'}}
         />
       </Stack.Navigator>
     </NavigationContainer>

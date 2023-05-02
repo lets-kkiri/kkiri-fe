@@ -4,4 +4,15 @@ export type RootStackParamList = {
   Tab: undefined;
   Setting: undefined;
   Notification: undefined;
+  Chatroom: {roomId: number};
+  Map: undefined;
+};
+
+// 단일 메시지
+export type MessageData = {
+  id: number;
+  userName: string;
+  userImg: string;
+  text: string;
+  created: string;
 };
