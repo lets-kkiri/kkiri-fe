@@ -12,6 +12,8 @@ import TabNavigator from './src/components/TabNavigator';
 
 // Types
 import {RootStackParamList} from './src/types';
+
+// hooks
 import usePermissions from './src/hooks/usePermissions';
 
 export type LoggedInParamList = {

@@ -17,6 +17,7 @@ function usePermissions() {
                 {
                   text: '네',
                   onPress: () => Linking.openSettings(),
+                  style: 'default',
                 },
                 {
                   text: '아니오',
