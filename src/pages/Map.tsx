@@ -1,15 +1,20 @@
 import React, {useEffect, useState} from 'react';
-import {View} from 'react-native';
-import NaverMapView, {Marker} from 'react-native-nmap';
+import {Button, View} from 'react-native';
+import NaverMapView, {Marker, Polyline} from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
+
+interface PathProps {
+  latitude: number;
+  longitude: number;
+}
 
 function Map() {
   const P0 = {latitude: 37.564362, longitude: 126.977011};
 
-  const [myPosition, setMyPosition] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
+  const [startDraw, setStartDraw] = useState<boolean>(false);
+  const [myPosition, setMyPosition] = useState<PathProps | null>(null);
+  const [drawpoint, setDrawpoint] = useState<PathProps | null>(null);
+  const [drawpath, setDrawpath] = useState<PathProps[]>([]);
 
   useEffect(() => {
     Geolocation.getCurrentPosition(
@@ -27,14 +32,49 @@ function Map() {
     );
   }, []);
 
-  console.log(myPosition?.latitude);
-  console.log(myPosition?.longitude);
+  // console.log(myPosition?.latitude);
+  // console.log(myPosition?.longitude);
+
+  const drawPath = e => {
+    if (startDraw) {
+      setDrawpoint({
+        latitude: e.latitude,
+        longitude: e.longitude,
+      });
+    } else {
+      return;
+    }
+  };
+
+  useEffect(() => {
+    if (drawpoint) {
+      setDrawpath(prevPoint => [...prevPoint, drawpoint]);
+    }
+  }, [drawpoint]);
 
   return (
     <View>
+      <View>
+        {!startDraw ? (
+          <Button title="그리기" onPress={() => setStartDraw(true)} />
+        ) : (
+          <Button
+            title="보내기"
+            onPress={() => {
+              setStartDraw(false);
+              setDrawpoint(null);
+              setDrawpath([]);
+              console.log(drawpath);
+            }}
+          />
+        )}
+      </View>
       <NaverMapView
-        style={{width: '100%', height: '100%'}}
+        style={{width: '100%', height: '95%'}}
         showsMyLocationButton={true}
+        onMapClick={e => {
+          drawPath(e);
+        }}
         center={{
           zoom: 14,
           ...P0,
@@ -48,6 +88,13 @@ function Map() {
             caption={{text: '나'}}
           />
         )}
+        {drawpath.length > 1 ? (
+          <Polyline
+            coordinates={drawpath}
+            strokeColor="#fcba03"
+            strokeWidth={5}
+          />
+        ) : null}
       </NaverMapView>
     </View>
   );

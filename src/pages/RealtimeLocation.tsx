@@ -1,32 +1,41 @@
 import React, {useEffect, useState, useRef} from 'react';
-import {View} from 'react-native';
-// import Stomp from 'stompjs';
+import {Button, View} from 'react-native';
 import StompJs from '@stomp/stompjs';
-// import SockJS from 'sockjs-client';
 import Geolocation from '@react-native-community/geolocation';
-import NaverMapView, {Marker} from 'react-native-nmap';
+import NaverMapView, {Marker, Polyline} from 'react-native-nmap';
 
 interface User {
-  id: string;
+  id: number;
+  roomId: number;
+  memberId: number;
+  latitude: number;
+  longitude: number;
+  regDate: string;
+}
+
+interface PathProps {
   latitude: number;
   longitude: number;
 }
 
-const RealtimeLocation = () => {
-  const [location, setLocation] = useState<User>({
-    id: '',
-    latitude: 0,
-    longitude: 0,
-  });
+function RealtimeLocation() {
+  const [myPosition, setMyPosition] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
-  const client = useRef({});
+  const client = useRef<any>({});
+
+  const [startDraw, setStartDraw] = useState<boolean>(false);
+  const [drawpoint, setDrawpoint] = useState<PathProps | null>(null);
+  const [drawpath, setDrawpath] = useState<PathProps[]>([]);
 
   useEffect(() => {
     Geolocation.getCurrentPosition(
       position => {
         const {latitude, longitude} = position.coords;
-        const id = 'userId';
-        setLocation({id, latitude, longitude});
+        const id = 123;
+        const roomId = 1;
+        const memberId = 700003;
+        const regDate = '2023-05-03';
+        setMyPosition({id, roomId, memberId, latitude, longitude, regDate});
       },
       error => console.log(error),
       {enableHighAccuracy: true, timeout: 20000},
@@ -74,21 +83,56 @@ const RealtimeLocation = () => {
 
   // 내 위치 서버로 보내기
   const send = () => {
-    client.current.send('server_url', {}, JSON.stringify(location));
+    client.current.send('server_url', {}, JSON.stringify(myPosition));
   };
+
+  const drawPath = e => {
+    if (startDraw) {
+      setDrawpoint({
+        latitude: e.latitude,
+        longitude: e.longitude,
+      });
+    } else {
+      return;
+    }
+  };
+
+  useEffect(() => {
+    if (drawpoint) {
+      setDrawpath(prevPoint => [...prevPoint, drawpoint]);
+    }
+  }, [drawpoint]);
 
   return (
     <View>
-      {location && (
+      <View>
+        {!startDraw ? (
+          <Button title="그리기" onPress={() => setStartDraw(true)} />
+        ) : (
+          <Button
+            title="보내기"
+            onPress={() => {
+              setStartDraw(false);
+              setDrawpoint(null);
+              setDrawpath([]);
+              console.log(drawpath);
+            }}
+          />
+        )}
+      </View>
+      {myPosition && (
         <NaverMapView
           style={{width: '100%', height: '100%'}}
           showsMyLocationButton={true}
-          center={{...location, zoom: 16}}>
-          {location?.latitude && (
+          onMapClick={e => {
+            drawPath(e);
+          }}
+          center={{...myPosition, zoom: 14}}>
+          {myPosition?.latitude && (
             <Marker
               coordinate={{
-                latitude: location.latitude,
-                longitude: location.longitude,
+                latitude: myPosition.latitude,
+                longitude: myPosition.longitude,
               }}
               caption={{text: '나'}}
             />
@@ -100,13 +144,20 @@ const RealtimeLocation = () => {
                 latitude: user.latitude,
                 longitude: user.longitude,
               }}
-              caption={{text: user.id}}
+              // caption={{text: user.id}}
             />
           ))}
+          {drawpath.length > 1 ? (
+            <Polyline
+              coordinates={drawpath}
+              strokeColor="#fcba03"
+              strokeWidth={5}
+            />
+          ) : null}
         </NaverMapView>
       )}
     </View>
   );
-};
+}
 
 export default RealtimeLocation;
