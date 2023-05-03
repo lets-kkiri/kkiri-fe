@@ -58,20 +58,28 @@ function Map() {
         {!startDraw ? (
           <Button title="그리기" onPress={() => setStartDraw(true)} />
         ) : (
-          <Button
-            title="보내기"
-            onPress={() => {
-              setStartDraw(false);
-              setDrawpoint(null);
-              setDrawpath([]);
-              console.log(drawpath);
-            }}
-          />
+          <View>
+            <Button
+              title="다시 그리기"
+              onPress={() => {
+                setDrawpoint(null);
+                setDrawpath([]);
+              }}
+            />
+            <Button
+              title="보내기"
+              onPress={() => {
+                setStartDraw(false);
+                setDrawpoint(null);
+                setDrawpath([]);
+                console.log(drawpath);
+              }}
+            />
+          </View>
         )}
       </View>
       <NaverMapView
-        style={{width: '100%', height: '95%'}}
-        showsMyLocationButton={true}
+        style={{width: '100%', height: '100%'}}
         onMapClick={e => {
           drawPath(e);
         }}
@@ -85,13 +93,15 @@ function Map() {
               latitude: myPosition.latitude,
               longitude: myPosition.longitude,
             }}
-            caption={{text: '나'}}
+            image={require('../assets/icons/bear.png')}
+            width={45}
+            height={50}
           />
         )}
         {drawpath.length > 1 ? (
           <Polyline
             coordinates={drawpath}
-            strokeColor="#fcba03"
+            strokeColor="#B0BDFF"
             strokeWidth={5}
           />
         ) : null}

@@ -4,7 +4,7 @@ import StompJs from '@stomp/stompjs';
 import Geolocation from '@react-native-community/geolocation';
 import NaverMapView, {Marker, Polyline} from 'react-native-nmap';
 
-interface User {
+interface UserProps {
   id: number;
   roomId: number;
   memberId: number;
@@ -19,8 +19,8 @@ interface PathProps {
 }
 
 function RealtimeLocation() {
-  const [myPosition, setMyPosition] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
+  const [myPosition, setMyPosition] = useState<UserProps | null>(null);
+  const [users, setUsers] = useState<UserProps[]>([]);
   const client = useRef<any>({});
 
   const [startDraw, setStartDraw] = useState<boolean>(false);
@@ -30,15 +30,20 @@ function RealtimeLocation() {
   useEffect(() => {
     Geolocation.getCurrentPosition(
       position => {
-        const {latitude, longitude} = position.coords;
-        const id = 123;
-        const roomId = 1;
-        const memberId = 700003;
-        const regDate = '2023-05-03';
-        setMyPosition({id, roomId, memberId, latitude, longitude, regDate});
+        setMyPosition({
+          id: 123,
+          roomId: 1,
+          memberId: 700003,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          regDate: '2023-05-03',
+        });
       },
       error => console.log(error),
-      {enableHighAccuracy: true, timeout: 20000},
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+      },
     );
   }, []);
 
@@ -109,21 +114,29 @@ function RealtimeLocation() {
         {!startDraw ? (
           <Button title="그리기" onPress={() => setStartDraw(true)} />
         ) : (
-          <Button
-            title="보내기"
-            onPress={() => {
-              setStartDraw(false);
-              setDrawpoint(null);
-              setDrawpath([]);
-              console.log(drawpath);
-            }}
-          />
+          <View>
+            <Button
+              title="다시 그리기"
+              onPress={() => {
+                setDrawpoint(null);
+                setDrawpath([]);
+              }}
+            />
+            <Button
+              title="보내기"
+              onPress={() => {
+                setStartDraw(false);
+                setDrawpoint(null);
+                setDrawpath([]);
+                console.log(drawpath);
+              }}
+            />
+          </View>
         )}
       </View>
       {myPosition && (
         <NaverMapView
           style={{width: '100%', height: '100%'}}
-          showsMyLocationButton={true}
           onMapClick={e => {
             drawPath(e);
           }}
@@ -134,7 +147,9 @@ function RealtimeLocation() {
                 latitude: myPosition.latitude,
                 longitude: myPosition.longitude,
               }}
-              caption={{text: '나'}}
+              image={require('../assets/icons/bear.png')}
+              width={45}
+              height={50}
             />
           )}
           {users.map(user => (
@@ -150,7 +165,7 @@ function RealtimeLocation() {
           {drawpath.length > 1 ? (
             <Polyline
               coordinates={drawpath}
-              strokeColor="#fcba03"
+              strokeColor="#B0BDFF"
               strokeWidth={5}
             />
           ) : null}
