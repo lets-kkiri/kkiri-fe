@@ -22,6 +22,7 @@ import {requests} from '../api/requests';
 
 // Components
 import ChatFlatList from '../components/Chatroom/ChatFlatList';
+import ChatArea from '../components/Chatroom/ChatArea';
 import RealtimeMap from '../components/Chatroom/RealtimeMap';
 
 // Styles
@@ -79,16 +80,6 @@ interface UserProps {
 const ChatroomPage = styled.View`
   position: relative;
 `;
-const TextInputContainer = styled.View`
-  position: relative;
-  flex-direction: row;
-  background-color: transparent;
-`;
-
-const StyledTextInput = styled.TextInput`
-  background-color: #ffd8cc;
-  border-color: #ff9270;
-`;
 
 function Chatroom({route}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
@@ -129,8 +120,8 @@ function Chatroom({route}: ChatroomProp) {
     // client.current.connect({}, onConnected, onError);
 
     client.current = new StompJs.Client({
-      // brokerURL: requests.base_url + requests.CONNECT, // 웹소켓 서버로 직접 접속
-      webSocketFactory: () => new SockJS(requests.base_url + requests.CONNECT),
+      brokerURL: requests.base_url + requests.CONNECT, // 웹소켓 서버로 직접 접속
+      // webSocketFactory: () => new SockJS(requests.base_url + requests.CONNECT),
       debug: function (str) {
         console.log('debug :', str);
       },
@@ -141,7 +132,7 @@ function Chatroom({route}: ChatroomProp) {
         console.log('connect success');
         // subscribeLocation();
         // sendLocation();
-        // receiveMessage();
+        receiveMessage();
       },
       onStompError: frame => {
         console.error('stomp error :', frame);
@@ -191,6 +182,53 @@ function Chatroom({route}: ChatroomProp) {
     );
   };
 
+  useEffect(() => {
+    setMessages([
+      {
+        id: 0,
+        userName: '은지',
+        userImg: '',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+      {
+        id: 1,
+        userName: '은지',
+        userImg: '',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+      {
+        id: 2,
+        userName: '은지',
+        userImg: '',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+      {
+        id: 3,
+        userName: '은지',
+        userImg: '',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+      {
+        id: 4,
+        userName: '은지',
+        userImg: '',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+      {
+        id: 5,
+        userName: '은지',
+        userImg: '',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+    ]);
+  }, []);
+
   // 채팅방 입장시 연결
   useEffect(() => {
     console.log('start connect');
@@ -204,28 +242,14 @@ function Chatroom({route}: ChatroomProp) {
 
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ChatroomPage>
-          {/* 지도 */}
-          {/* 채팅 메시지 목록 */}
-          <ChatFlatList data={messages} />
-          {/* 채팅 메시지 입력 인풋 */}
-          <TextInputContainer>
-            <StyledTextInput
-              placeholder="메시지를 입력해주세요"
-              style={styles.input}
-              onChangeText={text => {
-                setInputValue(text);
-              }}
-              value={inputValue}
-            />
-            <TouchableHighlight onPress={sendMessage}>
-              <Text>전송</Text>
-            </TouchableHighlight>
-          </TextInputContainer>
-          <RealtimeMap />
-        </ChatroomPage>
-      </TouchableWithoutFeedback>
+      {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
+      <View style={{flex: 1}}>
+        {/* 지도 */}
+        <RealtimeMap />
+        {/* 채팅 */}
+        <ChatArea data={messages} client={client} roomId={roomId} />
+      </View>
+      {/* </TouchableWithoutFeedback> */}
     </KeyboardAvoidingView>
   );
 }
