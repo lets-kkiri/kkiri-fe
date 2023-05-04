@@ -53,9 +53,12 @@ function RealtimeLocation() {
     return () => disconnect();
   }, []);
 
+  // 임시 roomId
+  const roomId = 1;
+
   const connect = () => {
     client.current = new StompJs.Client({
-      brokerURL: 'websocket_url', // 웹소켓 서버로 직접 접속
+      brokerURL: 'socket_url', // 웹소켓 서버로 직접 접속
       debug: function (str) {
         console.log(str);
       },
@@ -81,14 +84,18 @@ function RealtimeLocation() {
 
   // 서버에서 다른 사용자들의 위치 받아오기
   const subscribe = () => {
-    client.current.subscribe('server_url', user => {
+    client.current.subscribe(`/stomp/gps/location/${roomId}`, user => {
       setUsers(userLocate => [...userLocate, JSON.parse(user.body)]);
     });
   };
 
   // 내 위치 서버로 보내기
   const send = () => {
-    client.current.send('server_url', {}, JSON.stringify(myPosition));
+    client.current.send(
+      `/stomp/gps/location/${roomId}`,
+      {},
+      JSON.stringify(myPosition),
+    );
   };
 
   const drawPath = e => {
