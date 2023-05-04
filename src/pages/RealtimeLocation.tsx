@@ -26,7 +26,8 @@ function RealtimeLocation() {
   const [drawpoint, setDrawpoint] = useState<PathProps | null>(null);
   const [drawpath, setDrawpath] = useState<PathProps[]>([]);
 
-  const multi = {latitude: 37.501303, longitude: 127.039603};
+  // 임시 목적지: 역삼 멀티캠퍼스
+  const destination = {latitude: 37.501303, longitude: 127.039603};
 
   useEffect(() => {
     Geolocation.getCurrentPosition(
@@ -71,7 +72,7 @@ function RealtimeLocation() {
 
   const connect = () => {
     client.current = new StompJs.Client({
-      brokerURL: 'wss://k8a606.p.ssafy.io/stomp', // 웹소켓 서버로 직접 접속
+      brokerURL: 'ws://k8a606.p.ssafy.io/stomp', // 웹소켓 서버로 직접 접속
       debug: function (str) {
         console.log(str);
       },
@@ -188,14 +189,14 @@ function RealtimeLocation() {
           center={{...myPosition, zoom: 14}}>
           {/* 임시 목적지 역삼 멀티캠퍼스 */}
           <Marker
-            coordinate={multi}
+            coordinate={destination}
             image={require('../assets/icons/destination.png')}
             width={50}
             height={55}
           />
           {/* 반경 n미터 원으로 표시 */}
           <Circle
-            coordinate={multi}
+            coordinate={destination}
             color={'rgba(221, 226, 252, 0.5)'}
             radius={50}
           />

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Button, View} from 'react-native';
+import {Button, TouchableHighlight, View, Text, StyleSheet} from 'react-native';
 import NaverMapView, {Circle, Marker, Polyline} from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
 
@@ -9,7 +9,8 @@ interface PathProps {
 }
 
 function Map() {
-  const multi = {latitude: 37.501303, longitude: 127.039603};
+  const destination = {latitude: 37.501303, longitude: 127.039603};
+  const date = new Date();
 
   const [startDraw, setStartDraw] = useState<boolean>(false);
   const [myPosition, setMyPosition] = useState<PathProps | null>(null);
@@ -35,6 +36,11 @@ function Map() {
         // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
         if (distance <= 50) {
           console.log('목적지 도착');
+          console.log(
+            date.getHours() + '시',
+            date.getMinutes() + '분',
+            date.getSeconds() + '초',
+          );
         }
       },
       console.error,
@@ -88,31 +94,7 @@ function Map() {
   }
 
   return (
-    <View>
-      <View>
-        {!startDraw ? (
-          <Button title="그리기" onPress={() => setStartDraw(true)} />
-        ) : (
-          <View>
-            <Button
-              title="다시 그리기"
-              onPress={() => {
-                setDrawpoint(null);
-                setDrawpath([]);
-              }}
-            />
-            <Button
-              title="보내기"
-              onPress={() => {
-                setStartDraw(false);
-                setDrawpoint(null);
-                setDrawpath([]);
-                console.log(drawpath);
-              }}
-            />
-          </View>
-        )}
-      </View>
+    <View style={{flex: 1}}>
       <NaverMapView
         style={{width: '100%', height: '100%'}}
         onMapClick={e => {
@@ -120,18 +102,18 @@ function Map() {
         }}
         center={{
           zoom: 14,
-          ...multi,
+          ...destination,
         }}>
         {/* 임시 목적지 역삼 멀티캠퍼스 */}
         <Marker
-          coordinate={multi}
+          coordinate={destination}
           image={require('../assets/icons/destination.png')}
-          width={50}
-          height={55}
+          width={30}
+          height={35}
         />
         {/* 반경 n미터 원으로 표시 */}
         <Circle
-          coordinate={multi}
+          coordinate={destination}
           color={'rgba(221, 226, 252, 0.5)'}
           radius={50}
         />
@@ -154,8 +136,65 @@ function Map() {
           />
         ) : null}
       </NaverMapView>
+      {!startDraw ? (
+        <View style={{position: 'absolute', top: 0, left: 0}}>
+          <TouchableHighlight
+            style={styles.button1}
+            onPress={() => setStartDraw(true)}>
+            <Text style={styles.font}>그리기</Text>
+          </TouchableHighlight>
+        </View>
+      ) : (
+        <View
+          style={{
+            position: 'absolute',
+            top: 630,
+            left: 0,
+            width: '100%',
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+          }}>
+          <TouchableHighlight
+            style={styles.button1}
+            onPress={() => {
+              setDrawpoint(null);
+              setDrawpath([]);
+            }}>
+            <Text style={styles.font}>다시 그리기</Text>
+          </TouchableHighlight>
+          <TouchableHighlight
+            style={styles.button2}
+            onPress={() => {
+              setStartDraw(false);
+              setDrawpoint(null);
+              setDrawpath([]);
+              console.log(drawpath);
+            }}>
+            <Text style={styles.font}>길 안내 전송하기</Text>
+          </TouchableHighlight>
+        </View>
+      )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  button1: {
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    backgroundColor: '#D0D0D0',
+    borderRadius: 15,
+  },
+  button2: {
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    backgroundColor: '#FF9270',
+    borderRadius: 15,
+  },
+  font: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+});
 
 export default Map;
