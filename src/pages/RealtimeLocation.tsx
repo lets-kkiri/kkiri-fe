@@ -2,7 +2,7 @@ import React, {useEffect, useState, useRef} from 'react';
 import {Button, View} from 'react-native';
 import StompJs from '@stomp/stompjs';
 import Geolocation from '@react-native-community/geolocation';
-import NaverMapView, {Marker, Polyline} from 'react-native-nmap';
+import NaverMapView, {Circle, Marker, Polyline} from 'react-native-nmap';
 
 interface UserProps {
   id: number;
@@ -26,16 +26,31 @@ function RealtimeLocation() {
   const [drawpoint, setDrawpoint] = useState<PathProps | null>(null);
   const [drawpath, setDrawpath] = useState<PathProps[]>([]);
 
+  const multi = {latitude: 37.501303, longitude: 127.039603};
+
   useEffect(() => {
     Geolocation.getCurrentPosition(
       position => {
         setMyPosition({
-          id: 123,
+          id: 1,
           roomId: 1,
-          memberId: 700003,
+          memberId: 1,
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
         });
+
+        // 현재 위치와 목적지 위치의 거리 계산
+        const distance = calculateDistance(
+          position.coords.latitude,
+          position.coords.longitude,
+          37.501303,
+          127.039603,
+        );
+
+        // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
+        if (distance <= 50) {
+          console.log('목적지 도착');
+        }
       },
       error => console.log(error),
       {
@@ -116,6 +131,28 @@ function RealtimeLocation() {
     }
   }, [drawpoint]);
 
+  // 두 위치의 거리 계산 함수
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371e3; // 지구 반경 (m)
+    const cal1 = toRadians(lat1);
+    const cal2 = toRadians(lat2);
+    const cal3 = toRadians(lat2 - lat1);
+    const cal4 = toRadians(lon2 - lon1);
+
+    const a =
+      Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
+      Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const distance = R * c; // 두 지점 사이의 거리 (m)
+
+    return distance;
+  }
+
+  function toRadians(degrees) {
+    return (degrees * Math.PI) / 180;
+  }
+
   return (
     <View>
       <View>
@@ -149,6 +186,19 @@ function RealtimeLocation() {
             drawPath(e);
           }}
           center={{...myPosition, zoom: 14}}>
+          {/* 임시 목적지 역삼 멀티캠퍼스 */}
+          <Marker
+            coordinate={multi}
+            image={require('../assets/icons/destination.png')}
+            width={50}
+            height={55}
+          />
+          {/* 반경 n미터 원으로 표시 */}
+          <Circle
+            coordinate={multi}
+            color={'rgba(221, 226, 252, 0.5)'}
+            radius={50}
+          />
           {myPosition?.latitude && (
             <Marker
               coordinate={{
@@ -167,6 +217,7 @@ function RealtimeLocation() {
                 latitude: user.latitude,
                 longitude: user.longitude,
               }}
+              image={require('../assets/icons/bear.png')}
               // caption={{text: user.id}}
             />
           ))}
