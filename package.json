@@ -28,7 +28,9 @@
     "react-native-svg": "^13.9.0",
     "react-native-websocket": "^1.0.2",
     "socket.io-client": "^4.6.1",
-    "styled-components": "^5.3.10"
+    "sockjs-client": "^1.6.1",
+    "styled-components": "^5.3.10",
+    "text-encoding": "^0.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
