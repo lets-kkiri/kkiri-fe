@@ -1,81 +1,21 @@
 import * as React from 'react';
-import axios from 'axios';
-import {useState, useEffect} from 'react';
-// import {Alert} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-
-// Page
-import Setting from './src/pages/Setting';
-import Notification from './src/pages/Notification';
-import Map from './src/pages/Map';
-
-// Components
-import Header from './src/components/Header';
-import TabNavigator from './src/components/TabNavigator';
-
-// Types
-import {RootStackParamList} from './src/types';
-import Chatroom from './src/pages/Chatroom';
-import CreateMoim from './src/pages/CreateMoim';
 
 // hooks
 import usePermissions from './src/hooks/usePermissions';
-import RealtimeLocation from './src/pages/RealtimeLocation';
 
 // redux
-import userSlice from './src/slices/user';
-import {useAppDispatch} from './src/store';
+import store from './src/store';
 
 // FCM 및 푸쉬 알림
 import messaging from '@react-native-firebase/messaging';
 import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
-
-export type LoggedInParamList = {
-  Orders: undefined;
-  Settings: undefined;
-  Delivery: undefined;
-  Complete: {orderId: string};
-};
-
-const Stack = createNativeStackNavigator<RootStackParamList>();
+import {Provider} from 'react-redux';
+import AppInner from './AppInner';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
   usePermissions();
 
-  // FCM 처리
-  // async function requestUserPermission() {
-  //   const authStatus = await messaging().requestPermission();
-  //   const enabled =
-  //     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-  //     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-  //   console.log('[Authorization Status]', authStatus);
-  //   if (enabled) {
-  //     await messaging()
-  //       .getToken()
-  //       .then(token => {
-  //         console.log('[FCM Token]', token);
-  //       })
-  //       .catch(err => {
-  //         console.log('[FCM Token Error]', err);
-  //       });
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   requestUserPermission();
-  //   // getFcmToken();
-  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
-  //     Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
-  //     console.log('[FCM Message]', remoteMessage);
-  //     console.log('[TEST]');
-  //   });
-  //   return unsubscribe;
-  // }, []);
-
-  const dispatch = useAppDispatch();
   messaging().setBackgroundMessageHandler(async remoteMessage => {
     console.log('Message handled in the background!', remoteMessage);
   });
@@ -151,70 +91,10 @@ function App() {
       console.log(`createChannel riders returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
   );
 
-  // 토큰 설정
-  useEffect(() => {
-    async function getToken() {
-      try {
-        if (!messaging().isDeviceRegisteredForRemoteMessages) {
-          await messaging().registerDeviceForRemoteMessages();
-        }
-        const token = await messaging().getToken();
-        console.log('phone token', token);
-        // dispatch(userSlice.actions.setPhoneToken(token));
-        // 임시 Config
-        const Config = {
-          API_URL: 'k8a606.p.ssafy.io',
-        };
-        return axios.post(`${Config.API_URL}/api/auth/firebase`, {token});
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    if (isLoggedIn === true) {
-      getToken();
-    }
-  }, [isLoggedIn]);
-
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Tab"
-          component={TabNavigator}
-          options={{header: () => <Header />}}
-        />
-        <Stack.Screen
-          name="Setting"
-          component={Setting}
-          options={{title: '세팅'}}
-        />
-        <Stack.Screen
-          name="Notification"
-          component={Notification}
-          options={{title: '알림센터'}}
-        />
-        <Stack.Screen
-          name="Chatroom"
-          component={Chatroom}
-          options={{title: '채팅방'}}
-        />
-        <Stack.Screen
-          name="CreateMoim"
-          component={CreateMoim}
-          options={{title: '모임 생성'}}
-        />
-        <Stack.Screen
-          name="Map"
-          component={Map}
-          options={{title: '실시간 위치'}}
-        />
-        <Stack.Screen
-          name="RealtimeLocation"
-          component={RealtimeLocation}
-          options={{title: '모임원 실시간 위치'}}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <AppInner />
+    </Provider>
   );
 }
 
