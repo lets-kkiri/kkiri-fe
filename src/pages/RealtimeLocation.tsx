@@ -10,7 +10,6 @@ interface UserProps {
   memberId: number;
   latitude: number;
   longitude: number;
-  regDate: string;
 }
 
 interface PathProps {
@@ -36,7 +35,6 @@ function RealtimeLocation() {
           memberId: 700003,
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-          regDate: '2023-05-03',
         });
       },
       error => console.log(error),
@@ -58,7 +56,7 @@ function RealtimeLocation() {
 
   const connect = () => {
     client.current = new StompJs.Client({
-      brokerURL: 'socket_url', // 웹소켓 서버로 직접 접속
+      brokerURL: 'wss://k8a606.p.ssafy.io/stomp', // 웹소켓 서버로 직접 접속
       debug: function (str) {
         console.log(str);
       },
@@ -68,7 +66,6 @@ function RealtimeLocation() {
       onConnect: () => {
         console.log('connect success');
         subscribe();
-        send();
       },
       onStompError: frame => {
         console.error(frame);
@@ -84,17 +81,21 @@ function RealtimeLocation() {
 
   // 서버에서 다른 사용자들의 위치 받아오기
   const subscribe = () => {
-    client.current.subscribe(`/stomp/gps/location/${roomId}`, user => {
+    client.current.subscribe(`/gps/sub/${roomId}`, user => {
       setUsers(userLocate => [...userLocate, JSON.parse(user.body)]);
     });
   };
 
+  useEffect(() => {
+    send(myPosition);
+  }, [myPosition]);
+
   // 내 위치 서버로 보내기
-  const send = () => {
+  const send = myLocate => {
     client.current.send(
-      `/stomp/gps/location/${roomId}`,
+      `/gps/pub/location/${roomId}`,
       {},
-      JSON.stringify(myPosition),
+      JSON.stringify(myLocate),
     );
   };
 
