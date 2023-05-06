@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {Button, TouchableHighlight, View, Text, StyleSheet} from 'react-native';
+import {TouchableHighlight, View, Text, StyleSheet} from 'react-native';
 import NaverMapView, {Circle, Marker, Polyline} from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
+import axios from 'axios';
 
 interface PathProps {
   latitude: number;
@@ -71,6 +72,26 @@ function Map() {
     }
   }, [drawpoint]);
 
+  // 경로 서버로 보내기
+  function sendPath() {
+    axios({
+      method: 'post',
+      url: '/api/noti/helps/guides',
+      // headers: { 'X-CSRFToken': csrftoken },
+      data: JSON.stringify({
+        senderEmail: 'yjp8842@naver.com',
+        recieverEmail: 'yjp8842@naver.com',
+        path: drawpath,
+      }),
+    })
+      .then(res => {
+        console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
   // 두 위치의 거리 계산 함수
   function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371e3; // 지구 반경 (m)
@@ -95,47 +116,49 @@ function Map() {
 
   return (
     <View style={{flex: 1}}>
-      <NaverMapView
-        style={{width: '100%', height: '100%'}}
-        onMapClick={e => {
-          drawPath(e);
-        }}
-        center={{
-          zoom: 14,
-          ...destination,
-        }}>
-        {/* 임시 목적지 역삼 멀티캠퍼스 */}
-        <Marker
-          coordinate={destination}
-          image={require('../assets/icons/destination.png')}
-          width={30}
-          height={35}
-        />
-        {/* 반경 n미터 원으로 표시 */}
-        <Circle
-          coordinate={destination}
-          color={'rgba(221, 226, 252, 0.5)'}
-          radius={50}
-        />
-        {myPosition?.latitude && (
+      {myPosition ? (
+        <NaverMapView
+          style={{width: '100%', height: '100%'}}
+          onMapClick={e => {
+            drawPath(e);
+          }}
+          center={{
+            zoom: 14,
+            ...myPosition,
+          }}>
+          {/* 임시 목적지 역삼 멀티캠퍼스 */}
           <Marker
-            coordinate={{
-              latitude: myPosition.latitude,
-              longitude: myPosition.longitude,
-            }}
-            image={require('../assets/icons/bear.png')}
-            width={45}
-            height={50}
+            coordinate={destination}
+            image={require('../assets/icons/destination.png')}
+            width={30}
+            height={35}
           />
-        )}
-        {drawpath.length > 1 ? (
-          <Polyline
-            coordinates={drawpath}
-            strokeColor="#B0BDFF"
-            strokeWidth={5}
+          {/* 반경 n미터 원으로 표시 */}
+          <Circle
+            coordinate={destination}
+            color={'rgba(221, 226, 252, 0.5)'}
+            radius={50}
           />
-        ) : null}
-      </NaverMapView>
+          {myPosition?.latitude && (
+            <Marker
+              coordinate={{
+                latitude: myPosition.latitude,
+                longitude: myPosition.longitude,
+              }}
+              image={require('../assets/icons/bear.png')}
+              width={45}
+              height={50}
+            />
+          )}
+          {drawpath.length > 1 ? (
+            <Polyline
+              coordinates={drawpath}
+              strokeColor="#B0BDFF"
+              strokeWidth={5}
+            />
+          ) : null}
+        </NaverMapView>
+      ) : null}
       {!startDraw ? (
         <View style={{position: 'absolute', top: 0, left: 0}}>
           <TouchableHighlight
@@ -168,6 +191,7 @@ function Map() {
               setStartDraw(false);
               setDrawpoint(null);
               setDrawpath([]);
+              sendPath();
               console.log(drawpath);
             }}>
             <Text style={styles.font}>길 안내 전송하기</Text>

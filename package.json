@@ -17,6 +17,7 @@
     "@stomp/stompjs": "^7.0.0",
     "@types/styled-components": "^5.1.26",
     "@types/styled-components-react-native": "^5.2.1",
+    "axios": "^1.4.0",
     "react": "18.2.0",
     "react-native": "0.71.7",
     "react-native-keyboard-aware-scrollview": "^2.1.0",
