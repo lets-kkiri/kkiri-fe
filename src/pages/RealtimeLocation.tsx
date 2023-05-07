@@ -1,8 +1,9 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState, useRef, MutableRefObject} from 'react';
 import {Button, View} from 'react-native';
-import StompJs from '@stomp/stompjs';
+// import StompJs from '@stomp/stompjs';
 import Geolocation from '@react-native-community/geolocation';
 import NaverMapView, {Circle, Marker, Polyline} from 'react-native-nmap';
+import axios from 'axios';
 
 interface UserProps {
   id: number;
@@ -17,11 +18,13 @@ interface PathProps {
   longitude: number;
 }
 
-function RealtimeLocation() {
-  const [myPosition, setMyPosition] = useState<UserProps | null>(null);
-  const [users, setUsers] = useState<UserProps[]>([]);
-  const client = useRef<any>({});
+interface Props {
+  client: React.MutableRefObject<any>;
+  users: UserProps[];
+}
 
+function RealtimeLocation({client, users}: Props) {
+  const [myPosition, setMyPosition] = useState<UserProps | null>(null);
   const [startDraw, setStartDraw] = useState<boolean>(false);
   const [drawpoint, setDrawpoint] = useState<PathProps | null>(null);
   const [drawpath, setDrawpath] = useState<PathProps[]>([]);
@@ -61,59 +64,21 @@ function RealtimeLocation() {
     );
   }, []);
 
-  useEffect(() => {
-    connect();
-
-    return () => disconnect();
-  }, []);
-
-  // 임시 roomId
-  const roomId = 1;
-
-  const connect = () => {
-    client.current = new StompJs.Client({
-      brokerURL: 'ws://k8a606.p.ssafy.io/stomp', // 웹소켓 서버로 직접 접속
-      debug: function (str) {
-        console.log(str);
-      },
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-      onConnect: () => {
-        console.log('connect success');
-        subscribe();
-      },
-      onStompError: frame => {
-        console.error(frame);
-      },
-    });
-
-    client.current.activate();
-  };
-
-  const disconnect = () => {
-    client.current.deactivate();
-  };
-
   // 서버에서 다른 사용자들의 위치 받아오기
-  const subscribe = () => {
-    client.current.subscribe(`/gps/sub/${roomId}`, user => {
-      setUsers(userLocate => [...userLocate, JSON.parse(user.body)]);
-    });
-  };
+  // const subscribe = () => {
+  //   client.current.subscribe(`/gps/sub/${roomId}`, user => {
+  //     setUsers(userLocate => [...userLocate, JSON.parse(user.body)]);
+  //   });
+  // };
 
   useEffect(() => {
-    send(myPosition);
-  }, [myPosition]);
-
-  // 내 위치 서버로 보내기
-  const send = myLocate => {
+    // 내 위치 서버로 보내기
     client.current.send(
       `/gps/pub/location/${roomId}`,
       {},
-      JSON.stringify(myLocate),
+      JSON.stringify(myPosition),
     );
-  };
+  }, [myPosition]);
 
   const drawPath = e => {
     if (startDraw) {
@@ -131,6 +96,26 @@ function RealtimeLocation() {
       setDrawpath(prevPoint => [...prevPoint, drawpoint]);
     }
   }, [drawpoint]);
+
+  // 경로 서버로 보내기
+  function sendPath() {
+    axios({
+      method: 'post',
+      url: '/api/noti/helps/guides',
+      // headers: { 'X-CSRFToken': csrftoken },
+      data: JSON.stringify({
+        senderEmail: 'yjp8842@naver.com',
+        recieverEmail: 'yjp8842@naver.com',
+        path: drawpath,
+      }),
+    })
+      .then(res => {
+        console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
 
   // 두 위치의 거리 계산 함수
   function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -174,6 +159,7 @@ function RealtimeLocation() {
                 setStartDraw(false);
                 setDrawpoint(null);
                 setDrawpath([]);
+                sendPath();
                 console.log(drawpath);
               }}
             />
