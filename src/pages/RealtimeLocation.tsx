@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useRef, MutableRefObject} from 'react';
-import {Button, View} from 'react-native';
+import {View, StyleSheet, TouchableHighlight, Text} from 'react-native';
 // import StompJs from '@stomp/stompjs';
 import Geolocation from '@react-native-community/geolocation';
 import NaverMapView, {Circle, Marker, Polyline} from 'react-native-nmap';
@@ -28,6 +28,7 @@ function RealtimeLocation({client, users}: Props) {
   const [startDraw, setStartDraw] = useState<boolean>(false);
   const [drawpoint, setDrawpoint] = useState<PathProps | null>(null);
   const [drawpath, setDrawpath] = useState<PathProps[]>([]);
+  const date = new Date();
 
   // 임시 목적지: 역삼 멀티캠퍼스
   const destination = {latitude: 37.501303, longitude: 127.039603};
@@ -42,19 +43,6 @@ function RealtimeLocation({client, users}: Props) {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
         });
-
-        // 현재 위치와 목적지 위치의 거리 계산
-        const distance = calculateDistance(
-          position.coords.latitude,
-          position.coords.longitude,
-          37.501303,
-          127.039603,
-        );
-
-        // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-        if (distance <= 50) {
-          console.log('목적지 도착');
-        }
       },
       error => console.log(error),
       {
@@ -78,6 +66,43 @@ function RealtimeLocation({client, users}: Props) {
       {},
       JSON.stringify(myPosition),
     );
+
+    // 현재 위치와 목적지 위치의 거리 계산
+    if (myPosition) {
+      const distance = calculateDistance(
+        myPosition.latitude,
+        myPosition.longitude,
+        37.501303,
+        127.039603,
+      );
+      // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
+      if (distance <= 50) {
+        console.log('목적지 도착');
+        const arriveTime =
+          date.getHours() +
+          '시' +
+          date.getMinutes() +
+          '분' +
+          date.getSeconds() +
+          '초';
+        axios({
+          method: 'post',
+          url: '/api/noti/arrive',
+          // headers: { 'X-CSRFToken': csrftoken },
+          data: JSON.stringify({
+            roomId: 1,
+            memberId: 1,
+            arrivalTime: arriveTime,
+          }),
+        })
+          .then(res => {
+            console.log(res);
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      }
+    }
   }, [myPosition]);
 
   const drawPath = e => {
@@ -141,31 +166,6 @@ function RealtimeLocation({client, users}: Props) {
 
   return (
     <View>
-      <View>
-        {!startDraw ? (
-          <Button title="그리기" onPress={() => setStartDraw(true)} />
-        ) : (
-          <View>
-            <Button
-              title="다시 그리기"
-              onPress={() => {
-                setDrawpoint(null);
-                setDrawpath([]);
-              }}
-            />
-            <Button
-              title="보내기"
-              onPress={() => {
-                setStartDraw(false);
-                setDrawpoint(null);
-                setDrawpath([]);
-                sendPath();
-                console.log(drawpath);
-              }}
-            />
-          </View>
-        )}
-      </View>
       {myPosition && (
         <NaverMapView
           style={{width: '100%', height: '100%'}}
@@ -217,8 +217,66 @@ function RealtimeLocation({client, users}: Props) {
           ) : null}
         </NaverMapView>
       )}
+      {!startDraw ? (
+        <View style={{position: 'absolute', top: 0, left: 0}}>
+          <TouchableHighlight
+            style={styles.button1}
+            onPress={() => setStartDraw(true)}>
+            <Text style={styles.font}>그리기</Text>
+          </TouchableHighlight>
+        </View>
+      ) : (
+        <View
+          style={{
+            position: 'absolute',
+            top: 630,
+            left: 0,
+            width: '100%',
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+          }}>
+          <TouchableHighlight
+            style={styles.button1}
+            onPress={() => {
+              setDrawpoint(null);
+              setDrawpath([]);
+            }}>
+            <Text style={styles.font}>다시 그리기</Text>
+          </TouchableHighlight>
+          <TouchableHighlight
+            style={styles.button2}
+            onPress={() => {
+              setStartDraw(false);
+              setDrawpoint(null);
+              setDrawpath([]);
+              sendPath();
+              console.log(drawpath);
+            }}>
+            <Text style={styles.font}>길 안내 전송하기</Text>
+          </TouchableHighlight>
+        </View>
+      )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  button1: {
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    backgroundColor: '#D0D0D0',
+    borderRadius: 15,
+  },
+  button2: {
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    backgroundColor: '#FF9270',
+    borderRadius: 15,
+  },
+  font: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+});
 
 export default RealtimeLocation;
