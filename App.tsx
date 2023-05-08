@@ -1,6 +1,8 @@
-import * as React from 'react';
+import React, {useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+// import styled from 'styled-components/react-native';
+import {View} from 'react-native';
 
 // Page
 import Setting from './src/pages/Setting';
@@ -20,6 +22,11 @@ import CreateMoim from './src/pages/CreateMoim';
 import usePermissions from './src/hooks/usePermissions';
 import RealtimeLocation from './src/pages/RealtimeLocation';
 
+// Theme
+import {lightTheme, darkTheme} from './src/styles/theme';
+import {ThemeProvider} from 'styled-components';
+import {GlobalStyle} from './src/styles/globalStyle';
+
 export type LoggedInParamList = {
   Orders: undefined;
   Settings: undefined;
@@ -31,47 +38,54 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function App() {
   // const [isLoggedIn, setLoggedIn] = useState(false);
+  const [isDark, setIsDark] = useState(true);
+  const currentTheme = isDark ? darkTheme : lightTheme;
+
   usePermissions();
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Tab"
-          component={TabNavigator}
-          options={{header: () => <Header />}}
-        />
-        <Stack.Screen
-          name="Setting"
-          component={Setting}
-          options={{title: '세팅'}}
-        />
-        <Stack.Screen
-          name="Notification"
-          component={Notification}
-          options={{title: '알림센터'}}
-        />
-        <Stack.Screen
-          name="Chatroom"
-          component={Chatroom}
-          options={{title: '채팅방'}}
-        />
-        <Stack.Screen
-          name="CreateMoim"
-          component={CreateMoim}
-          options={{title: '모임 생성'}}
-        />
-        <Stack.Screen
-          name="Map"
-          component={Map}
-          options={{title: '실시간 위치'}}
-        />
-        <Stack.Screen
-          name="RealtimeLocation"
-          component={RealtimeLocation}
-          options={{title: '모임원 실시간 위치'}}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <ThemeProvider theme={currentTheme}>
+      <View style={{flex: 1, backgroundColor: currentTheme.color.background}}>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen
+              name="Tab"
+              component={TabNavigator}
+              options={{header: () => <Header />}}
+            />
+            <Stack.Screen
+              name="Setting"
+              component={Setting}
+              options={{title: '세팅'}}
+            />
+            <Stack.Screen
+              name="Notification"
+              component={Notification}
+              options={{title: '알림센터'}}
+            />
+            <Stack.Screen
+              name="Chatroom"
+              component={Chatroom}
+              options={{title: '채팅방'}}
+            />
+            <Stack.Screen
+              name="CreateMoim"
+              component={CreateMoim}
+              options={{title: '모임 생성'}}
+            />
+            <Stack.Screen
+              name="Map"
+              component={Map}
+              options={{title: '실시간 위치'}}
+            />
+            <Stack.Screen
+              name="RealtimeLocation"
+              component={RealtimeLocation}
+              options={{title: '모임원 실시간 위치'}}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </View>
+    </ThemeProvider>
   );
 }
 
