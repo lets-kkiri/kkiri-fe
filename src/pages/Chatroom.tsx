@@ -60,7 +60,6 @@ const styles = StyleSheet.create({
 
 // types
 import {MessageData} from '../types/index';
-import {request} from 'react-native-permissions';
 
 interface ChatroomProp {
   navigation: NativeStackNavigationProp<any>;
@@ -130,7 +129,7 @@ function Chatroom({route}: ChatroomProp) {
       heartbeatOutgoing: 4000,
       onConnect: () => {
         console.log('connect success');
-        // subscribeLocation();
+        subscribeLocation();
         // sendLocation();
         receiveMessage();
       },
@@ -148,7 +147,7 @@ function Chatroom({route}: ChatroomProp) {
 
   // 서버에서 다른 사용자들의 위치 받아오기
   const subscribeLocation = () => {
-    client.current.subscribe(`/stomp/gps/location/${roomId}`, user => {
+    client.current.subscribe(`/pub/gps/location/${roomId}`, user => {
       setUsers(userLocate => [...userLocate, JSON.parse(user.body)]);
     });
   };
@@ -245,7 +244,7 @@ function Chatroom({route}: ChatroomProp) {
       {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
       <View style={{flex: 1}}>
         {/* 지도 */}
-        <RealtimeMap />
+        <RealtimeMap client={client} users={users} roomId={roomId} />
         {/* 채팅 */}
         <ChatArea data={messages} client={client} roomId={roomId} />
       </View>

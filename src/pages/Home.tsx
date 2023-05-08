@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import React from 'react';
-import {Button, Text, View} from 'react-native';
+import {Button, View} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 function Home() {
@@ -12,10 +12,6 @@ function Home() {
         onPress={() => navigation.navigate('Chatroom', {roomId: 1})}
       />
       <Button title="지도" onPress={() => navigation.navigate('Map')} />
-      <Button
-        title="모임원 위치"
-        onPress={() => navigation.navigate('RealtimeLocation')}
-      />
     </View>
   );
 }

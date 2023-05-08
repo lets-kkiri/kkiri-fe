@@ -1,7 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {TouchableHighlight, View, Text, StyleSheet} from 'react-native';
+import {TouchableHighlight, View, Text, StyleSheet, Alert} from 'react-native';
 import NaverMapView, {Circle, Marker, Polyline} from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
+import store from '../store';
+import {guidesPost} from '../slices/guidesSlice';
+// import axios from 'axios';
+import CustomAlert from '../components/CustomAlert';
 import axios from 'axios';
 
 interface PathProps {
@@ -17,6 +21,7 @@ function Map() {
   const [myPosition, setMyPosition] = useState<PathProps | null>(null);
   const [drawpoint, setDrawpoint] = useState<PathProps | null>(null);
   const [drawpath, setDrawpath] = useState<PathProps[]>([]);
+  const [sendpath, setSendpath] = useState<boolean>(false);
 
   useEffect(() => {
     Geolocation.getCurrentPosition(
@@ -74,22 +79,13 @@ function Map() {
 
   // 경로 서버로 보내기
   function sendPath() {
-    axios({
-      method: 'post',
-      url: '/api/noti/helps/guides',
-      // headers: { 'X-CSRFToken': csrftoken },
-      data: JSON.stringify({
-        senderEmail: 'yjp8842@naver.com',
-        recieverEmail: 'yjp8842@naver.com',
-        path: drawpath,
-      }),
-    })
-      .then(res => {
-        console.log(res);
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    const postData = {
+      senderEmail: 'rlawnsgh8395@naver.com',
+      receiverEmail: 'rlawnsgh8395@gmail.com',
+      path: drawpath,
+    };
+    store.dispatch(guidesPost(postData));
+    setSendpath(true);
   }
 
   // 두 위치의 거리 계산 함수
@@ -116,109 +112,160 @@ function Map() {
 
   return (
     <View style={{flex: 1}}>
-      {myPosition ? (
-        <NaverMapView
-          style={{width: '100%', height: '100%'}}
-          onMapClick={e => {
-            drawPath(e);
-          }}
-          center={{
-            zoom: 14,
-            ...myPosition,
-          }}>
-          {/* 임시 목적지 역삼 멀티캠퍼스 */}
-          <Marker
-            coordinate={destination}
-            image={require('../assets/icons/destination.png')}
-            width={30}
-            height={35}
-          />
-          {/* 반경 n미터 원으로 표시 */}
-          <Circle
-            coordinate={destination}
-            color={'rgba(221, 226, 252, 0.5)'}
-            radius={50}
-          />
-          {myPosition?.latitude && (
-            <Marker
-              coordinate={{
-                latitude: myPosition.latitude,
-                longitude: myPosition.longitude,
-              }}
-              image={require('../assets/icons/bear.png')}
-              width={45}
-              height={50}
-            />
-          )}
-          {drawpath.length > 1 ? (
-            <Polyline
-              coordinates={drawpath}
-              strokeColor="#B0BDFF"
-              strokeWidth={5}
-            />
-          ) : null}
-        </NaverMapView>
-      ) : null}
-      {!startDraw ? (
-        <View style={{position: 'absolute', top: 0, left: 0}}>
-          <TouchableHighlight
-            style={styles.button1}
-            onPress={() => setStartDraw(true)}>
-            <Text style={styles.font}>그리기</Text>
-          </TouchableHighlight>
-        </View>
-      ) : (
-        <View
-          style={{
-            position: 'absolute',
-            top: 630,
-            left: 0,
-            width: '100%',
-            flexDirection: 'row',
-            justifyContent: 'space-evenly',
-          }}>
-          <TouchableHighlight
-            style={styles.button1}
-            onPress={() => {
-              setDrawpoint(null);
-              setDrawpath([]);
-            }}>
-            <Text style={styles.font}>다시 그리기</Text>
-          </TouchableHighlight>
-          <TouchableHighlight
-            style={styles.button2}
-            onPress={() => {
-              setStartDraw(false);
-              setDrawpoint(null);
-              setDrawpath([]);
-              sendPath();
-              console.log(drawpath);
-            }}>
-            <Text style={styles.font}>길 안내 전송하기</Text>
-          </TouchableHighlight>
-        </View>
-      )}
+      <NaverMapView
+        style={{width: '100%', height: '100%'}}
+        onMapClick={event => {
+          console.log('click');
+          const latitude = event.latitude;
+          const longitude = event.longitude;
+          axios({
+            method: 'get',
+            url: `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?coords=${longitude},${latitude}&output=json&request=coordsToaddr`,
+            headers: {
+              'X-NCP-APIGW-API-KEY-ID': 'NAVER_CLIENT_ID',
+              'X-NCP-APIGW-API-KEY': 'NAVER_API_KEY',
+            },
+          })
+            .then(response => {
+              console.log(response.data.results[0].region);
+            })
+            // .then(response => {
+            //   const result = response.data.results[0];
+            //   if (response.data.results.length > 0) {
+            //     const region = result.region;
+            //     const land = result.land;
+            //     const address = `${region.area1.name} ${region.area2.name} ${region.area3.name} ${region.area4.name} ${land.number1} ${land.name}`;
+            //     Alert.alert('클릭한 위치', address);
+            //   } else {
+            //     Alert.alert('클릭한 위치', `${latitude}, ${longitude}`);
+            //   }
+            // })
+            .catch(error => {
+              console.error(error);
+            });
+        }}
+        center={{
+          zoom: 14,
+          ...destination,
+        }}
+      />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  button1: {
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    backgroundColor: '#D0D0D0',
-    borderRadius: 15,
-  },
-  button2: {
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    backgroundColor: '#FF9270',
-    borderRadius: 15,
-  },
-  font: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-});
+// {myPosition ? (
+//   <NaverMapView
+//     style={{width: '100%', height: '100%'}}
+//     onMapClick={e => {
+//       drawPath(e);
+//     }}
+//     center={{
+//       zoom: 14,
+//       ...myPosition,
+//     }}>
+//     {/* 임시 목적지 역삼 멀티캠퍼스 */}
+//     <Marker
+//       coordinate={destination}
+//       image={require('../assets/icons/destination.png')}
+//       width={30}
+//       height={35}
+//     />
+//     {/* 반경 n미터 원으로 표시 */}
+//     <Circle
+//       coordinate={destination}
+//       color={'rgba(221, 226, 252, 0.5)'}
+//       radius={50}
+//     />
+//     {myPosition?.latitude && (
+//       <Marker
+//         coordinate={{
+//           latitude: myPosition.latitude,
+//           longitude: myPosition.longitude,
+//         }}
+//         image={require('../assets/icons/bear.png')}
+//         width={45}
+//         height={50}
+//       />
+//     )}
+//     {drawpath.length > 1 ? (
+//       <Polyline
+//         coordinates={drawpath}
+//         strokeColor="#B0BDFF"
+//         strokeWidth={5}
+//       />
+//     ) : null}
+//   </NaverMapView>
+// ) : null}
+// {startDraw === false ? (
+//   <View style={{position: 'absolute', top: 0, left: 0}}>
+//     <TouchableHighlight
+//       style={styles.button1}
+//       onPress={() => setStartDraw(true)}>
+//       <Text style={styles.font}>그리기</Text>
+//     </TouchableHighlight>
+//   </View>
+// ) : sendpath === false ? (
+//   <View style={{position: 'absolute'}}>
+//     <View style={{backgroundColor: '#FFFFFF', alignItems: 'center'}}>
+//       <Text>손가락으로 길을 그려 친구에게 보내주세요!</Text>
+//     </View>
+//     <View
+//       style={{
+//         top: 630,
+//         left: 0,
+//         width: '100%',
+//         flexDirection: 'row',
+//         justifyContent: 'space-evenly',
+//       }}>
+//       <TouchableHighlight
+//         style={styles.button1}
+//         onPress={() => {
+//           setDrawpoint(null);
+//           setDrawpath([]);
+//         }}>
+//         <Text style={styles.font}>다시 그리기</Text>
+//       </TouchableHighlight>
+//       <TouchableHighlight
+//         style={styles.button2}
+//         onPress={() => {
+//           setDrawpoint(null);
+//           setDrawpath([]);
+//           sendPath();
+//           console.log(drawpath);
+//         }}>
+//         <Text style={styles.font}>길 안내 전송하기</Text>
+//       </TouchableHighlight>
+//     </View>
+//   </View>
+// ) : (
+//   <CustomAlert
+//     visible={sendpath}
+//     title="길안내 알림을 전송했어요!"
+//     message="실시간 끼리 앱을 통해 친구가 무사히 오고 있는지 틈틈히 확인해주세요"
+//     onCancel={() => {
+//       setSendpath(false);
+//       setStartDraw(false);
+//     }}
+//   />
+// )}
+
+// const styles = StyleSheet.create({
+//   button1: {
+//     paddingHorizontal: 30,
+//     paddingVertical: 15,
+//     backgroundColor: '#D0D0D0',
+//     borderRadius: 15,
+//   },
+//   button2: {
+//     paddingHorizontal: 30,
+//     paddingVertical: 15,
+//     backgroundColor: '#FF9270',
+//     borderRadius: 15,
+//   },
+//   font: {
+//     color: '#FFFFFF',
+//     fontWeight: 'bold',
+//   },
+// });
 
 export default Map;

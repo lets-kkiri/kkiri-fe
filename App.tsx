@@ -1,7 +1,9 @@
 import * as React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import * as encoding from 'text-encoding';
+// import * as encoding from 'text-encoding';
+import store from './src/store';
+import {Provider} from 'react-redux';
 
 // Page
 import Setting from './src/pages/Setting';
@@ -19,7 +21,6 @@ import CreateMoim from './src/pages/CreateMoim';
 
 // hooks
 import usePermissions from './src/hooks/usePermissions';
-import RealtimeLocation from './src/pages/RealtimeLocation';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -34,45 +35,42 @@ function App() {
   // const [isLoggedIn, setLoggedIn] = useState(false);
   usePermissions();
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Tab"
-          component={TabNavigator}
-          options={{header: () => <Header />}}
-        />
-        <Stack.Screen
-          name="Setting"
-          component={Setting}
-          options={{title: '세팅'}}
-        />
-        <Stack.Screen
-          name="Notification"
-          component={Notification}
-          options={{title: '알림센터'}}
-        />
-        <Stack.Screen
-          name="Chatroom"
-          component={Chatroom}
-          options={{title: '채팅방'}}
-        />
-        <Stack.Screen
-          name="CreateMoim"
-          component={CreateMoim}
-          options={{title: '모임 생성'}}
-        />
-        <Stack.Screen
-          name="Map"
-          component={Map}
-          options={{title: '실시간 위치'}}
-        />
-        <Stack.Screen
-          name="RealtimeLocation"
-          component={RealtimeLocation}
-          options={{title: '모임원 실시간 위치'}}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Tab"
+            component={TabNavigator}
+            options={{header: () => <Header />}}
+          />
+          <Stack.Screen
+            name="Setting"
+            component={Setting}
+            options={{title: '세팅'}}
+          />
+          <Stack.Screen
+            name="Notification"
+            component={Notification}
+            options={{title: '알림센터'}}
+          />
+          <Stack.Screen
+            name="Chatroom"
+            component={Chatroom}
+            options={{title: '채팅방'}}
+          />
+          <Stack.Screen
+            name="CreateMoim"
+            component={CreateMoim}
+            options={{title: '모임 생성'}}
+          />
+          <Stack.Screen
+            name="Map"
+            component={Map}
+            options={{title: '실시간 위치'}}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
   );
 }
 
