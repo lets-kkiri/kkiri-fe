@@ -114,10 +114,12 @@ function Chatroom({route}: ChatroomProp) {
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
+      forceBinaryWSFrames: true,
+      appendMissingNULLonIncoming: true,
     });
 
     if (typeof WebSocket !== 'function') {
-      client.current.webSocketFactory = function () {
+      client.current.options.webSocketFactory = function () {
         return new SockJS('http://k8a606.p.ssafy.io:8080/stomp', {
           // headers: {
           //   Host: 'k8a606.p.ssafy.io:8080',
@@ -128,7 +130,7 @@ function Chatroom({route}: ChatroomProp) {
       };
     }
 
-    client.onConnect = function (frame) {
+    client.current.onConnect = function (frame) {
       console.log('connect success!');
       console.log(frame);
       // 메시지 발신
@@ -140,7 +142,7 @@ function Chatroom({route}: ChatroomProp) {
       });
     };
 
-    client.onStompError = function (frame) {
+    client.current.onStompError = function (frame) {
       console.log('Broker reported error: ' + frame.headers['message']);
       console.log('Additional details: ' + frame.body);
     };
