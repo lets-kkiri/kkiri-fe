@@ -6,8 +6,8 @@ export const requests = {
 
   // 채팅
   CHAT(roomId) {
-    // return `/chat.enter.${roomId}`;
-    return `/pub/chat`;
+    return `/pub/chat.enter.${roomId}`;
+    // return `/pub/chat`;
   },
 
   // 실시간 위치
