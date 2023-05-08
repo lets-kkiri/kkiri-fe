@@ -24,6 +24,7 @@ import {requests} from '../api/requests';
 import ChatFlatList from '../components/Chatroom/ChatFlatList';
 import ChatArea from '../components/Chatroom/ChatArea';
 import RealtimeMap from '../components/Chatroom/RealtimeMap';
+import MessagePreview from '../components/Chatroom/MessagePreview';
 
 // Styles
 const styles = StyleSheet.create({
@@ -61,6 +62,7 @@ const styles = StyleSheet.create({
 // types
 import {MessageData} from '../types/index';
 import {request} from 'react-native-permissions';
+import EmojiBtn from '../components/Chatroom/EmojiBtn';
 
 interface ChatroomProp {
   navigation: NativeStackNavigationProp<any>;
@@ -81,11 +83,19 @@ const ChatroomPage = styled.View`
   position: relative;
 `;
 
+const MessagePreviewContainer = styled.View`
+  position: absolute;
+  bottom: 0px;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+`;
+
 function Chatroom({route}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
   const [users, setUsers] = useState<UserProps[]>([]);
   const [myPosition, setMyPosition] = useState<UserProps | null>(null);
-  const [inputValue, setInputValue] = useState('');
+  const [showChatArea, setShowChatArea] = useState<boolean>(true);
   const client = useRef<any>({});
 
   const encoder = new TextEncoder();
@@ -94,31 +104,7 @@ function Chatroom({route}: ChatroomProp) {
   const roomId = route.params.roomId;
   console.log('roomId :', roomId);
 
-  const onReceiveMessage = () => {};
-
-  const subscribeMessage = () => {
-    client.current.subscribe(
-      requests.base_url + requests.CHAT,
-      onReceiveMessage,
-    );
-  };
-
-  const onConnected = () => {
-    console.log('connect success');
-    // subscribeLocation();
-    // sendLocation();
-    // receiveMessage();
-  };
-
-  const onError = () => {
-    console.log('connect error');
-  };
-
   const connect = () => {
-    // const socket = new SockJS(requests.base_url + requests.CONNECT);
-    // client.current = Stomp.over(socket);
-    // client.current.connect({}, onConnected, onError);
-
     client.current = new StompJs.Client({
       brokerURL: requests.base_url + requests.CONNECT, // 웹소켓 서버로 직접 접속
       // webSocketFactory: () => new SockJS(requests.base_url + requests.CONNECT),
@@ -129,15 +115,17 @@ function Chatroom({route}: ChatroomProp) {
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: () => {
-        console.log('connect success');
-        // subscribeLocation();
-        // sendLocation();
-        receiveMessage();
+        console.log('connect success!');
+        onConnected();
       },
       onStompError: frame => {
         console.error('stomp error :', frame);
       },
     });
+
+    client.current.webSocketFactory = function () {
+      return new SockJS('http://k8a606.p.ssafy.io:8080/stomp');
+    };
 
     client.current.activate();
   };
@@ -145,6 +133,14 @@ function Chatroom({route}: ChatroomProp) {
   const disconnect = () => {
     client.current.deactivate();
   };
+
+  function onConnected() {
+    console.log('connect success');
+    // subscribeLocation();
+    // sendLocation();
+    sendMessage();
+    receiveMessage();
+  }
 
   // 서버에서 다른 사용자들의 위치 받아오기
   const subscribeLocation = () => {
@@ -163,21 +159,23 @@ function Chatroom({route}: ChatroomProp) {
   };
 
   // 채팅메시지 발신
-  const sendMessage = () => {
-    client.current.publish({
-      destination: requests.CHAT(roomId),
-      body: encoder.encode('Hello World'),
-    });
-
-    setInputValue('');
-  };
+  // const sendMessage = () => {
+  //   // console.log('client check :', client.current);
+  //   client.current.publish({
+  //     destination: requests.CHAT(roomId),
+  //     body: JSON.stringify({
+  //       message: 'Hello World',
+  //     }),
+  //   });
+  //   // setInputValue('');
+  // };
 
   // 채팅메시지 수신
   const receiveMessage = () => {
     client.current.subscribe(
       requests.base_url + requests.CHAT(roomId),
-      data => {
-        setMessages(data);
+      message => {
+        setMessages(JSON.parse(message.body));
       },
     );
   };
@@ -187,42 +185,48 @@ function Chatroom({route}: ChatroomProp) {
       {
         id: 0,
         userName: '은지',
-        userImg: '',
+        userImg:
+          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
         text: '안녕',
         created: '2023.5.4',
       },
       {
         id: 1,
         userName: '은지',
-        userImg: '',
+        userImg:
+          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
         text: '안녕',
         created: '2023.5.4',
       },
       {
         id: 2,
         userName: '은지',
-        userImg: '',
+        userImg:
+          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
         text: '안녕',
         created: '2023.5.4',
       },
       {
         id: 3,
         userName: '은지',
-        userImg: '',
+        userImg:
+          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
         text: '안녕',
         created: '2023.5.4',
       },
       {
         id: 4,
         userName: '은지',
-        userImg: '',
+        userImg:
+          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
         text: '안녕',
         created: '2023.5.4',
       },
       {
         id: 5,
         userName: '은지',
-        userImg: '',
+        userImg:
+          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
         text: '안녕',
         created: '2023.5.4',
       },
@@ -247,9 +251,15 @@ function Chatroom({route}: ChatroomProp) {
         {/* 지도 */}
         <RealtimeMap />
         {/* 채팅 */}
-        <ChatArea data={messages} client={client} roomId={roomId} />
+        {showChatArea ? (
+          <ChatArea data={messages} client={client} roomId={roomId} />
+        ) : (
+          <MessagePreviewContainer>
+            <MessagePreview message={messages[messages.length - 1]} />
+            <EmojiBtn />
+          </MessagePreviewContainer>
+        )}
       </View>
-      {/* </TouchableWithoutFeedback> */}
     </KeyboardAvoidingView>
   );
 }

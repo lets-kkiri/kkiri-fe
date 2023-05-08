@@ -5,12 +5,13 @@ export const requests = {
   CONNECT: '/stomp',
 
   // 채팅
-  CHAT({roomId}) {
-    return `/stomp/pub/chat/enter/${roomId}`;
+  CHAT(roomId) {
+    // return `/chat.enter.${roomId}`;
+    return `/pub/chat`;
   },
 
   // 실시간 위치
-  LOCATION({roomId}) {
-    return `/stomp/gps/location/${roomId}`;
+  LOCATION(roomId) {
+    return `/gps/location/${roomId}`;
   },
 };

@@ -6,12 +6,13 @@ import {TextEncoder} from 'text-encoding';
 
 // API
 import {requests} from '../../api/requests';
+import EmojiBtn from './EmojiBtn';
 
 // Styled component
 const ChatAreaContainer = styled.View`
   position: absolute;
   bottom: 0px;
-  height: 50%;
+  height: 100%;
   width: 100%;
   /* background-color: red; */
   display: flex;
@@ -57,11 +58,13 @@ const ChatArea = ({data, client, roomId}) => {
 
   // 채팅메시지 발신
   const sendMessage = () => {
+    console.log('client check :', client.current);
     client.current.publish({
       destination: requests.CHAT(roomId),
-      body: encoder.encode('Hello World'),
+      body: JSON.stringify({
+        message: 'Hello World',
+      }),
     });
-
     setInputValue('');
   };
 
@@ -76,9 +79,10 @@ const ChatArea = ({data, client, roomId}) => {
           }}
           value={inputValue}
         />
-        <TextSendBtn onPress={sendMessage}>
+        <TextSendBtn onPress={() => sendMessage()}>
           <Text>전송</Text>
         </TextSendBtn>
+        <EmojiBtn />
       </TextInputContainer>
     </ChatAreaContainer>
   );

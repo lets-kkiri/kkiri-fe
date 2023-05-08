@@ -54,7 +54,7 @@ function App() {
         <Stack.Screen
           name="Chatroom"
           component={Chatroom}
-          options={{title: '채팅방'}}
+          options={{title: '우리끼리 실시간 현황'}}
         />
         <Stack.Screen
           name="CreateMoim"
