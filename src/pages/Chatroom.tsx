@@ -12,9 +12,18 @@ import {
 } from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {io, Socket} from 'socket.io-client';
+import styled from 'styled-components/native';
+import {TextEncoder} from 'text-encoding';
+import SockJS from 'sockjs-client';
+import StompJs from '@stomp/stompjs';
+
+// API
+import {requests} from '../api/requests';
 
 // Components
 import ChatFlatList from '../components/Chatroom/ChatFlatList';
+import ChatArea from '../components/Chatroom/ChatArea';
+import RealtimeMap from '../components/Chatroom/RealtimeMap';
 
 // Styles
 const styles = StyleSheet.create({
@@ -51,114 +60,196 @@ const styles = StyleSheet.create({
 
 // types
 import {MessageData} from '../types/index';
+import {request} from 'react-native-permissions';
 
 interface ChatroomProp {
   navigation: NativeStackNavigationProp<any>;
   route: any;
 }
 
-interface ServerToClientEvents {
-  noArg: () => void;
-  basicEmit: (a: number, b: string, c: Buffer) => void;
-  withAck: (d: string, callback: (e: number) => void) => void;
+interface UserProps {
+  id: number;
+  roomId: number;
+  memberId: number;
+  latitude: number;
+  longitude: number;
+  regDate: string;
 }
 
-interface ClientToServerEvents {
-  hello: () => void;
-}
-
-interface InterServerEvents {
-  ping: () => void;
-}
-
-interface SocketData {
-  name: string;
-  age: number;
-}
+// Style components
+const ChatroomPage = styled.View`
+  position: relative;
+`;
 
 function Chatroom({route}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
+  const [users, setUsers] = useState<UserProps[]>([]);
+  const [myPosition, setMyPosition] = useState<UserProps | null>(null);
   const [inputValue, setInputValue] = useState('');
-  const ws = useRef<Socket | null>(null);
+  const client = useRef<any>({});
+
+  const encoder = new TextEncoder();
 
   // 채팅방 id
   const roomId = route.params.roomId;
+  console.log('roomId :', roomId);
 
-  useEffect(() => {
-    const socket = io('chatUrl');
-    ws.current = socket;
+  const onReceiveMessage = () => {};
 
-    // 메시지 수신
-    socket.on('message', (message: MessageData) => {
-      setMessages([...messages, message]);
+  const subscribeMessage = () => {
+    client.current.subscribe(
+      requests.base_url + requests.CHAT,
+      onReceiveMessage,
+    );
+  };
+
+  const onConnected = () => {
+    console.log('connect success');
+    // subscribeLocation();
+    // sendLocation();
+    // receiveMessage();
+  };
+
+  const onError = () => {
+    console.log('connect error');
+  };
+
+  const connect = () => {
+    // const socket = new SockJS(requests.base_url + requests.CONNECT);
+    // client.current = Stomp.over(socket);
+    // client.current.connect({}, onConnected, onError);
+
+    client.current = new StompJs.Client({
+      brokerURL: requests.base_url + requests.CONNECT, // 웹소켓 서버로 직접 접속
+      // webSocketFactory: () => new SockJS(requests.base_url + requests.CONNECT),
+      debug: function (str) {
+        console.log('debug :', str);
+      },
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+      onConnect: () => {
+        console.log('connect success');
+        // subscribeLocation();
+        // sendLocation();
+        receiveMessage();
+      },
+      onStompError: frame => {
+        console.error('stomp error :', frame);
+      },
     });
 
-    // unmount시 disconnect
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+    client.current.activate();
+  };
 
+  const disconnect = () => {
+    client.current.deactivate();
+  };
+
+  // 서버에서 다른 사용자들의 위치 받아오기
+  const subscribeLocation = () => {
+    client.current.subscribe(`/stomp/gps/location/${roomId}`, user => {
+      setUsers(userLocate => [...userLocate, JSON.parse(user.body)]);
+    });
+  };
+
+  // 내 위치 서버로 보내기
+  const sendLocation = () => {
+    client.current.send(
+      `/stomp/gps/location/${roomId}`,
+      {},
+      JSON.stringify(myPosition),
+    );
+  };
+
+  // 채팅메시지 발신
   const sendMessage = () => {
-    if (inputValue.trim() === '') {
-      return;
-    }
+    client.current.publish({
+      destination: requests.CHAT(roomId),
+      body: encoder.encode('Hello World'),
+    });
 
-    // 메시지 발신
-    const message = {
-      text: inputValue,
-      userId: 0,
-      created: new Date(),
-    };
-    ws.current?.emit('message', message);
-
-    // 인풋 비우기
     setInputValue('');
   };
 
-  // 채팅 메시지 목록
-  const data: MessageData[] = [
-    {
-      id: 0,
-      userName: '은지',
-      userImg: 'a',
-      text: '안녕',
-      created: '2023-05-01T00:00:00:0000',
-    },
-    {
-      id: 1,
-      userName: '유진',
-      userImg: 'a',
-      text: '하이',
-      created: '2023-05-01T00:00:00:0000',
-    },
-    {
-      id: 2,
-      userName: '한별',
-      userImg: 'a',
-      text: '여어',
-      created: '2023-05-01T00:00:00:0000',
-    },
-  ];
+  // 채팅메시지 수신
+  const receiveMessage = () => {
+    client.current.subscribe(
+      requests.base_url + requests.CHAT(roomId),
+      data => {
+        setMessages(data);
+      },
+    );
+  };
+
+  useEffect(() => {
+    setMessages([
+      {
+        id: 0,
+        userName: '은지',
+        userImg: '',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+      {
+        id: 1,
+        userName: '은지',
+        userImg: '',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+      {
+        id: 2,
+        userName: '은지',
+        userImg: '',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+      {
+        id: 3,
+        userName: '은지',
+        userImg: '',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+      {
+        id: 4,
+        userName: '은지',
+        userImg: '',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+      {
+        id: 5,
+        userName: '은지',
+        userImg: '',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+    ]);
+  }, []);
+
+  // 채팅방 입장시 연결
+  useEffect(() => {
+    console.log('start connect');
+    connect();
+
+    return () => {
+      console.log('end connect');
+      disconnect();
+    };
+  }, []);
+
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View>
-          {/* 지도 */}
-          {/* 채팅 메시지 목록 */}
-          <ChatFlatList data={data} />
-          {/* 채팅 메시지 입력 인풋 */}
-          <View>
-            <TextInput
-              placeholder="메시지를 입력해주세요"
-              style={styles.input}
-            />
-            <TouchableHighlight onPress={sendMessage}>
-              <Text>전송</Text>
-            </TouchableHighlight>
-          </View>
-        </View>
-      </TouchableWithoutFeedback>
+      {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
+      <View style={{flex: 1}}>
+        {/* 지도 */}
+        <RealtimeMap />
+        {/* 채팅 */}
+        <ChatArea data={messages} client={client} roomId={roomId} />
+      </View>
+      {/* </TouchableWithoutFeedback> */}
     </KeyboardAvoidingView>
   );
 }
