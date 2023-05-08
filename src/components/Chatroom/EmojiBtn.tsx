@@ -1,5 +1,5 @@
 import React from 'react';
-import {View} from 'react-native';
+import {View, Text} from 'react-native';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
 
@@ -17,10 +17,15 @@ const Container = styled.TouchableOpacity`
   background-color: #ff9270;
 `;
 
-const EmojiBtn = () => {
+const EmojiText = styled.Text`
+  font-size: 16px;
+`;
+
+const EmojiBtn = ({}) => {
   return (
-    <Container>
-      <WithLocalSvg asset={emoji_default} />
+    <Container activeOpacity={0.8}>
+      {/* <WithLocalSvg asset={emoji_default} /> */}
+      <EmojiText>😊</EmojiText>
     </Container>
   );
 };

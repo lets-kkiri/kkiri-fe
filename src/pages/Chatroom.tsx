@@ -9,6 +9,7 @@ import {
   Keyboard,
   TouchableHighlight,
   Text,
+  SafeAreaView,
 } from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {io, Socket} from 'socket.io-client';
@@ -83,19 +84,20 @@ const ChatroomPage = styled.View`
   position: relative;
 `;
 
-const MessagePreviewContainer = styled.View`
+const MessagePreviewContainer = styled.SafeAreaView`
   position: absolute;
   bottom: 0px;
   display: flex;
   flex-direction: row;
   width: 100%;
+  padding: 16px;
 `;
 
 function Chatroom({route}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
   const [users, setUsers] = useState<UserProps[]>([]);
   const [myPosition, setMyPosition] = useState<UserProps | null>(null);
-  const [showChatArea, setShowChatArea] = useState<boolean>(true);
+  const [showChatArea, setShowChatArea] = useState<boolean>(false);
   const client = useRef<any>({});
 
   const encoder = new TextEncoder();
@@ -255,7 +257,7 @@ function Chatroom({route}: ChatroomProp) {
   // 채팅방 입장시 연결
   useEffect(() => {
     console.log('start connect');
-    connect();
+    // connect();
 
     return () => {
       console.log('end connect');
@@ -266,7 +268,7 @@ function Chatroom({route}: ChatroomProp) {
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
       {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
-      <View style={{flex: 1}}>
+      <SafeAreaView style={{flex: 1}}>
         {/* 지도 */}
         <RealtimeMap />
         {/* 채팅 */}
@@ -278,7 +280,7 @@ function Chatroom({route}: ChatroomProp) {
             <EmojiBtn />
           </MessagePreviewContainer>
         )}
-      </View>
+      </SafeAreaView>
     </KeyboardAvoidingView>
   );
 }

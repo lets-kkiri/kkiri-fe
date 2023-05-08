@@ -17,6 +17,7 @@ const ChatAreaContainer = styled.View`
   /* background-color: red; */
   display: flex;
   justify-content: flex-end;
+  background-color: rgba(0, 0, 0, 0.5);
 `;
 
 const TextInputContainer = styled.View`

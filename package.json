@@ -21,6 +21,7 @@
     "@viro-community/react-viro": "^2.23.0",
     "react": "17.0.2",
     "react-native": "0.65.1",
+    "react-native-emoji-picker": "^0.2.2",
     "react-native-geolocation": "^1.0.0",
     "react-native-keyboard-aware-scrollview": "^2.1.0",
     "react-native-nmap": "^0.0.66",
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
+    "@babel/plugin-transform-react-jsx": "^7.21.5",
     "@babel/runtime": "^7.12.5",
     "@react-native-community/eslint-config": "^2.0.0",
     "@types/jest": "^26.0.23",

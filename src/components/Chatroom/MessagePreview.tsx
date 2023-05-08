@@ -1,26 +1,31 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, Dimensions} from 'react-native';
 import UserProfile from './UserProfile';
 import styled from 'styled-components/native';
 
 // Styled components
-const Bubble = styled.View`
+const Bubble = styled.TouchableOpacity`
   background-color: #ffd8cc;
   height: 40px;
   padding: 4px;
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-right: 8px;
+  border-radius: 99px;
+  border-bottom-left-radius: 0px;
 `;
 
 const UserNameText = styled.Text`
   color: #ff9270;
   font-size: 12px;
+  margin-left: 8px;
 `;
 
 const MessageText = styled.Text`
   color: #3a3a3a;
   font-size: 12px;
+  margin-left: 8px;
 `;
 
 import {MessageData} from '../../types';
@@ -29,7 +34,7 @@ type MessagePreviewProps = {
   message: MessageData;
 };
 
-const MessagePreview = ({message}: MessagePreviewProps) => {
+const MessagePreview = ({message, onPress}: MessagePreviewProps) => {
   // 임시 데이터
   const userImg =
     'https://image.dongascience.com/Photo/2020/03/5bddba7b6574b95d37b6079c199d7101.jpg';
@@ -37,8 +42,11 @@ const MessagePreview = ({message}: MessagePreviewProps) => {
   const text = '빨랑 좀 오셈 ㅎㅎ';
 
   return (
-    <Bubble>
-      <UserProfile userImg={userImg} />
+    <Bubble
+      style={{width: Dimensions.get('window').width - 78}}
+      activeOpacity={0.8}
+      onPress={onPress}>
+      <UserProfile userImg={userImg} width={32} />
       <UserNameText>{userName}</UserNameText>
       <MessageText>{text}</MessageText>
     </Bubble>

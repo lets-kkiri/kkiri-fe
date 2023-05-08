@@ -800,7 +800,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.19.0"
 
-"@babel/plugin-transform-react-jsx@^7.0.0":
+"@babel/plugin-transform-react-jsx@^7.0.0", "@babel/plugin-transform-react-jsx@^7.21.5":
   "integrity" "sha512-ELdlq61FpoEkHO6gFRpfj0kUgSwQTGoaEU8eMRoS8Dv3v6e7BjEAj5WMtIBRdHUeAioMhKP5HyxNzNnP+heKbA=="
   "resolved" "https://registry.npmjs.org/@babel/plugin-transform-react-jsx/-/plugin-transform-react-jsx-7.21.5.tgz"
   "version" "7.21.5"
@@ -3167,6 +3167,11 @@
   "resolved" "https://registry.npmjs.org/emittery/-/emittery-0.7.2.tgz"
   "version" "0.7.2"
 
+"emoji-datasource@^2.4.4":
+  "integrity" "sha512-Uyb23tvxUSlPiRQaK1ot+uOlLv1ivd/gcI8x+cqvLCRRMoan8waXXPrXU6UtASpORzcwCOA9dGlzqzLXw+WL7Q=="
+  "resolved" "https://registry.npmjs.org/emoji-datasource/-/emoji-datasource-2.4.4.tgz"
+  "version" "2.4.4"
+
 "emoji-regex@^8.0.0":
   "integrity" "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="
   "resolved" "https://registry.npmjs.org/emoji-regex/-/emoji-regex-8.0.0.tgz"
@@ -5225,7 +5230,7 @@
   "resolved" "https://registry.npmjs.org/lodash.truncate/-/lodash.truncate-4.4.2.tgz"
   "version" "4.4.2"
 
-"lodash@^4.17.10", "lodash@^4.17.14", "lodash@^4.17.15", "lodash@^4.17.21", "lodash@^4.7.0":
+"lodash@^4.11.1", "lodash@^4.17.10", "lodash@^4.17.14", "lodash@^4.17.15", "lodash@^4.17.21", "lodash@^4.7.0":
   "integrity" "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg=="
   "resolved" "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"
   "version" "4.17.21"
@@ -6427,6 +6432,15 @@
     "jscodeshift" "^0.11.0"
     "nullthrows" "^1.1.1"
 
+"react-native-emoji-picker@^0.2.2":
+  "integrity" "sha512-356U+RKUgo8JpljhmiPoRNEu6N2loocEci+jGETYO/VusZfasvc6JqacC/mcVqgh9pJPfaC3N8d0zCXpj9zELw=="
+  "resolved" "https://registry.npmjs.org/react-native-emoji-picker/-/react-native-emoji-picker-0.2.2.tgz"
+  "version" "0.2.2"
+  dependencies:
+    "emoji-datasource" "^2.4.4"
+    "lodash" "^4.11.1"
+    "string.fromcodepoint" "^0.2.1"
+
 "react-native-geolocation@^1.0.0":
   "integrity" "sha512-O8gJJeTqkJhj2hwzimc38wR1KjM02MSg/fCDgmKMM0akTSv3nsDBf5k8nIa9I5Mu5ncd+t86plQPapkVYy/ZSw=="
   "resolved" "https://registry.npmjs.org/react-native-geolocation/-/react-native-geolocation-1.0.0.tgz"
@@ -7245,6 +7259,11 @@
     "emoji-regex" "^8.0.0"
     "is-fullwidth-code-point" "^3.0.0"
     "strip-ansi" "^6.0.1"
+
+"string.fromcodepoint@^0.2.1":
+  "integrity" "sha512-n69H31OnxSGSZyZbgBlvYIXlrMhJQ0dQAX1js1QDhpaUH6zmU3QYlj07bCwCNlPOu3oRXIubGPl2gDGnHsiCqg=="
+  "resolved" "https://registry.npmjs.org/string.fromcodepoint/-/string.fromcodepoint-0.2.1.tgz"
+  "version" "0.2.1"
 
 "string.prototype.matchall@^4.0.8":
   "integrity" "sha512-6zOCOcJ+RJAQshcTvXPHoxoQGONa3e/Lqx90wUA+wEzX78sg5Bo+1tQo4N0pohS0erG9qtCqJDjNCQBjeWVxyg=="

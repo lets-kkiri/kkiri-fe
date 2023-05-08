@@ -12,18 +12,22 @@ const styles = StyleSheet.create({
   },
 });
 
+const ProfileImg = styled.Image`
+  border-radius: 99px;
+`;
+
 type UserProfileProp = {
   userImg: string;
 };
 
-function UserProfile({userImg}: UserProfileProp) {
+function UserProfile({userImg, width}: UserProfileProp) {
   return (
     <View>
-      <Image
+      <ProfileImg
         source={{
           uri: userImg,
         }}
-        style={styles.container}
+        style={{width: width, height: width}}
       />
       {/* <View style={styles.container} /> */}
     </View>
