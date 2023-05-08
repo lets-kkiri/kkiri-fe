@@ -1,10 +1,21 @@
+import {useNavigation} from '@react-navigation/native';
 import React from 'react';
-import {Text, View} from 'react-native';
+import {Button, Text, View} from 'react-native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 function Home() {
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
   return (
     <View>
-      <Text>홈 화면입니다</Text>
+      <Button
+        title="채팅방 입장"
+        onPress={() => navigation.navigate('Chatroom', {roomId: 1})}
+      />
+      <Button title="지도" onPress={() => navigation.navigate('Map')} />
+      <Button
+        title="모임원 위치"
+        onPress={() => navigation.navigate('RealtimeLocation')}
+      />
     </View>
   );
 }
