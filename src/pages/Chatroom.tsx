@@ -14,7 +14,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {io, Socket} from 'socket.io-client';
 import styled from 'styled-components/native';
 import {TextEncoder} from 'text-encoding';
-import SockJS from 'sockjs-client';
+import * as SockJS from 'sockjs-client';
 import StompJs from '@stomp/stompjs';
 
 // API
@@ -106,7 +106,7 @@ function Chatroom({route}: ChatroomProp) {
 
   const connect = () => {
     client.current = new StompJs.Client({
-      brokerURL: requests.base_url + requests.CONNECT, // 웹소켓 서버로 직접 접속
+      brokerURL: 'ws://k8a606.p.ssafy.io:8080/stomp', // 웹소켓 서버로 직접 접속
       // webSocketFactory: () => new SockJS(requests.base_url + requests.CONNECT),
       debug: function (str) {
         console.log('debug :', str);
@@ -114,23 +114,35 @@ function Chatroom({route}: ChatroomProp) {
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
-      onConnect: () => {
-        console.log('connect success!');
-        onConnected();
-      },
-      onStompError: frame => {
-        console.error('stomp error :', frame);
-      },
     });
 
-    client.current.webSocketFactory = function () {
-      return new SockJS('http://k8a606.p.ssafy.io:8080/stomp', {
-        headers: {
-          Host: 'k8a606.p.ssafy.io:8080',
-          Connection: 'Upgrade',
-          Upgrade: 'websocket',
-        },
+    if (typeof WebSocket !== 'function') {
+      client.current.webSocketFactory = function () {
+        return new SockJS('http://k8a606.p.ssafy.io:8080/stomp', {
+          // headers: {
+          //   Host: 'k8a606.p.ssafy.io:8080',
+          //   Connection: 'Upgrade',
+          //   Upgrade: 'websocket',
+          // },
+        });
+      };
+    }
+
+    client.onConnect = function (frame) {
+      console.log('connect success!');
+      console.log(frame);
+      // 메시지 발신
+      client.current.publish({
+        destination: requests.CHAT(roomId),
+        body: JSON.stringify({
+          message: 'Hello World',
+        }),
       });
+    };
+
+    client.onStompError = function (frame) {
+      console.log('Broker reported error: ' + frame.headers['message']);
+      console.log('Additional details: ' + frame.body);
     };
 
     client.current.activate();
