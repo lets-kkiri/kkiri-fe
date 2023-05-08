@@ -124,7 +124,13 @@ function Chatroom({route}: ChatroomProp) {
     });
 
     client.current.webSocketFactory = function () {
-      return new SockJS('http://k8a606.p.ssafy.io:8080/stomp');
+      return new SockJS('http://k8a606.p.ssafy.io:8080/stomp', {
+        headers: {
+          Host: 'k8a606.p.ssafy.io:8080',
+          Connection: 'Upgrade',
+          Upgrade: 'websocket',
+        },
+      });
     };
 
     client.current.activate();
@@ -137,8 +143,7 @@ function Chatroom({route}: ChatroomProp) {
   function onConnected() {
     console.log('connect success');
     // subscribeLocation();
-    // sendLocation();
-    sendMessage();
+    // sendLocation();r
     receiveMessage();
   }
 
