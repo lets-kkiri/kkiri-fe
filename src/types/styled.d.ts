@@ -2,6 +2,7 @@ import 'styled-components';
 
 declare module 'styled-components' {
   export interface DefulatTheme {
+
     color: {
       main: string;
       sub: string;
