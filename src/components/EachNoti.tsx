@@ -4,6 +4,7 @@ import {notiType} from '../slices/noti';
 
 import notiSlice from '../slices/noti';
 import {useAppDispatch} from '../store';
+import PushNotification from 'react-native-push-notification';
 
 function EachNoti({noti}: {noti: notiType}) {
   const dispatch = useAppDispatch();
@@ -12,7 +13,7 @@ function EachNoti({noti}: {noti: notiType}) {
     <View style={styles.swipeListItem}>
       <TouchableOpacity
         onPress={() => {
-          console.log('noti click', noti.id);
+          PushNotification.cancelLocalNotification(noti);
           dispatch(notiSlice.actions.clickNoti(noti));
         }}>
         <Text
