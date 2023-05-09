@@ -6,11 +6,14 @@ import {
   StyleSheet,
   Alert,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import NaverMapView, {Circle, Marker, Polyline} from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
 import store from '../store';
 import {guidesPost} from '../slices/guidesSlice';
+import {pressPost} from '../slices/pressSlice';
+import {helpPost} from '../slices/helpSlice';
 
 interface PathProps {
   latitude: number;
@@ -28,7 +31,7 @@ function Map() {
   const [sendpath, setSendpath] = useState<boolean>(false);
 
   useEffect(() => {
-    Geolocation.getCurrentPosition(
+    Geolocation.watchPosition(
       position => {
         setMyPosition({
           latitude: position.coords.latitude,
@@ -83,6 +86,7 @@ function Map() {
 
   // 경로 서버로 보내기
   function sendPath() {
+    // 임시 데이터
     const postData = {
       senderEmail: 'rlawnsgh8395@naver.com',
       receiverEmail: 'rlawnsgh8395@gmail.com',
@@ -93,6 +97,24 @@ function Map() {
     Alert.alert('길안내 알림을 전송했어요!');
     setSendpath(false);
     setStartDraw(false);
+  }
+
+  function sendPress() {
+    // 임시 데이터
+    const postData = {
+      senderEmail: '지니',
+      receiverEmail: 'rlawnsgh8395@gmail.com',
+    };
+    store.dispatch(pressPost(postData));
+  }
+
+  function sendHelp() {
+    // 임시 데이터
+    const postData = {
+      senderEmail: 'rlawnsgh8395@naver.com',
+      chatRoomId: '1',
+    };
+    store.dispatch(helpPost(postData));
   }
 
   // 두 위치의 거리 계산 함수
@@ -144,6 +166,7 @@ function Map() {
           />
           {myPosition?.latitude && (
             <Marker
+              onClick={sendPress}
               coordinate={{
                 latitude: myPosition.latitude,
                 longitude: myPosition.longitude,
@@ -204,19 +227,33 @@ function Map() {
           </View>
         </View>
       ) : null}
-      <TouchableHighlight>
+      <TouchableOpacity
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          top: 50,
+          left: 350,
+        }}
+        onPress={sendHelp}>
         <Image
-          style={{
-            position: 'absolute',
-            bottom: 550,
-            right: 5,
-            resizeMode: 'cover',
-            // height: 100,
-            // width: 100,
-          }}
+          style={{resizeMode: 'cover'}}
+          source={require('../assets/icons/help.png')}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          top: 110,
+          left: 350,
+        }}>
+        <Image
+          style={{resizeMode: 'cover'}}
           source={require('../assets/icons/info.png')}
         />
-      </TouchableHighlight>
+      </TouchableOpacity>
     </View>
   );
 }

@@ -6,14 +6,17 @@ import {
   Text,
   Alert,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import NaverMapView, {Circle, Marker, Polyline} from 'react-native-nmap';
 import {guidesPost} from '../../slices/guidesSlice';
 import store from '../../store';
-import {arrivePost, userGrade} from '../../slices/arriveSlice';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store/reducer';
+import {arrivePost} from '../../slices/arriveSlice';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../store/reducer';
+import {pressPost} from '../../slices/pressSlice';
+import {helpPost} from '../../slices/helpSlice';
 
 interface UserProps {
   id: number;
@@ -137,6 +140,24 @@ function RealtimeMap({client, users, roomId}: Props) {
     setStartDraw(false);
   }
 
+  function sendPress() {
+    // 임시 데이터
+    const postData = {
+      senderEmail: '지니',
+      receiverEmail: 'rlawnsgh8395@gmail.com',
+    };
+    store.dispatch(pressPost(postData));
+  }
+
+  function sendHelp() {
+    // 임시 데이터
+    const postData = {
+      senderEmail: 'rlawnsgh8395@naver.com',
+      chatRoomId: '1',
+    };
+    store.dispatch(helpPost(postData));
+  }
+
   // 두 위치의 거리 계산 함수
   function calculateDistance({lat1, lon1, lat2, lon2}: LocateType) {
     const R = 6371e3; // 지구 반경 (m)
@@ -194,6 +215,7 @@ function RealtimeMap({client, users, roomId}: Props) {
           )}
           {users.map(user => (
             <Marker
+              onClick={sendPress}
               key={user.id}
               coordinate={{
                 latitude: user.latitude,
@@ -254,17 +276,33 @@ function RealtimeMap({client, users, roomId}: Props) {
           </View>
         </View>
       ) : null}
-      <TouchableHighlight>
+      <TouchableOpacity
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          top: 50,
+          left: 350,
+        }}
+        onPress={sendHelp}>
         <Image
-          style={{
-            position: 'absolute',
-            bottom: 550,
-            right: 5,
-            resizeMode: 'cover',
-          }}
+          style={{resizeMode: 'cover'}}
+          source={require('../../assets/icons/help.png')}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          top: 110,
+          left: 350,
+        }}>
+        <Image
+          style={{resizeMode: 'cover'}}
           source={require('../../assets/icons/info.png')}
         />
-      </TouchableHighlight>
+      </TouchableOpacity>
       {/* 등수 보여주는 예시 */}
       <View>
         <Text>{userGrades.grade}등으로 도착하셨습니다!</Text>
