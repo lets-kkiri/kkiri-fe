@@ -1,17 +1,58 @@
 import React from 'react';
-import {Text, View} from 'react-native';
+import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import {notiType} from '../slices/noti';
 
+import notiSlice from '../slices/noti';
+import {useAppDispatch} from '../store';
+
 function EachNoti({noti}: {noti: notiType}) {
-  // 여기에 알림 버튼 클릭 가능하게
-  // 왼쪽으로 슬라이드시 삭제 버튼 보이기
-  // 삭제 버튼 클릭 시 해당 값 삭제 처리 및 API? (백과 논의 필요)
+  const dispatch = useAppDispatch();
+
   return (
-    <View>
-      <Text>{noti?.title}</Text>
-      <Text>{noti?.message}</Text>
+    <View style={styles.swipeListItem}>
+      <TouchableOpacity
+        onPress={() => {
+          console.log('noti click', noti.id);
+          dispatch(notiSlice.actions.clickNoti(noti));
+        }}>
+        <Text
+          style={
+            noti.checked ? styles.clickedSwipeListText : styles.swipeListText
+          }>
+          {noti?.channelId}
+        </Text>
+        <Text
+          style={
+            noti.checked ? styles.clickedSwipeListText : styles.swipeListText
+          }>
+          {noti?.message}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  swipeListItem: {
+    alignItems: 'center',
+    backgroundColor: '#eee',
+    borderBottomColor: '#fff',
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    height: 50,
+    paddingHorizontal: 10,
+  },
+  swipeListText: {
+    flex: 1,
+    color: 'black',
+    fontSize: 14,
+  },
+  clickedSwipeListText: {
+    flex: 1,
+    color: 'grey',
+    fontSize: 14,
+  },
+});
 
 export default EachNoti;
