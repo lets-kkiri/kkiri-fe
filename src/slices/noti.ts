@@ -30,7 +30,7 @@ const notiSlice = createSlice({
   // 동기 action
   reducers: {
     pushNoti(state, action) {
-      state.push({
+      state.unshift({
         channelId: action.payload.channelId,
         id: action.payload.id,
         title: action.payload.title,
@@ -49,6 +49,11 @@ const notiSlice = createSlice({
       );
       return newState;
     },
+    // clear는 나중에 처리
+    // clearNoti(state, action) {
+    //   const newState: notiType[] = [];
+    //   return newState;
+    // },
   },
   // 비동기 action
   extraReducers: builder => {},

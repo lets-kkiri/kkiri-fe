@@ -28,6 +28,7 @@ import {useAppDispatch} from './src/store';
 import messaging from '@react-native-firebase/messaging';
 import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import uuid from 'react-native-uuid';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -41,7 +42,31 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 function AppInner() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
-  //   const dispatch = useAppDispatch();
+  // 푸쉬 알람을 위한 설정
+  const dispatch = useAppDispatch();
+
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    console.log(
+      'Message handled in the background!',
+      remoteMessage.notification,
+    );
+
+    const notiMsg = remoteMessage.notification;
+    const uniqueId = uuid.v4();
+    const noti = {
+      id: uniqueId,
+      channelId: notiMsg?.android?.channelId,
+      title: notiMsg?.title,
+      message: notiMsg?.body,
+      playSound: true,
+      soundName: 'default',
+      checked: false,
+    };
+
+    // console.log(noti);
+    PushNotification.localNotification({...noti});
+    dispatch(notiSlice.actions.pushNoti({...noti}));
+  });
 
   // 토큰 설정
   useEffect(() => {
@@ -51,7 +76,7 @@ function AppInner() {
           await messaging().registerDeviceForRemoteMessages();
         }
         const token = await messaging().getToken();
-        console.log('phone token', token);
+        // console.log('phone token', token);
         // dispatch(userSlice.actions.setPhoneToken(token));
         // 임시 Config
         const Config = {
@@ -66,9 +91,6 @@ function AppInner() {
       getToken();
     }
   }, [isLoggedIn]);
-
-  // 푸쉬 알람을 위한 설정
-  const dispatch = useAppDispatch();
 
   PushNotification.configure({
     // (optional) 토큰이 생성될 때 실행됨(토큰을 서버에 등록할 때 쓸 수 있음)
