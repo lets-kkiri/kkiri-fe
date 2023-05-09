@@ -20,8 +20,8 @@ export const requests = {
     return '/api/noti/helps/guides';
   },
 
-  // 그린 경로 전송
+  // 도착 시간 전송 (반경 50m)
   POST_ARRIVE() {
-    return '/api/noti/arrives'; // 임시
+    return '/api/moims/arrive';
   },
 };

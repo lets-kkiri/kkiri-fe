@@ -1,10 +1,19 @@
 import React, {useEffect, useState, MutableRefObject} from 'react';
-import {View, StyleSheet, TouchableHighlight, Text} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  TouchableHighlight,
+  Text,
+  Alert,
+  Image,
+} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import NaverMapView, {Circle, Marker, Polyline} from 'react-native-nmap';
 import {guidesPost} from '../../slices/guidesSlice';
 import store from '../../store';
-import {arrivePost} from '../../slices/arriveSlice';
+import {arrivePost, userGrade} from '../../slices/arriveSlice';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/reducer';
 
 interface UserProps {
   id: number;
@@ -37,6 +46,7 @@ function RealtimeMap({client, users, roomId}: Props) {
   const [startDraw, setStartDraw] = useState<boolean>(false);
   const [drawpoint, setDrawpoint] = useState<PathProps | null>(null);
   const [drawpath, setDrawpath] = useState<PathProps[]>([]);
+  const [sendpath, setSendpath] = useState<boolean>(false);
   const date = new Date();
 
   // 임시 목적지: 역삼 멀티캠퍼스
@@ -94,6 +104,9 @@ function RealtimeMap({client, users, roomId}: Props) {
     }
   }, [myPosition]);
 
+  // const userGrades = useSelector(userGrade);
+  const userGrades = useSelector((state: RootState) => state.arrives.userGrade);
+
   const drawPath = (e: any) => {
     if (startDraw) {
       setDrawpoint({
@@ -119,6 +132,9 @@ function RealtimeMap({client, users, roomId}: Props) {
       path: drawpath,
     };
     store.dispatch(guidesPost(postData));
+    Alert.alert('길안내 알림을 전송했어요!');
+    setSendpath(false);
+    setStartDraw(false);
   }
 
   // 두 위치의 거리 계산 함수
@@ -196,7 +212,7 @@ function RealtimeMap({client, users, roomId}: Props) {
           ) : null}
         </NaverMapView>
       )}
-      {!startDraw ? (
+      {startDraw === false ? (
         <View style={{position: 'absolute', top: 0, left: 0}}>
           <TouchableHighlight
             style={styles.button1}
@@ -204,37 +220,55 @@ function RealtimeMap({client, users, roomId}: Props) {
             <Text style={styles.font}>그리기</Text>
           </TouchableHighlight>
         </View>
-      ) : (
-        <View
+      ) : sendpath === false ? (
+        <View style={{position: 'absolute'}}>
+          <View style={{backgroundColor: '#FFFFFF', alignItems: 'center'}}>
+            <Text>손가락으로 길을 그려 친구에게 보내주세요!</Text>
+          </View>
+          <View
+            style={{
+              top: 630,
+              left: 0,
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+            }}>
+            <TouchableHighlight
+              style={styles.button1}
+              onPress={() => {
+                setDrawpoint(null);
+                setDrawpath([]);
+              }}>
+              <Text style={styles.font}>다시 그리기</Text>
+            </TouchableHighlight>
+            <TouchableHighlight
+              style={styles.button2}
+              onPress={() => {
+                setDrawpoint(null);
+                setDrawpath([]);
+                sendPath();
+                console.log(drawpath);
+              }}>
+              <Text style={styles.font}>길 안내 전송하기</Text>
+            </TouchableHighlight>
+          </View>
+        </View>
+      ) : null}
+      <TouchableHighlight>
+        <Image
           style={{
             position: 'absolute',
-            top: 630,
-            left: 0,
-            width: '100%',
-            flexDirection: 'row',
-            justifyContent: 'space-evenly',
-          }}>
-          <TouchableHighlight
-            style={styles.button1}
-            onPress={() => {
-              setDrawpoint(null);
-              setDrawpath([]);
-            }}>
-            <Text style={styles.font}>다시 그리기</Text>
-          </TouchableHighlight>
-          <TouchableHighlight
-            style={styles.button2}
-            onPress={() => {
-              setStartDraw(false);
-              setDrawpoint(null);
-              setDrawpath([]);
-              sendPath();
-              console.log(drawpath);
-            }}>
-            <Text style={styles.font}>길 안내 전송하기</Text>
-          </TouchableHighlight>
-        </View>
-      )}
+            bottom: 550,
+            right: 5,
+            resizeMode: 'cover',
+          }}
+          source={require('../../assets/icons/info.png')}
+        />
+      </TouchableHighlight>
+      {/* 등수 보여주는 예시 */}
+      <View>
+        <Text>{userGrades.grade}등으로 도착하셨습니다!</Text>
+      </View>
     </View>
   );
 }

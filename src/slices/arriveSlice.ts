@@ -1,6 +1,7 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {baseInstance} from '../api/axios';
 import {requests} from '../api/requests';
+import {RootState} from '../store/reducer';
 
 interface ArriveProps {
   roomId: number;
@@ -8,17 +9,20 @@ interface ArriveProps {
   arrivalTime: string;
 }
 
-const initialState: ArriveProps = {
-  roomId: 0,
-  memberId: 0,
-  arrivalTime: '',
+const initialState = {
+  userGrade: {
+    roomId: 0,
+    memberId: 0,
+    arrivalTime: '',
+    grade: 0,
+  },
 };
 
 export const arrivePost = createAsyncThunk(
   'arrives/post',
-  async (data: ArriveProps) => {
+  async (data: ArriveProps, thunkAPI) => {
     const response = await baseInstance.post(requests.POST_ARRIVE(), data);
-    return response.data;
+    return thunkAPI.fulfillWithValue(response.data);
   },
 );
 
@@ -32,11 +36,14 @@ const arriveSlice = createSlice({
     });
     builder.addCase(arrivePost.fulfilled, (state, action) => {
       console.log('fulfilled');
+      state.userGrade = action.payload;
     });
     builder.addCase(arrivePost.rejected, (state, action) => {
       console.log('reject', action.error);
     });
   },
 });
+
+export const userGrade = (state: RootState) => state.arrives.userGrade;
 
 export default arriveSlice.reducer;
