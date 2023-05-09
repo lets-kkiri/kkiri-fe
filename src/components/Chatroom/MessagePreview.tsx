@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, Dimensions} from 'react-native';
+import {Dimensions} from 'react-native';
 import UserProfile from './UserProfile';
 import styled from 'styled-components/native';
 
@@ -32,6 +32,7 @@ import {MessageData} from '../../types';
 
 type MessagePreviewProps = {
   message: MessageData;
+  onPress: () => void;
 };
 
 const MessagePreview = ({message, onPress}: MessagePreviewProps) => {
@@ -40,6 +41,7 @@ const MessagePreview = ({message, onPress}: MessagePreviewProps) => {
     'https://image.dongascience.com/Photo/2020/03/5bddba7b6574b95d37b6079c199d7101.jpg';
   const userName = '혜성';
   const text = '빨랑 좀 오셈 ㅎㅎ';
+  console.log(message);
 
   return (
     <Bubble

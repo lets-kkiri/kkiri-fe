@@ -24,8 +24,8 @@ const EmojiText = styled.Text`
 const EmojiBtn = ({}) => {
   return (
     <Container activeOpacity={0.8}>
-      {/* <WithLocalSvg asset={emoji_default} /> */}
-      <EmojiText>😊</EmojiText>
+      <WithLocalSvg asset={emoji_default} />
+      {/* <EmojiText>😊</EmojiText> */}
     </Container>
   );
 };

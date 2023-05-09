@@ -9,7 +9,6 @@ import {MessageData} from '../../types';
 
 type MessageItemProp = {
   message: MessageData;
-  isMe: boolean;
 };
 
 // Styled component
@@ -27,13 +26,14 @@ const MessageBubble = styled.View`
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
   font-size: 12px;
+  margin-left: 16px;
 `;
 
-function MessageItem({message, isMe}: MessageItemProp) {
+function MessageItem({message}: MessageItemProp) {
   return (
     <MessageItemContainer>
-      <UserProfile userImg={message.userImg} isMe={isMe} />
-      <MessageBubble isMe={isMe}>
+      <UserProfile userImg={message.userImg} width={50} />
+      <MessageBubble>
         <Text>{message.userName}</Text>
         <Message text={message.text} />
       </MessageBubble>

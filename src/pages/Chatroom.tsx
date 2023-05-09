@@ -1,7 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {
-  View,
-  TextInput,
   StyleSheet,
   Button,
   KeyboardAvoidingView,
@@ -10,55 +8,23 @@ import {
   TouchableHighlight,
   Text,
   SafeAreaView,
+  View,
 } from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {io, Socket} from 'socket.io-client';
 import styled from 'styled-components/native';
 import {TextEncoder} from 'text-encoding';
-import * as SockJS from 'sockjs-client';
 import StompJs from '@stomp/stompjs';
+// import Stomp from 'stompjs';
+import SockJS from 'sockjs-client';
+import {WebSocket} from 'react-native-websocket';
 
 // API
 import {requests} from '../api/requests';
 
 // Components
-import ChatFlatList from '../components/Chatroom/ChatFlatList';
 import ChatArea from '../components/Chatroom/ChatArea';
 import RealtimeMap from '../components/Chatroom/RealtimeMap';
 import MessagePreview from '../components/Chatroom/MessagePreview';
-
-// Styles
-const styles = StyleSheet.create({
-  input: {
-    height: 40,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
-    borderRadius: 99,
-  },
-  container: {
-    flex: 1,
-  },
-  inner: {
-    padding: 24,
-    flex: 1,
-    justifyContent: 'space-around',
-  },
-  header: {
-    fontSize: 36,
-    marginBottom: 48,
-  },
-  textInput: {
-    height: 40,
-    borderColor: '#000000',
-    borderBottomWidth: 1,
-    marginBottom: 36,
-  },
-  btnContainer: {
-    backgroundColor: 'white',
-    marginTop: 12,
-  },
-});
 
 // types
 import {MessageData} from '../types/index';
@@ -80,11 +46,7 @@ interface UserProps {
 }
 
 // Style components
-const ChatroomPage = styled.View`
-  position: relative;
-`;
-
-const MessagePreviewContainer = styled.SafeAreaView`
+const MessagePreviewContainer = styled.View`
   position: absolute;
   bottom: 0px;
   display: flex;
@@ -107,9 +69,25 @@ function Chatroom({route}: ChatroomProp) {
   console.log('roomId :', roomId);
 
   const connect = () => {
+    // const ws = new WebSocket('wss://k8a606.p.ssafy.io/stomp');
+    // // const socket = new WebSocket('wss://k8a606.p.ssafy.io/stomp');
+    // client.current = Stomp.over(socket);
+
+    // client.current.connect({}, () => {
+    //   console.log('Connected');
+    //   client.current.send(
+    //     requests.CHAT(roomId),
+    //     {},
+    //     JSON.stringify({message: 'hello'}),
+    //   );
+    // });
+
+    // @stomp/stompjs
     client.current = new StompJs.Client({
       brokerURL: 'ws://k8a606.p.ssafy.io:8080/stomp', // 웹소켓 서버로 직접 접속
-      // webSocketFactory: () => new SockJS(requests.base_url + requests.CONNECT),
+      webSocketFactory: () => {
+        return new SockJS('http://k8a606.p.ssafy.io:8080/stomp');
+      },
       debug: function (str) {
         console.log('debug :', str);
       },
@@ -118,36 +96,28 @@ function Chatroom({route}: ChatroomProp) {
       heartbeatOutgoing: 4000,
       forceBinaryWSFrames: true,
       appendMissingNULLonIncoming: true,
+      onConnect: () => {
+        console.log('connect success');
+        client.current.publish({
+          destination: `/pub/chat/message/${roomId}`,
+          body: JSON.stringify({
+            message: 'Hello World',
+          }),
+        });
+      },
     });
 
-    if (typeof WebSocket !== 'function') {
-      client.current.options.webSocketFactory = function () {
-        return new SockJS('http://k8a606.p.ssafy.io:8080/stomp', {
-          // headers: {
-          //   Host: 'k8a606.p.ssafy.io:8080',
-          //   Connection: 'Upgrade',
-          //   Upgrade: 'websocket',
-          // },
-        });
-      };
-    }
-
-    client.current.onConnect = function (frame) {
-      console.log('connect success!');
-      console.log(frame);
-      // 메시지 발신
-      client.current.publish({
-        destination: requests.CHAT(roomId),
-        body: JSON.stringify({
-          message: 'Hello World',
-        }),
-      });
-    };
-
-    client.current.onStompError = function (frame) {
-      console.log('Broker reported error: ' + frame.headers['message']);
-      console.log('Additional details: ' + frame.body);
-    };
+    // if (typeof WebSocket !== 'function') {
+    //   client.current.options.webSocketFactory = function () {
+    //     return new SockJS('https://k8a606.p.ssafy.io/stomp', {
+    //       // headers: {
+    //       //   Host: 'k8a606.p.ssafy.io:8080',
+    //       //   Connection: 'Upgrade',
+    //       //   Upgrade: 'websocket',
+    //       // },
+    //     });
+    //   };
+    // }
 
     client.current.activate();
   };
@@ -178,18 +148,6 @@ function Chatroom({route}: ChatroomProp) {
       JSON.stringify(myPosition),
     );
   };
-
-  // 채팅메시지 발신
-  // const sendMessage = () => {
-  //   // console.log('client check :', client.current);
-  //   client.current.publish({
-  //     destination: requests.CHAT(roomId),
-  //     body: JSON.stringify({
-  //       message: 'Hello World',
-  //     }),
-  //   });
-  //   // setInputValue('');
-  // };
 
   // 채팅메시지 수신
   const receiveMessage = () => {
@@ -251,13 +209,45 @@ function Chatroom({route}: ChatroomProp) {
         text: '안녕',
         created: '2023.5.4',
       },
+      {
+        id: 6,
+        userName: '은지',
+        userImg:
+          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+      {
+        id: 7,
+        userName: '은지',
+        userImg:
+          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+      {
+        id: 8,
+        userName: '은지',
+        userImg:
+          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
+        text: '안녕',
+        created: '2023.5.4',
+      },
+      {
+        id: 9,
+        userName: '은지',
+        userImg:
+          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
+        text: '안녕',
+        created: '2023.5.4',
+      },
     ]);
   }, []);
 
   // 채팅방 입장시 연결
   useEffect(() => {
     console.log('start connect');
-    // connect();
+    connect();
 
     return () => {
       console.log('end connect');
@@ -266,22 +256,22 @@ function Chatroom({route}: ChatroomProp) {
   }, []);
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={styles.container}>
-      {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
-      <SafeAreaView style={{flex: 1}}>
-        {/* 지도 */}
-        <RealtimeMap />
-        {/* 채팅 */}
-        {showChatArea ? (
-          <ChatArea data={messages} client={client} roomId={roomId} />
-        ) : (
-          <MessagePreviewContainer>
-            <MessagePreview message={messages[messages.length - 1]} />
-            <EmojiBtn />
-          </MessagePreviewContainer>
-        )}
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+    <View style={{flex: 1}}>
+      {/* 지도 */}
+      <RealtimeMap />
+      {/* 채팅 */}
+      {showChatArea ? (
+        <ChatArea data={messages} client={client} roomId={roomId} />
+      ) : (
+        <MessagePreviewContainer>
+          <MessagePreview
+            message={messages[messages.length - 1]}
+            onPress={() => setShowChatArea(true)}
+          />
+          <EmojiBtn />
+        </MessagePreviewContainer>
+      )}
+    </View>
   );
 }
 

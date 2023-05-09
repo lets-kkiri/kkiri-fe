@@ -1,23 +1,15 @@
 import React from 'react';
-import {Image, StyleSheet, View} from 'react-native';
+import {View} from 'react-native';
 import styled from 'styled-components/native';
 
-const styles = StyleSheet.create({
-  container: {
-    width: 40,
-    height: 40,
-    borderRadius: 99,
-    backgroundColor: 'black',
-    marginRight: 8,
-  },
-});
-
+// Styled components
 const ProfileImg = styled.Image`
   border-radius: 99px;
 `;
 
 type UserProfileProp = {
   userImg: string;
+  width: number;
 };
 
 function UserProfile({userImg, width}: UserProfileProp) {
@@ -29,7 +21,6 @@ function UserProfile({userImg, width}: UserProfileProp) {
         }}
         style={{width: width, height: width}}
       />
-      {/* <View style={styles.container} /> */}
     </View>
   );
 }

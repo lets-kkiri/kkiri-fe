@@ -3,11 +3,19 @@ import {Button, View} from 'react-native';
 import StompJs from '@stomp/stompjs';
 import Geolocation from '@react-native-community/geolocation';
 import NaverMapView, {Marker, Polyline} from 'react-native-nmap';
+import styled from 'styled-components/native';
+
+// Styled component
+const MapContainer = styled.View`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+`;
 
 const RealtimeMap = () => {
   const [users, setUsers] = useState<UserProps[]>([]);
   return (
-    <View>
+    <MapContainer>
       <NaverMapView style={{width: '100%', height: '100%'}}>
         {users.map(user => (
           <Marker
@@ -20,7 +28,7 @@ const RealtimeMap = () => {
           />
         ))}
       </NaverMapView>
-    </View>
+    </MapContainer>
   );
 };
 
