@@ -4,12 +4,13 @@ import * as React from 'react';
 import usePermissions from './src/hooks/usePermissions';
 
 // redux
-import store from './src/store';
+import store, {persistor} from './src/store';
 import {Provider} from 'react-redux';
 import AppInner from './AppInner';
 
 // FCM 및 푸쉬 알림
 import messaging from '@react-native-firebase/messaging';
+import {PersistGate} from 'redux-persist/integration/react';
 
 function App() {
   usePermissions();
@@ -20,7 +21,9 @@ function App() {
 
   return (
     <Provider store={store}>
-      <AppInner />
+      <PersistGate loading={null} persistor={persistor}>
+        <AppInner />
+      </PersistGate>
     </Provider>
   );
 }
