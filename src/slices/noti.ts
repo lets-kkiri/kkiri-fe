@@ -39,6 +39,16 @@ const notiSlice = createSlice({
         checked: false,
       });
     },
+    clickNoti(state, action) {
+      const stateIdx = state.findIndex(item => item.id === action.payload.id);
+      state[stateIdx].checked = true;
+    },
+    delNoti(state, action) {
+      const newState = state.filter(
+        (item: notiType) => item.id !== action.payload,
+      );
+      return newState;
+    },
   },
   // 비동기 action
   extraReducers: builder => {},
