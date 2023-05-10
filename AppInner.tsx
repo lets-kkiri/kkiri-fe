@@ -38,7 +38,7 @@ import {RootState} from './src/store/reducer';
 import SignIn from './src/pages/SignIn';
 
 // Splash Screen
-// import SplashScreen from 'react-native-splash-screen';
+import SplashScreen from 'react-native-splash-screen';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -201,6 +201,7 @@ function AppInner() {
         if (!token) {
           // 토큰이 없으면 걍 리턴을 때려버린다
           console.log('refresh 토큰 없음');
+          SplashScreen.hide();
           return;
         }
         const response = await axios.post(
@@ -233,6 +234,7 @@ function AppInner() {
         // 로그아웃 처리 해줘야함
       } finally {
         // splash screen off
+        SplashScreen.hide();
       }
     };
     getTokenAndRefresh();
