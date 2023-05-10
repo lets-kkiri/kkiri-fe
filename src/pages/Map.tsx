@@ -14,6 +14,7 @@ import store from '../store';
 import {guidesPost} from '../slices/guidesSlice';
 import {pressPost} from '../slices/pressSlice';
 import {helpPost} from '../slices/helpSlice';
+import { arrivePost } from '../slices/arriveSlice';
 
 interface PathProps {
   latitude: number;
@@ -49,11 +50,14 @@ function Map() {
         // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
         if (distance <= 50) {
           console.log('목적지 도착');
-          console.log(
-            date.getHours() + '시',
-            date.getMinutes() + '분',
-            date.getSeconds() + '초',
-          );
+          const arriveTime =
+            date.getHours() +
+            '시' +
+            date.getMinutes() +
+            '분' +
+            date.getSeconds() +
+            '초';
+          Alert.alert('목적지에 도착하였습니다!', arriveTime);
         }
       },
       console.error,
@@ -100,6 +104,7 @@ function Map() {
   }
 
   function sendPress() {
+    Alert.alert('재촉했어요!');
     // 임시 데이터
     const postData = {
       senderEmail: '지니',
@@ -109,10 +114,11 @@ function Map() {
   }
 
   function sendHelp() {
+    Alert.alert('도움 요청을 보냈어요!');
     // 임시 데이터
     const postData = {
       senderEmail: 'rlawnsgh8395@naver.com',
-      chatRoomId: '1',
+      chatRoomId: '',
     };
     store.dispatch(helpPost(postData));
   }
@@ -159,11 +165,11 @@ function Map() {
             height={35}
           />
           {/* 반경 n미터 원으로 표시 */}
-          <Circle
+          {/* <Circle
             coordinate={destination}
             color={'rgba(221, 226, 252, 0.5)'}
             radius={50}
-          />
+          /> */}
           {myPosition?.latitude && (
             <Marker
               onClick={sendPress}
@@ -186,21 +192,39 @@ function Map() {
         </NaverMapView>
       ) : null}
       {startDraw === false ? (
-        <View style={{position: 'absolute', top: 0, left: 0}}>
-          <TouchableHighlight
-            style={styles.button1}
-            onPress={() => setStartDraw(true)}>
-            <Text style={styles.font}>그리기</Text>
-          </TouchableHighlight>
-        </View>
+        <TouchableOpacity 
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            top: 10,
+            left: 360,
+          }}
+          onPress={() => setStartDraw(true)}>
+          <Image
+            source={require('../assets/icons/draw.png')}
+            style={{resizeMode: 'cover'}}
+          />
+        </TouchableOpacity>
       ) : sendpath === false ? (
         <View style={{position: 'absolute'}}>
-          <View style={{backgroundColor: '#FFFFFF', alignItems: 'center'}}>
+          <View
+            style={{
+              backgroundColor: '#FFFFFF',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: 50,
+              flexDirection: 'row',
+            }}>
+            <Image
+              source={require('../assets/icons/pencil.png')}
+              style={{resizeMode: 'cover', marginRight: 10}}
+            />
             <Text>손가락으로 길을 그려 친구에게 보내주세요!</Text>
           </View>
           <View
             style={{
-              top: 630,
+              top: 590,
               left: 0,
               width: '100%',
               flexDirection: 'row',
@@ -232,7 +256,7 @@ function Map() {
           width: '100%',
           height: '100%',
           position: 'absolute',
-          top: 50,
+          top: 60,
           left: 350,
         }}
         onPress={sendHelp}>
