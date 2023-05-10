@@ -25,10 +25,10 @@ function SignIn() {
   const signInWithKakao = async (): Promise<void> => {
     try {
       const token: KakaoOAuthToken = await login();
-      setResult(JSON.stringify(token));
+      // setResult(JSON.stringify(token));
 
       const profile: KakaoProfile = await getProfile();
-      setResult(JSON.stringify(profile));
+      // setResult(JSON.stringify(profile));
 
       const requestBody = {
         id: profile.id,
@@ -44,11 +44,12 @@ function SignIn() {
       const userInfo = {
         ...requestBody,
         accessToken: response.data.accessToken,
+        deviceTokens: [...response.data.deviceTokens],
         isLoggedIn: true,
       };
-      console.log(userInfo);
+      // console.log(userInfo);
       // user slice에 저장
-      dispatch(userSlice.actions.setUser({userInfo}));
+      dispatch(userSlice.actions.setUser({...userInfo}));
       // refreshToken 저장
       await EncryptedStorage.setItem(
         'refreshToken',
@@ -62,31 +63,48 @@ function SignIn() {
 
   const signOutWithKakao = async (): Promise<void> => {
     const message = await logout();
-    setResult(message);
+    // setResult(message);
+    const userInfo = {
+      id: '',
+      email: '',
+      nickname: '',
+      profileImageUrl: '',
+      accessToken: '',
+      isLoggedIn: false,
+      deviceTokens: [],
+    };
+    dispatch(userSlice.actions.setUser({...userInfo}));
+    EncryptedStorage.removeItem('refreshToken');
     // setIsLoggedin(false);
   };
-
-  // const getKakaoProfile = async (): Promise<void> => {
-  //   const profile: KakaoProfile = await getProfile();
-  //   console.log('profile', profile);
-  //   setResult(JSON.stringify(profile));
-  // };
 
   const unlinkKakao = async (): Promise<void> => {
     const message = await unlink();
-    setResult(message);
-    // setIsLoggedin(false);
+    // setResult(message);
   };
+
+  useEffect(() => {
+    console.log('isLoggedIn changed: ', isLoggedIn);
+    console.log('login info: ', user);
+  }, [isLoggedIn, user]);
 
   return (
     <View style={styles.container}>
       {isLoggedIn === true ? (
-        <Button
-          title="카카오 로그아웃"
-          onPress={() => {
-            signOutWithKakao();
-          }}
-        />
+        <View>
+          <Button
+            title="카카오 로그아웃"
+            onPress={() => {
+              signOutWithKakao();
+            }}
+          />
+          <Button
+            title="카카오 링크 해제"
+            onPress={() => {
+              unlinkKakao();
+            }}
+          />
+        </View>
       ) : (
         <Button
           title="카카오 로그인"
@@ -95,18 +113,6 @@ function SignIn() {
           }}
         />
       )}
-      {/* <Button
-        title="카카오 프로필 가져오기"
-        onPress={() => {
-          getKakaoProfile();
-        }}
-      /> */}
-      <Button
-        title="카카오 연결 해제"
-        onPress={() => {
-          unlinkKakao();
-        }}
-      />
     </View>
   );
 }

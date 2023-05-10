@@ -9,13 +9,24 @@ import {PayloadAction, createSlice} from '@reduxjs/toolkit';
 // dispatch : action을 실제로 실행하는 함수
 // reducer : action이 실제로 실행되면 state를 바꾸는 로직
 
-const initialState = {
+interface UserState {
+  id: string;
+  nickname: string;
+  profileImageUrl: string;
+  email: string;
+  accessToken: string;
+  isLoggedIn: boolean;
+  deviceTokens: string[];
+}
+
+const initialState: UserState = {
   id: '',
   nickname: '',
   profileImageUrl: '',
   email: '',
   accessToken: '',
   isLoggedIn: false,
+  deviceTokens: [],
 };
 
 const userSlice = createSlice({
@@ -30,6 +41,7 @@ const userSlice = createSlice({
       state.email = action.payload.email;
       state.accessToken = action.payload.accessToken;
       state.isLoggedIn = action.payload.isLoggedIn;
+      state.deviceTokens = [...action.payload.deviceTokens];
     },
     setNickname(state, action) {
       state.nickname = action.payload;
@@ -42,6 +54,9 @@ const userSlice = createSlice({
     },
     setIsLoggedIn(state, action) {
       state.isLoggedIn = action.payload;
+    },
+    setDeviceTokens(state, action) {
+      state.deviceTokens = [...action.payload];
     },
   },
   // 비동기 action
