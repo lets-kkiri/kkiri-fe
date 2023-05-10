@@ -29,11 +29,13 @@ import messaging from '@react-native-firebase/messaging';
 import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import uuid from 'react-native-uuid';
+
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {requests} from './src/api/requests';
 import userSlice from './src/slices/user';
-import {batch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {RootState} from './src/store/reducer';
+import SignIn from './src/pages/SignIn';
 
 // Splash Screen
 // import SplashScreen from 'react-native-splash-screen';
@@ -48,11 +50,15 @@ export type LoggedInParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppInner() {
-  const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
-
-  useEffect(() => {
-    console.log('이즈 로그인?', isLoggedIn);
-  }, [isLoggedIn]);
+  const isLoggedIn: boolean = useSelector(
+    (state: RootState) => state.user.isLoggedIn,
+  );
+  const deviceTokens: string[] = useSelector(
+    (state: RootState) => state.user.deviceTokens,
+  );
+  const accessToken: string = useSelector(
+    (state: RootState) => state.user.accessToken,
+  );
 
   // 푸쉬 알람을 위한 설정
   const dispatch = useAppDispatch();
@@ -83,18 +89,23 @@ function AppInner() {
   // FCM을 위한 기기 토큰 설정
   useEffect(() => {
     async function getToken() {
+      console.log('========= getToken 함수 시작 =========');
       try {
         if (!messaging().isDeviceRegisteredForRemoteMessages) {
           await messaging().registerDeviceForRemoteMessages();
         }
         const token = await messaging().getToken();
-        // console.log('phone token', token);
-        // dispatch(userSlice.actions.setPhoneToken(token));
-        // 임시 Config
-        const Config = {
-          API_URL: 'k8a606.p.ssafy.io',
-        };
-        return axios.post(`${Config.API_URL}/api/auth/firebase`, {token});
+        if (!deviceTokens || deviceTokens.includes(token)) {
+          console.log('deviceTokens 없음 이슈', deviceTokens);
+          console.log('내 디바이스 토큰', token);
+          return;
+        }
+        const response = axios.post(
+          requests.POST_FCM_TOKEN(),
+          {deviceToken: token},
+          {headers: {authorization: `Bearer ${accessToken}`}},
+        );
+        console.log('getTokenRes : ', response);
       } catch (error) {
         console.error(error);
       }
@@ -102,12 +113,12 @@ function AppInner() {
     if (isLoggedIn === true) {
       getToken();
     }
-  }, [isLoggedIn]);
+  }, [accessToken, deviceTokens, isLoggedIn]);
 
   PushNotification.configure({
     // (optional) 토큰이 생성될 때 실행됨(토큰을 서버에 등록할 때 쓸 수 있음)
     onRegister: function (token: any) {
-      console.log('TOKEN:', token);
+      // console.log('TOKEN:', token);
     },
 
     // (required) 리모트 노티를 수신하거나, 열었거나 로컬 노티를 열었을 때 실행
@@ -183,11 +194,13 @@ function AppInner() {
   // 로그인 관리를 위한 Token 확인
   useEffect(() => {
     const getTokenAndRefresh = async () => {
+      console.log('========= getTokenAndRefresh 함수 시작 =========');
       try {
         // splash screen on
         const token = await EncryptedStorage.getItem('refreshToken');
         if (!token) {
           // 토큰이 없으면 걍 리턴을 때려버린다
+          console.log('refresh 토큰 없음');
           return;
         }
         const response = await axios.post(
@@ -195,28 +208,29 @@ function AppInner() {
           {},
           {headers: {authorization: `Bearer ${token}`}},
         );
+        console.log('Refresh 토큰 살아있음', response.data);
         // 로그인 처리 및 accessToken 갱신
-        await batch(() => {
-          dispatch(
-            userSlice.actions.setAccessToken({
-              accessToken: response.data.accessToken,
-            }),
-          );
-          dispatch(
-            userSlice.actions.setIsLoggedIn({
-              isLoggedIn: true,
-            }),
-          );
-        });
+        // await batch(() => {
+        //   dispatch(
+        //     userSlice.actions.setAccessToken({
+        //       accessToken: response.data.accessToken,
+        //     }),
+        //   );
+        //   dispatch(
+        //     userSlice.actions.setIsLoggedIn({
+        //       isLoggedIn: true,
+        //     }),
+        //   );
+        // });
         // refreshToken 갱신
-        await EncryptedStorage.setItem(
-          'refreshToken',
-          response.data.refreshToken,
-        );
+        // await EncryptedStorage.setItem(
+        //   'refreshToken',
+        //   response.data.refreshToken,
+        // );
       } catch (error) {
         console.error(error.message);
         // 만약 response가 error를 들고왔을 때, refreshToken이 만료된 경우
-        // 로그아웃 처리
+        // 로그아웃 처리 해줘야함
       } finally {
         // splash screen off
       }
@@ -226,43 +240,53 @@ function AppInner() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Tab"
-          component={TabNavigator}
-          options={{header: () => <Header />}}
-        />
-        <Stack.Screen
-          name="Setting"
-          component={Setting}
-          options={{title: '세팅'}}
-        />
-        <Stack.Screen
-          name="Notification"
-          component={Notification}
-          options={{title: '알림센터'}}
-        />
-        <Stack.Screen
-          name="Chatroom"
-          component={Chatroom}
-          options={{title: '채팅방'}}
-        />
-        <Stack.Screen
-          name="CreateMoim"
-          component={CreateMoim}
-          options={{title: '모임 생성'}}
-        />
-        <Stack.Screen
-          name="Map"
-          component={Map}
-          options={{title: '실시간 위치'}}
-        />
-        <Stack.Screen
-          name="RealtimeLocation"
-          component={RealtimeLocation}
-          options={{title: '모임원 실시간 위치'}}
-        />
-      </Stack.Navigator>
+      {isLoggedIn ? (
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Tab"
+            component={TabNavigator}
+            options={{header: () => <Header />}}
+          />
+          <Stack.Screen
+            name="Setting"
+            component={Setting}
+            options={{title: '세팅'}}
+          />
+          <Stack.Screen
+            name="Notification"
+            component={Notification}
+            options={{title: '알림센터'}}
+          />
+          <Stack.Screen
+            name="Chatroom"
+            component={Chatroom}
+            options={{title: '채팅방'}}
+          />
+          <Stack.Screen
+            name="CreateMoim"
+            component={CreateMoim}
+            options={{title: '모임 생성'}}
+          />
+          <Stack.Screen
+            name="Map"
+            component={Map}
+            options={{title: '실시간 위치'}}
+          />
+          <Stack.Screen
+            name="RealtimeLocation"
+            component={RealtimeLocation}
+            options={{title: '모임원 실시간 위치'}}
+          />
+        </Stack.Navigator>
+      ) : (
+        <Stack.Navigator>
+          <Stack.Screen
+            name="SignIn"
+            component={SignIn}
+            options={{title: '로그인'}}
+          />
+        </Stack.Navigator>
+      )}
     </NavigationContainer>
   );
 }
