@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#5968F2',
   },
   font: {
-    color: '#5968F2',
+    color: '#FFF',
   },
 });
 
