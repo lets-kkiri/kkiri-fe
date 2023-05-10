@@ -13,4 +13,14 @@ export const requests = {
   LOCATION({roomId}) {
     return `/stomp/gps/location/${roomId}`;
   },
+
+  // 로그인
+  SIGNIN() {
+    return `https://k8a606.p.ssafy.io/api/auth/login`;
+  },
+
+  // Refresh Token
+  REFRESH_TOKEN() {
+    return `/`;
+  },
 };

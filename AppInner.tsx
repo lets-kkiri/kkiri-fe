@@ -29,6 +29,14 @@ import messaging from '@react-native-firebase/messaging';
 import PushNotification from 'react-native-push-notification';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import uuid from 'react-native-uuid';
+import EncryptedStorage from 'react-native-encrypted-storage';
+import {requests} from './src/api/requests';
+import userSlice from './src/slices/user';
+import {batch, useSelector} from 'react-redux';
+import {RootState} from './src/store/reducer';
+
+// Splash Screen
+// import SplashScreen from 'react-native-splash-screen';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -40,7 +48,11 @@ export type LoggedInParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppInner() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
+
+  useEffect(() => {
+    console.log('이즈 로그인?', isLoggedIn);
+  }, [isLoggedIn]);
 
   // 푸쉬 알람을 위한 설정
   const dispatch = useAppDispatch();
@@ -68,7 +80,7 @@ function AppInner() {
     dispatch(notiSlice.actions.pushNoti({...noti}));
   });
 
-  // 토큰 설정
+  // FCM을 위한 기기 토큰 설정
   useEffect(() => {
     async function getToken() {
       try {
@@ -123,9 +135,8 @@ function AppInner() {
 
     // (optional) 등록한 액션을 누렀고 invokeApp이 false 상태일 때 실행됨, true면 onNotification이 실행됨 (Android)
     onAction: function (notification: any) {
-      console.log('ACTION:', notification.action);
-      console.log('NOTIFICATION:', notification);
-
+      // console.log('ACTION:', notification.action);
+      // console.log('NOTIFICATION:', notification);
       // process the action
     },
 
@@ -166,8 +177,52 @@ function AppInner() {
       vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
     },
     (created: boolean) =>
-      console.log(`createChannel riders returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
+      console.log(`createChannel hurry returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
   );
+
+  // 로그인 관리를 위한 Token 확인
+  useEffect(() => {
+    const getTokenAndRefresh = async () => {
+      try {
+        // splash screen on
+        const token = await EncryptedStorage.getItem('refreshToken');
+        if (!token) {
+          // 토큰이 없으면 걍 리턴을 때려버린다
+          return;
+        }
+        const response = await axios.post(
+          requests.REFRESH_TOKEN(),
+          {},
+          {headers: {authorization: `Bearer ${token}`}},
+        );
+        // 로그인 처리 및 accessToken 갱신
+        await batch(() => {
+          dispatch(
+            userSlice.actions.setAccessToken({
+              accessToken: response.data.accessToken,
+            }),
+          );
+          dispatch(
+            userSlice.actions.setIsLoggedIn({
+              isLoggedIn: true,
+            }),
+          );
+        });
+        // refreshToken 갱신
+        await EncryptedStorage.setItem(
+          'refreshToken',
+          response.data.refreshToken,
+        );
+      } catch (error) {
+        console.error(error.message);
+        // 만약 response가 error를 들고왔을 때, refreshToken이 만료된 경우
+        // 로그아웃 처리
+      } finally {
+        // splash screen off
+      }
+    };
+    getTokenAndRefresh();
+  }, [dispatch]);
 
   return (
     <NavigationContainer>
