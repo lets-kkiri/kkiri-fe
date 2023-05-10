@@ -8,7 +8,6 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Setting from './src/pages/Setting';
 import Notification from './src/pages/Notification';
 import Map from './src/pages/Map';
-import RealtimeLocation from './src/pages/RealtimeLocation';
 
 // Components
 import Header from './src/components/Header';
@@ -201,11 +200,6 @@ function AppInner() {
           name="Map"
           component={Map}
           options={{title: '실시간 위치'}}
-        />
-        <Stack.Screen
-          name="RealtimeLocation"
-          component={RealtimeLocation}
-          options={{title: '모임원 실시간 위치'}}
         />
       </Stack.Navigator>
     </NavigationContainer>

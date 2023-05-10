@@ -1,12 +1,12 @@
 import React from 'react';
 import {View, Image, Text} from 'react-native';
-import CustomButton from './Button';
+import CustomButton from '../Common/Button';
 
 interface BtnProps {
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ArriveNoti = ({setModalVisible}: BtnProps) => {
+const SendHelpNoti = ({setModalVisible}: BtnProps) => {
   return (
     <View>
       <View
@@ -19,7 +19,7 @@ const ArriveNoti = ({setModalVisible}: BtnProps) => {
           source={require('../../assets/icons/bear.png')}
           style={{width: 30, height: 33, marginRight: 10}}
         />
-        <Text>목적지에 도착했습니다</Text>
+        <Text>도움을 요청했어요!</Text>
       </View>
       <View 
         style={{
@@ -30,10 +30,8 @@ const ArriveNoti = ({setModalVisible}: BtnProps) => {
       />
       <View style={{display: 'flex', flexDirection: 'row'}}>
         <View style={{marginRight: 20, marginVertical: 5}}>
-          <Text style={{fontSize: 12}}>
-            유저님은 5명 중 2등으로 도착했어요!
-          </Text>
-          <Text style={{fontSize: 12}}>약속 시간까지 아직 10분 남았어요!</Text>
+          <Text style={{fontSize: 12}}>친구가 길을 그리면</Text>
+          <Text style={{fontSize: 12}}>알림을 통해 알려드려요!</Text>
         </View>
         <CustomButton
           text="확인"
@@ -46,4 +44,4 @@ const ArriveNoti = ({setModalVisible}: BtnProps) => {
   );
 };
 
-export default ArriveNoti;
+export default SendHelpNoti;

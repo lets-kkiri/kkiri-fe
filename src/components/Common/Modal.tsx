@@ -8,33 +8,25 @@ interface ModalProps {
   // onClick: () => void;
 }
 
-interface ContentProps {
-  content: JSX.Element;
-}
-
-const ModalContent = ({content}: ContentProps) => {
-  return (
-    <>
-      <View style={styles.modalView}>{content}</View>
-    </>
-  );
-};
-
 const CustomModal = ({modalVisible, content}: ModalProps) => {
   return (
     <Modal
       isVisible={modalVisible}
       coverScreen={true}
       hasBackdrop={true}
-      backdropColor="#F8F9FF">
+      backdropColor="#F8F9FF"
+      style={styles.modal}>
       <View style={styles.centeredView}>
-        <ModalContent content={content} />
+        <View style={styles.modalView}>{content}</View>
       </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  modal: {
+    paddingHorizontal: 16,
+  },
   centeredView: {
     flex: 1,
     justifyContent: 'center',
