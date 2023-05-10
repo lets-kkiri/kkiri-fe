@@ -14,7 +14,11 @@ import store from '../store';
 import {guidesPost} from '../slices/guidesSlice';
 import {pressPost} from '../slices/pressSlice';
 import {helpPost} from '../slices/helpSlice';
-import { arrivePost } from '../slices/arriveSlice';
+import CustomModal from '../components/Common/Modal';
+import ArriveNoti from '../components/Map/ArriveNoti';
+import SendPathNoti from '../components/Map/SendPathNoti';
+import SendHelpNoti from '../components/Map/SendHelpNoti';
+import CustomButton from '../components/Common/Button';
 
 interface PathProps {
   latitude: number;
@@ -23,13 +27,15 @@ interface PathProps {
 
 function Map() {
   const destination = {latitude: 37.501303, longitude: 127.039603};
-  const date = new Date();
 
   const [startDraw, setStartDraw] = useState<boolean>(false);
   const [myPosition, setMyPosition] = useState<PathProps | null>(null);
   const [drawpoint, setDrawpoint] = useState<PathProps | null>(null);
   const [drawpath, setDrawpath] = useState<PathProps[]>([]);
   const [sendpath, setSendpath] = useState<boolean>(false);
+
+  const [modalType, setModalType] = useState<string>('');
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     Geolocation.watchPosition(
@@ -47,6 +53,8 @@ function Map() {
           127.039603,
         );
 
+        const date = new Date();
+
         // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
         if (distance <= 50) {
           console.log('목적지 도착');
@@ -57,7 +65,9 @@ function Map() {
             '분' +
             date.getSeconds() +
             '초';
-          Alert.alert('목적지에 도착하였습니다!', arriveTime);
+          // Alert.alert('목적지에 도착하였습니다!', arriveTime);
+          setModalVisible(true);
+          setModalType('arrive');
         }
       },
       console.error,
@@ -66,6 +76,31 @@ function Map() {
         timeout: 20000,
       },
     );
+
+    // 두 위치의 거리 계산 함수
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3; // 지구 반경 (m)
+      const cal1 = toRadians(lat1);
+      const cal2 = toRadians(lat2);
+      const cal3 = toRadians(lat2 - lat1);
+      const cal4 = toRadians(lon2 - lon1);
+
+      const a =
+        Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
+        Math.cos(cal1) *
+          Math.cos(cal2) *
+          Math.sin(cal4 / 2) *
+          Math.sin(cal4 / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+      const distance = R * c; // 두 지점 사이의 거리 (m)
+
+      return distance;
+    }
+
+    function toRadians(degrees) {
+      return (degrees * Math.PI) / 180;
+    }
   }, []);
 
   // console.log(myPosition?.latitude);
@@ -98,7 +133,9 @@ function Map() {
     };
     store.dispatch(guidesPost(postData));
     // setSendpath(true);
-    Alert.alert('길안내 알림을 전송했어요!');
+    // Alert.alert('길안내 알림을 전송했어요!');
+    setModalVisible(true);
+    setModalType('sendpath');
     setSendpath(false);
     setStartDraw(false);
   }
@@ -114,35 +151,15 @@ function Map() {
   }
 
   function sendHelp() {
-    Alert.alert('도움 요청을 보냈어요!');
+    // Alert.alert('도움 요청을 보냈어요!');
+    setModalVisible(true);
+    setModalType('sendhelp');
     // 임시 데이터
     const postData = {
       senderEmail: 'rlawnsgh8395@naver.com',
       chatRoomId: 6,
     };
     store.dispatch(helpPost(postData));
-  }
-
-  // 두 위치의 거리 계산 함수
-  function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371e3; // 지구 반경 (m)
-    const cal1 = toRadians(lat1);
-    const cal2 = toRadians(lat2);
-    const cal3 = toRadians(lat2 - lat1);
-    const cal4 = toRadians(lon2 - lon1);
-
-    const a =
-      Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
-      Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    const distance = R * c; // 두 지점 사이의 거리 (m)
-
-    return distance;
-  }
-
-  function toRadians(degrees) {
-    return (degrees * Math.PI) / 180;
   }
 
   return (
@@ -207,15 +224,8 @@ function Map() {
           />
         </TouchableOpacity>
       ) : sendpath === false ? (
-        <View style={{position: 'absolute'}}>
-          <View
-            style={{
-              backgroundColor: '#FFFFFF',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: 50,
-              flexDirection: 'row',
-            }}>
+        <View style={{position: 'absolute', alignItems: 'center'}}>
+          <View style={styles.drawnoti}>
             <Image
               source={require('../assets/icons/pencil.png')}
               style={{resizeMode: 'cover', marginRight: 10}}
@@ -224,30 +234,32 @@ function Map() {
           </View>
           <View
             style={{
-              top: 590,
+              top: 580,
               left: 0,
               width: '100%',
               flexDirection: 'row',
               justifyContent: 'space-evenly',
             }}>
-            <TouchableHighlight
-              style={styles.button1}
+            <CustomButton
+              text="다시 그리기"
+              status="disabled"
+              width="short"
               onPress={() => {
                 setDrawpoint(null);
                 setDrawpath([]);
-              }}>
-              <Text style={styles.font}>다시 그리기</Text>
-            </TouchableHighlight>
-            <TouchableHighlight
-              style={styles.button2}
+              }}
+            />
+            <CustomButton
+              text="경로 전송하기"
+              status="active"
+              width="short"
               onPress={() => {
                 setDrawpoint(null);
                 setDrawpath([]);
                 sendPath();
                 console.log(drawpath);
-              }}>
-              <Text style={styles.font}>길 안내 전송하기</Text>
-            </TouchableHighlight>
+              }}
+            />
           </View>
         </View>
       ) : null}
@@ -256,7 +268,7 @@ function Map() {
           width: '100%',
           height: '100%',
           position: 'absolute',
-          top: 60,
+          top: 70,
           left: 350,
         }}
         onPress={sendHelp}>
@@ -270,7 +282,7 @@ function Map() {
           width: '100%',
           height: '100%',
           position: 'absolute',
-          top: 110,
+          top: 120,
           left: 350,
         }}>
         <Image
@@ -278,26 +290,39 @@ function Map() {
           source={require('../assets/icons/info.png')}
         />
       </TouchableOpacity>
+      <CustomModal
+        modalVisible={modalVisible}
+        content={
+          modalType === 'arrive' ? (
+            <ArriveNoti setModalVisible={setModalVisible} />
+          ) : modalType === 'sendpath' ? (
+            <SendPathNoti setModalVisible={setModalVisible} />
+          ) : (
+            <SendHelpNoti setModalVisible={setModalVisible} />
+          )
+        }
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  button1: {
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    backgroundColor: '#D0D0D0',
-    borderRadius: 15,
-  },
-  button2: {
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    backgroundColor: '#FF9270',
-    borderRadius: 15,
-  },
   font: {
     color: '#FFFFFF',
     fontWeight: 'bold',
+  },
+  drawnoti: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    height: 50,
+    width: '90%',
+    borderStyle: 'solid',
+    borderColor: '#5968F2',
+    borderWidth: 1,
+    borderRadius: 15,
+    marginTop: 15,
   },
 });
 
