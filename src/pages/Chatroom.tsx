@@ -1,22 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {
-  StyleSheet,
-  Button,
-  KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-  Keyboard,
-  TouchableHighlight,
-  Text,
-  SafeAreaView,
-  View,
-} from 'react-native';
+import {View} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import styled from 'styled-components/native';
 import {TextEncoder} from 'text-encoding';
-import StompJs from '@stomp/stompjs';
-// import Stomp from 'stompjs';
+import {Client} from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import {WebSocket} from 'react-native-websocket';
+import io from 'socket.io-client';
 
 // API
 import {requests} from '../api/requests';
@@ -28,7 +17,6 @@ import MessagePreview from '../components/Chatroom/MessagePreview';
 
 // types
 import {MessageData} from '../types/index';
-import {request} from 'react-native-permissions';
 import EmojiBtn from '../components/Chatroom/EmojiBtn';
 
 interface ChatroomProp {
@@ -60,7 +48,7 @@ function Chatroom({route}: ChatroomProp) {
   const [users, setUsers] = useState<UserProps[]>([]);
   const [myPosition, setMyPosition] = useState<UserProps | null>(null);
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
-  const client = useRef<any>({});
+  const client = useRef<any>(null);
 
   const encoder = new TextEncoder();
 
@@ -68,7 +56,7 @@ function Chatroom({route}: ChatroomProp) {
   const roomId = route.params.roomId;
   console.log('roomId :', roomId);
 
-  const connect = () => {
+  const start = () => {
     // const ws = new WebSocket('wss://k8a606.p.ssafy.io/stomp');
     // // const socket = new WebSocket('wss://k8a606.p.ssafy.io/stomp');
     // client.current = Stomp.over(socket);
@@ -83,7 +71,8 @@ function Chatroom({route}: ChatroomProp) {
     // });
 
     // @stomp/stompjs
-    client.current = new StompJs.Client({
+    // const socket = new SockJS('')
+    client.current = new Client({
       brokerURL: 'ws://k8a606.p.ssafy.io:8080/stomp', // 웹소켓 서버로 직접 접속
       webSocketFactory: () => {
         return new SockJS('http://k8a606.p.ssafy.io:8080/stomp');
@@ -96,16 +85,22 @@ function Chatroom({route}: ChatroomProp) {
       heartbeatOutgoing: 4000,
       forceBinaryWSFrames: true,
       appendMissingNULLonIncoming: true,
-      onConnect: () => {
-        console.log('connect success');
-        client.current.publish({
-          destination: `/pub/chat/message/${roomId}`,
-          body: JSON.stringify({
-            message: 'Hello World',
-          }),
-        });
-      },
     });
+
+    client.current.onConnect = function (frame) {
+      // Do something, all subscribes must be done is this callback
+      // This is needed because this will be executed after a (re)connect
+      console.log('onConnect :', frame);
+    };
+
+    // client.current.onConnect({}, () => {
+    //   console.log('connected');
+    // });
+
+    // client.current.send(
+    //   `/pub/chat/message/${roomId}`,
+    //   JSON.stringify({text: 'hello'}),
+    // );
 
     // if (typeof WebSocket !== 'function') {
     //   client.current.options.webSocketFactory = function () {
@@ -120,6 +115,13 @@ function Chatroom({route}: ChatroomProp) {
     // }
 
     client.current.activate();
+
+    // client.current.publish({
+    //   destination: `/pub/chat/message/${roomId}`,
+    //   body: JSON.stringify({
+    //     message: 'Hello World',
+    //   }),
+    // });
   };
 
   const disconnect = () => {
@@ -245,18 +247,47 @@ function Chatroom({route}: ChatroomProp) {
   }, []);
 
   // 채팅방 입장시 연결
+  const [wsConnected, setWsConnected] = useState(false);
   useEffect(() => {
     console.log('start connect');
-    connect();
+    // start();
+    // client.current = io('http://k8a606.p.ssafy.io:8080/ws/api');
+    if (!client.current) {
+      console.log('here');
+      client.current = new WebSocket('wss://k8a606.p.ssafy.io/ws/api');
+      client.current.onopen = () => {
+        console.log('ws connected');
+        setWsConnected(true);
+      };
+
+      client.current.onclose = error => {
+        console.log(error);
+      };
+    }
 
     return () => {
       console.log('end connect');
-      disconnect();
+      // disconnect();
+      client.current.close();
     };
   }, []);
 
+  useEffect(() => {
+    if (wsConnected) {
+      client.current.send(
+        JSON.stringify({
+          messageType: 'ENTER',
+          moimId: 1,
+          memberId: 1,
+          nickname: '일',
+          message: '반갑다',
+        }),
+      );
+    }
+  }, [wsConnected]);
+
   return (
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, position: 'relative'}}>
       {/* 지도 */}
       <RealtimeMap />
       {/* 채팅 */}
