@@ -3,6 +3,8 @@ import React, {useState} from 'react';
 import {Button, View} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import CustomModal from '../components/Common/Modal';
+import SendPathNoti from '../components/Common/SendPathNoti';
+import ArriveNoti from '../components/Common/ArriveNoti';
 
 function Home() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -21,7 +23,7 @@ function Home() {
       <Button title="모달" onPress={() => setModalVisible(true)} />
       <CustomModal
         modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
+        content={<ArriveNoti setModalVisible={setModalVisible} />}
       />
     </View>
   );
