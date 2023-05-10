@@ -185,6 +185,9 @@ dependencies {
 
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
+    // splash screen
+    implementation project(':react-native-splash-screen')
+
     // Add these lines
     implementation project(':gvr_common')
     implementation project(':arcore_client')
