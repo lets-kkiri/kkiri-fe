@@ -19,6 +19,7 @@ import ArriveNoti from '../components/Map/ArriveNoti';
 import SendPathNoti from '../components/Map/SendPathNoti';
 import SendHelpNoti from '../components/Map/SendHelpNoti';
 import CustomButton from '../components/Common/Button';
+import Modal from 'react-native-modal';
 
 interface PathProps {
   latitude: number;
@@ -35,7 +36,8 @@ function Map() {
   const [sendpath, setSendpath] = useState<boolean>(false);
 
   const [modalType, setModalType] = useState<string>('');
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [sideModal, setSideModal] = useState<boolean>(false);
 
   useEffect(() => {
     Geolocation.watchPosition(
@@ -284,7 +286,8 @@ function Map() {
           position: 'absolute',
           top: 120,
           left: 350,
-        }}>
+        }}
+        onPress={() => setSideModal(true)}>
         <Image
           style={{resizeMode: 'cover'}}
           source={require('../assets/icons/info.png')}
@@ -302,6 +305,16 @@ function Map() {
           )
         }
       />
+      <Modal
+        isVisible={sideModal}
+        // isVisible={false}
+        coverScreen={false}
+        hasBackdrop={true}
+        backdropColor="#F8F9FF">
+        <View>
+          <Text>사이드 모달</Text>
+        </View>
+      </Modal>
     </View>
   );
 }
