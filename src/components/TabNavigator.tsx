@@ -63,14 +63,13 @@ const TabNavigator = () => {
         component={CreateMoim}
         options={({navigation}) => ({
           tabBarButton: props => (
-            <CreateIcon
-              {...props}
+            <TouchableOpacity
               onPress={() => navigation.navigate('CreateMoim')}
               activeOpacity={0.6}>
               <WithLocalSvg
                 asset={require('../assets/tabIcons/moim_create.svg')}
               />
-            </CreateIcon>
+            </TouchableOpacity>
           ),
         })}
       />

@@ -20,7 +20,6 @@ import CreateMoim from './src/pages/CreateMoim';
 // hooks
 import usePermissions from './src/hooks/usePermissions';
 import RealtimeLocation from './src/pages/RealtimeLocation';
-import Test from './src/pages/Test';
 import {KeyboardAvoidingView} from 'react-native';
 
 export type LoggedInParamList = {

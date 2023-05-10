@@ -15,7 +15,7 @@ import {
 import styled from 'styled-components/native';
 import {TextEncoder} from 'text-encoding';
 import {WithLocalSvg} from 'react-native-svg';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
 import {useHeaderHeight} from '@react-navigation/elements';
 
 // API
@@ -36,7 +36,7 @@ import EmojiBtn from './EmojiBtn';
 import DismissKeyboardView from '../DismissKeyboardView';
 
 // Styled component
-const ChatAreaContainer = styled.View`
+const ChatAreaContainer = styled.ScrollView`
   flex: 1;
   height: 100%;
   display: flex;
@@ -52,7 +52,7 @@ const CloseBtnRow = styled.View`
 `;
 
 const InputContainer = styled.View<{keyboardHeight: number}>`
-  position: absolute;
+  /* position: absolute; */
   flex-direction: row;
   background-color: transparent;
   justify-content: center;
@@ -104,12 +104,16 @@ const ChatArea = ({data, client, roomId}: ChatAreaProps) => {
   // 채팅메시지 발신
   const sendMessage = () => {
     console.log('client check :', client.current);
-    client.current.publish({
-      destination: requests.CHAT(roomId),
-      body: JSON.stringify({
-        message: 'Hello World',
+    client.current.send(
+      JSON.stringify({
+        messageType: 'ENTER',
+        moimId: 1,
+        memberId: 1,
+        nickname: '일',
+        message: inputValue,
       }),
-    });
+    );
+
     setInputValue('');
   };
 
@@ -163,38 +167,39 @@ const ChatArea = ({data, client, roomId}: ChatAreaProps) => {
       keyboardDidHideListener.remove();
     };
   }, []);
+  const keyboardVerticalOffset = Platform.OS === 'ios' ? 64 : 0;
 
   return (
-    // <DismissKeyboardView style={{flex: 1}}>
-    <ChatAreaContainer onLayout={onChatAreaConLayout}>
-      <CloseBtnRow>
-        <TouchableHighlight>
-          <WithLocalSvg asset={close_btn} />
-        </TouchableHighlight>
-      </CloseBtnRow>
-      <ChatFlatList data={data} parentHeight={chatAreaConHeight} />
-      <InputContainer onLayout={onInputConLayout} keyboardHeight={keyboardh}>
-        <DismissKeyboardView>
-          <TextInputContainer
-            parentWidth={inputConWidth}
-            onLayout={onTextInputConLayout}>
-            <StyledTextInput
-              placeholder="메시지를 입력해주세요"
-              onChangeText={text => {
-                setInputValue(text);
-              }}
-              value={inputValue}
-              parentWidth={textInputConWidth}
-            />
-            <TextSendBtn onPress={() => sendMessage()}>
-              <WithLocalSvg asset={send_btn} />
-            </TextSendBtn>
-          </TextInputContainer>
-        </DismissKeyboardView>
-        <EmojiBtn />
-      </InputContainer>
-    </ChatAreaContainer>
-    // </DismissKeyboardView>
+    <KeyboardAvoidingView style={{flex: 1}}>
+      <ChatAreaContainer onLayout={onChatAreaConLayout}>
+        <CloseBtnRow>
+          <TouchableHighlight>
+            <WithLocalSvg asset={close_btn} />
+          </TouchableHighlight>
+        </CloseBtnRow>
+        <ChatFlatList data={data} parentHeight={chatAreaConHeight} />
+        <InputContainer onLayout={onInputConLayout} keyboardHeight={keyboardh}>
+          <DismissKeyboardView>
+            <TextInputContainer
+              parentWidth={inputConWidth}
+              onLayout={onTextInputConLayout}>
+              <TextInput
+                placeholder="메시지를 입력해주세요"
+                onChangeText={text => {
+                  setInputValue(text);
+                }}
+                value={inputValue}
+                // parentWidth={textInputConWidth}
+              />
+              <TextSendBtn onPress={() => sendMessage()}>
+                <WithLocalSvg asset={send_btn} />
+              </TextSendBtn>
+            </TextInputContainer>
+          </DismissKeyboardView>
+          <EmojiBtn />
+        </InputContainer>
+      </ChatAreaContainer>
+    </KeyboardAvoidingView>
   );
 };
 
