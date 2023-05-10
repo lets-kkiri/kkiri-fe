@@ -1,10 +1,14 @@
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
-import {Button, Text, View} from 'react-native';
+import React, {useState} from 'react';
+import {Button, View} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import CustomModal from '../components/Common/Modal';
+import SendPathNoti from '../components/Common/SendPathNoti';
+import ArriveNoti from '../components/Common/ArriveNoti';
 
 function Home() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const [modalVisible, setModalVisible] = useState(false);
   return (
     <View>
       <Button
@@ -15,6 +19,11 @@ function Home() {
       <Button
         title="모임원 위치"
         onPress={() => navigation.navigate('RealtimeLocation')}
+      />
+      <Button title="모달" onPress={() => setModalVisible(true)} />
+      <CustomModal
+        modalVisible={modalVisible}
+        content={<ArriveNoti setModalVisible={setModalVisible} />}
       />
     </View>
   );
