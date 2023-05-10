@@ -4,12 +4,12 @@ import {requests} from '../api/requests';
 
 interface helpProps {
   senderEmail: string;
-  chatRoomId: string;
+  chatRoomId: number;
 }
 
 const initialState: helpProps = {
   senderEmail: '',
-  chatRoomId: '',
+  chatRoomId: 0,
 };
 
 export const helpPost = createAsyncThunk(
