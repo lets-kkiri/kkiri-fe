@@ -1,41 +1,78 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {Button, View, StyleSheet} from 'react-native';
 import {
   KakaoOAuthToken,
   KakaoProfile,
-  getProfile as getKakaoProfile,
+  getProfile,
   login,
   logout,
   unlink,
 } from '@react-native-seoul/kakao-login';
 
 function SignIn() {
+  const [result, setResult] = useState('');
+  const [isLoggedin, setIsLoggedin] = useState(false);
+
+  useEffect(() => {
+    console.log(result);
+  }, [result]);
+
   const signInWithKakao = async (): Promise<void> => {
-    const token: KakaoOAuthToken = await login();
-    setResult(JSON.stringify(token));
+    try {
+      const token: KakaoOAuthToken = await login();
+      setResult(JSON.stringify(token));
+      setIsLoggedin(true);
+      // console.log('토큰입니다', token);
+    } catch (error: any) {
+      console.error(error.message);
+    }
   };
 
   const signOutWithKakao = async (): Promise<void> => {
     const message = await logout();
     setResult(message);
+    setIsLoggedin(false);
   };
 
   const getKakaoProfile = async (): Promise<void> => {
     const profile: KakaoProfile = await getProfile();
+    console.log('profile', profile);
     setResult(JSON.stringify(profile));
   };
 
   const unlinkKakao = async (): Promise<void> => {
     const message = await unlink();
     setResult(message);
+    setIsLoggedin(false);
   };
 
   return (
     <View style={styles.container}>
+      {isLoggedin === true ? (
+        <Button
+          title="카카오 로그아웃"
+          onPress={() => {
+            signOutWithKakao();
+          }}
+        />
+      ) : (
+        <Button
+          title="카카오 로그인"
+          onPress={() => {
+            signInWithKakao();
+          }}
+        />
+      )}
       <Button
-        title="카카오 로그인"
+        title="카카오 프로필 가져오기"
         onPress={() => {
-          signInWithKakao();
+          getKakaoProfile();
+        }}
+      />
+      <Button
+        title="카카오 연결 해제"
+        onPress={() => {
+          unlinkKakao();
         }}
       />
     </View>
