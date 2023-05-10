@@ -118,7 +118,7 @@ function Map() {
     // 임시 데이터
     const postData = {
       senderEmail: 'rlawnsgh8395@naver.com',
-      chatRoomId: '',
+      chatRoomId: 6,
     };
     store.dispatch(helpPost(postData));
   }

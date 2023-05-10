@@ -5,6 +5,8 @@ import arriveSlice from '../slices/arriveSlice';
 import markSlice from '../slices/markSlice';
 import pressSlice from '../slices/pressSlice';
 import helpSlice from '../slices/helpSlice';
+import userSlice from '../slices/user';
+import notiSlice from '../slices/noti';
 
 const rootReducer = combineReducers({
   guides: guidesSlice,
@@ -12,6 +14,8 @@ const rootReducer = combineReducers({
   marks: markSlice,
   press: pressSlice,
   help: helpSlice,
+  user: userSlice.reducer,
+  noti: notiSlice.reducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
