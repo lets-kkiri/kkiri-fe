@@ -1,8 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {Text, TextInput, TouchableOpacity, View, Switch} from 'react-native';
 import MyCalender from '../components/CreateMoim/MyCalender';
 import {MoimType} from '../slices/moim';
 import MyTimePicker from '../components/CreateMoim/MyTimePicker';
+import CustomButton from '../components/Common/Button';
 
 export type SetMoimType = React.Dispatch<React.SetStateAction<MoimType>>;
 export interface CreateMoimProps {
@@ -22,8 +23,9 @@ function CreateMoim() {
     lateFee: 0,
   });
 
-  const [formOpen, setFormOpen] = useState([false, false, false, false]);
-  const [formDone, setFormDone] = useState([false, false, false, false]);
+  const [formOpen, setFormOpen] = useState([false, false, false]);
+  const [canPost, setCanPost] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(false);
 
   const formOpenHandler = useCallback(
     idx => {
@@ -36,9 +38,25 @@ function CreateMoim() {
     [formOpen],
   );
 
+  const toggleSwitch = () => setIsEnabled(!isEnabled);
+
+  const postMoim = () => {
+    console.log(moim);
+  };
+
   useEffect(() => {
     console.log(moim);
-  });
+    if (
+      moim.name !== '' &&
+      moim.date !== '' &&
+      moim.time !== '' &&
+      moim.placeName !== ''
+    ) {
+      setCanPost(true);
+    } else {
+      setCanPost(false);
+    }
+  }, [moim]);
 
   return (
     <View>
@@ -65,10 +83,41 @@ function CreateMoim() {
         <Text>장소</Text>
       </TouchableOpacity>
       {formOpen && formOpen[2] === true && <Text>장소 선택 컴포넌트</Text>}
+
       <View>
         <Text>지각비</Text>
-        {formOpen && formOpen[3] === true && <Text>지각비 선택 컴포넌트</Text>}
+        {isEnabled === true && (
+          <View>
+            <TextInput
+              placeholder="0"
+              keyboardType="numeric"
+              value={moim?.lateFee === 0 ? '' : moim?.lateFee.toString()}
+              onChangeText={text => {
+                const newMoim = {...moim};
+                newMoim.lateFee = parseInt(text, 10);
+                if (text === '') {
+                  newMoim.lateFee = 0;
+                }
+                setMoim(newMoim);
+              }}
+            />
+            <Text>원</Text>
+          </View>
+        )}
+        <Switch
+          trackColor={{false: '#CFCFCF', true: '#B0BDFF'}}
+          thumbColor={'#FFFFFF'}
+          onValueChange={toggleSwitch}
+          value={isEnabled}
+        />
       </View>
+
+      <CustomButton
+        text="모임 생성하기"
+        status={canPost === true ? 'active' : 'disabled'}
+        width="long"
+        onPress={postMoim}
+      />
     </View>
   );
 }
