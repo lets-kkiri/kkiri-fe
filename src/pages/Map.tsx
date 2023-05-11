@@ -39,7 +39,7 @@ function Map() {
   const [sideModal, setSideModal] = useState<boolean>(false);
 
   useEffect(() => {
-    Geolocation.watchPosition(
+    Geolocation.getCurrentPosition(
       position => {
         setMyPosition({
           latitude: position.coords.latitude,
