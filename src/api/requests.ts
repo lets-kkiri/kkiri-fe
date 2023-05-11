@@ -7,13 +7,14 @@ export const requests = {
   CONNECT: '/stomp',
 
   // 채팅
-  CHAT(roomId: number) {
-    return `/stomp/pub/chat/enter/${roomId}`;
+  CHAT(roomId) {
+    return `/pub/chat.enter.${roomId}`;
+    // return `/pub/chat`;
   },
 
   // 실시간 위치
-  LOCATION(roomId: number) {
-    return `/stomp/gps/location/${roomId}`;
+  LOCATION(roomId) {
+    return `/gps/location/${roomId}`;
   },
 
   // 그린 경로 전송
