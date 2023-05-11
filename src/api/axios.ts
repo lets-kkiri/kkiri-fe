@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {requests} from './requests';
 
-const BASE_URL = requests.api_base_url;
+const BASE_URL = requests.base_url;
 const NAVER_URL = requests.naver_url;
 
 const baseAPI = (url: string, options?: any) => {

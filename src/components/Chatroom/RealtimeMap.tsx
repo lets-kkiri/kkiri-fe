@@ -211,7 +211,7 @@ function RealtimeMap({client, users, roomId}: Props) {
           {/* 임시 목적지 역삼 멀티캠퍼스 */}
           <Marker
             coordinate={destination}
-            image={require('../../assets/icons/destination.png')}
+            image={require('../../assets/icons/destination.svg')}
             width={50}
             height={55}
           />
@@ -227,7 +227,7 @@ function RealtimeMap({client, users, roomId}: Props) {
                 latitude: myPosition.latitude,
                 longitude: myPosition.longitude,
               }}
-              image={require('../../assets/icons/bear.png')}
+              image={require('../../assets/icons/bear.svg')}
               width={45}
               height={50}
             />
@@ -240,7 +240,7 @@ function RealtimeMap({client, users, roomId}: Props) {
                 latitude: user.latitude,
                 longitude: user.longitude,
               }}
-              image={require('../../assets/icons/bear.png')}
+              image={require('../../assets/icons/bear.svg')}
               // caption={{text: user.id}}
             />
           ))}
@@ -264,7 +264,7 @@ function RealtimeMap({client, users, roomId}: Props) {
           }}
           onPress={() => setStartDraw(true)}>
           <Image
-            source={require('../../assets/icons/draw.png')}
+            source={require('../../assets/icons/draw.svg')}
             style={{resizeMode: 'cover'}}
           />
         </TouchableOpacity>
@@ -272,7 +272,7 @@ function RealtimeMap({client, users, roomId}: Props) {
         <View style={{position: 'absolute', alignItems: 'center'}}>
           <View style={styles.drawnoti}>
             <Image
-              source={require('../../assets/icons/pencil.png')}
+              source={require('../../assets/icons/pencil.svg')}
               style={{resizeMode: 'cover', marginRight: 10}}
             />
             <Text>손가락으로 길을 그려 친구에게 보내주세요!</Text>
@@ -319,7 +319,7 @@ function RealtimeMap({client, users, roomId}: Props) {
         onPress={sendHelp}>
         <Image
           style={{resizeMode: 'cover'}}
-          source={require('../../assets/icons/help.png')}
+          source={require('../../assets/icons/help.svg')}
         />
       </TouchableOpacity>
       <TouchableOpacity
@@ -333,7 +333,7 @@ function RealtimeMap({client, users, roomId}: Props) {
         onPress={() => setSideModal(true)}>
         <Image
           style={{resizeMode: 'cover'}}
-          source={require('../../assets/icons/info.png')}
+          source={require('../../assets/icons/info.svg')}
         />
       </TouchableOpacity>
       <CustomModal

@@ -16,7 +16,7 @@ const ArriveNoti = ({setModalVisible}: BtnProps) => {
           alignItems: 'center',
         }}>
         <Image
-          source={require('../../assets/icons/bear.png')}
+          source={require('../../assets/icons/bear.svg')}
           style={{width: 30, height: 33, marginRight: 10}}
         />
         <Text>목적지에 도착했습니다</Text>
