@@ -100,11 +100,12 @@ function AppInner() {
           console.log('내 디바이스 토큰', token);
           return;
         }
-        const response = axios.post(
+        const response = await axios.post(
           requests.POST_FCM_TOKEN(),
           {deviceToken: token},
           {headers: {authorization: `Bearer ${accessToken}`}},
         );
+        console.log('쏠 디바이스 토큰', token);
         console.log('getTokenRes : ', response);
       } catch (error) {
         console.error(error);
