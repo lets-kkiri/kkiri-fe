@@ -56,4 +56,4 @@ const markSlice = createSlice({
 
 export const markAction = markSlice.actions;
 
-export default markSlice.reducer;
+export default markSlice;

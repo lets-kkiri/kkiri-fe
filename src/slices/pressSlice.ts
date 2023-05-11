@@ -37,4 +37,4 @@ const pressSlice = createSlice({
   },
 });
 
-export default pressSlice.reducer;
+export default pressSlice;

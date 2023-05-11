@@ -1,29 +1,27 @@
-import React, {useEffect, useState, MutableRefObject} from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableHighlight,
-  Text,
-  Alert,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, StyleSheet, Text, Alert, TouchableOpacity} from 'react-native';
+import {WithLocalSvg} from 'react-native-svg';
+
+// Naver Map
 import Geolocation from '@react-native-community/geolocation';
-import NaverMapView, {Circle, Marker, Polyline} from 'react-native-nmap';
-import {guidesPost} from '../../slices/guidesSlice';
-import store from '../../store';
-import {arrivePost} from '../../slices/arriveSlice';
+import NaverMapView, {Marker, Polyline} from 'react-native-nmap';
+
+// redux
 import {useSelector} from 'react-redux';
+import {useAppDispatch} from '../../store';
 import {RootState} from '../../store/reducer';
+import {guidesPost} from '../../slices/guidesSlice';
+import {arrivePost} from '../../slices/arriveSlice';
 import {pressPost} from '../../slices/pressSlice';
 import {helpPost} from '../../slices/helpSlice';
-import CustomModal from '../Common/Modal';
+
+// component
 import AboutMoim from '../Map/AboutMoim';
 import ArriveNoti from '../Map/ArriveNoti';
 import SendPathNoti from '../Map/SendPathNoti';
 import SendHelpNoti from '../Map/SendHelpNoti';
+import CustomModal from '../Common/Modal';
 import CustomButton from '../Common/Button';
-import {WithLocalSvg} from 'react-native-svg';
 
 // svg
 import Pencil from '../../assets/icons/pencil.svg';
@@ -32,12 +30,23 @@ import Info from '../../assets/icons/info.svg';
 import NotiBox from '../Common/NotiBox';
 
 interface UserProps {
-  id: number;
-  roomId: number;
+  type: string;
+  content: Object;
   memberId: number;
   latitude: number;
   longitude: number;
+  regDate: string;
 }
+
+const UserData = {
+  type: '',
+  content: {
+    memberId: 0,
+    longitude: 0,
+    latitude: 0,
+    regDate: '',
+  },
+};
 
 interface PathProps {
   latitude: number;
@@ -57,8 +66,8 @@ type LocateType = {
   lon2: number;
 };
 
-function RealtimeMap({client, users, roomId}: Props) {
-  const [myPosition, setMyPosition] = useState<UserProps | null>(null);
+function RealtimeMap() {
+  const [myPosition, setMyPosition] = useState(UserData);
   const [startDraw, setStartDraw] = useState<boolean>(false);
   const [drawpoint, setDrawpoint] = useState<PathProps | null>(null);
   const [drawpath, setDrawpath] = useState<PathProps[]>([]);
@@ -68,18 +77,27 @@ function RealtimeMap({client, users, roomId}: Props) {
   const [sideModal, setSideModal] = useState<boolean>(false);
   const date = new Date();
 
+  const dispatch = useAppDispatch();
+
   // 임시 목적지: 역삼 멀티캠퍼스
   const destination = {latitude: 37.501303, longitude: 127.039603};
+  const moimId = 1;
 
-  useEffect(() => {
+  const socket = useSelector((state: RootState) => state.sockets.socket);
+
+  // 서버와 연결되면 실행될 콜백 함수
+  socket.on('connect', () => {
+    console.log('connected to server');
     Geolocation.watchPosition(
       position => {
         setMyPosition({
-          id: 1, // 임시
-          roomId: 1, // 임시
-          memberId: 1, // 임시
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
+          type: 'GPS',
+          content: {
+            memberId: 1, // 임시
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            regDate: date.toISOString(),
+          },
         });
       },
       error => console.log(error),
@@ -88,96 +106,7 @@ function RealtimeMap({client, users, roomId}: Props) {
         timeout: 20000,
       },
     );
-  }, []);
-
-  useEffect(() => {
-    // 내 위치 서버로 보내기
-    client.current.send(
-      `/gps/pub/location/${roomId}`,
-      {},
-      JSON.stringify(myPosition),
-    );
-
-    // 현재 위치와 목적지 위치의 거리 계산
-    if (myPosition) {
-      const distance = calculateDistance({
-        lat1: myPosition.latitude,
-        lon1: myPosition.longitude,
-        lat2: 37.501303,
-        lon2: 127.039603,
-      });
-      // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-      if (distance <= 50) {
-        console.log('목적지 도착');
-        const arriveTime = date.toISOString();
-        // Alert.alert('목적지에 도착하였습니다!', arriveTime);
-        setModalVisible(true);
-        setModalType('arrive');
-        store.dispatch(
-          arrivePost({roomId: roomId, memberId: 1, arrivalTime: arriveTime}),
-        );
-      }
-    }
-  }, []);
-
-  // const userGrades = useSelector(userGrade);
-  const userGrades = useSelector((state: RootState) => state.arrives.userGrade);
-
-  const drawPath = (e: any) => {
-    if (startDraw) {
-      setDrawpoint({
-        latitude: e.latitude,
-        longitude: e.longitude,
-      });
-    } else {
-      return;
-    }
-  };
-
-  useEffect(() => {
-    if (drawpoint) {
-      setDrawpath(prevPoint => [...prevPoint, drawpoint]);
-    }
-  }, [drawpoint]);
-
-  // 경로 서버로 보내기
-  function sendPath() {
-    // 임시 데이터
-    const postData = {
-      senderEmail: 'rlawnsgh8395@naver.com',
-      receiverEmail: 'rlawnsgh8395@gmail.com',
-      path: drawpath,
-    };
-    store.dispatch(guidesPost(postData));
-    // setSendpath(true);
-    // Alert.alert('길안내 알림을 전송했어요!');
-    setModalVisible(true);
-    setModalType('sendpath');
-    setSendpath(false);
-    setStartDraw(false);
-  }
-
-  function sendPress() {
-    Alert.alert('재촉했어요!');
-    // 임시 데이터
-    const postData = {
-      senderEmail: '지니',
-      receiverEmail: 'rlawnsgh8395@gmail.com',
-    };
-    store.dispatch(pressPost(postData));
-  }
-
-  function sendHelp() {
-    // Alert.alert('도움 요청을 보냈어요!');
-    setModalVisible(true);
-    setModalType('sendhelp');
-    // 임시 데이터
-    const postData = {
-      senderEmail: 'rlawnsgh8395@naver.com',
-      chatRoomId: 6,
-    };
-    store.dispatch(helpPost(postData));
-  }
+  });
 
   // 두 위치의 거리 계산 함수
   function calculateDistance({lat1, lon1, lat2, lon2}: LocateType) {
@@ -201,6 +130,90 @@ function RealtimeMap({client, users, roomId}: Props) {
     return (degrees * Math.PI) / 180;
   }
 
+  // 현재 위치와 목적지 위치의 거리 계산
+  if (myPosition) {
+    const distance = calculateDistance({
+      lat1: myPosition.content.latitude,
+      lon1: myPosition.content.longitude,
+      lat2: 37.501303,
+      lon2: 127.039603,
+    });
+
+    // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
+    if (distance <= 50) {
+      console.log('목적지 도착');
+      const arrivalTime = date.toISOString();
+      // Alert.alert('목적지에 도착하였습니다!', arriveTime);
+      dispatch(arrivePost({moimId: moimId, arrivalTime: arrivalTime}));
+      setModalVisible(true);
+      setModalType('arrive');
+    }
+  }
+
+  // 내 위치 서버로 보내기
+  socket.emit('sendMyLocate', JSON.stringify(myPosition));
+
+  // const userGrades = useSelector(userGrade);
+  const userGrades = useSelector((state: RootState) => state.arrives.userGrade);
+
+  const drawPath = (e: any) => {
+    if (startDraw) {
+      setDrawpoint({
+        latitude: e.latitude,
+        longitude: e.longitude,
+      });
+    } else {
+      return;
+    }
+  };
+
+  useEffect(() => {
+    if (drawpoint) {
+      setDrawpath(prevPoint => [...prevPoint, drawpoint]);
+    }
+  }, [drawpoint]);
+
+  // 서버로 그린 경로 보내는 함수
+  function sendPath() {
+    // 임시 데이터
+    const postData = {
+      senderEmail: 'rlawnsgh8395@naver.com',
+      receiverEmail: 'rlawnsgh8395@gmail.com',
+      path: drawpath,
+    };
+    dispatch(guidesPost(postData));
+    // setSendpath(true);
+    // Alert.alert('길안내 알림을 전송했어요!');
+    setModalVisible(true);
+    setModalType('sendpath');
+    setSendpath(false);
+    setStartDraw(false);
+  }
+
+  // 재촉 보내는 함수
+  function sendPress() {
+    Alert.alert('재촉했어요!');
+    // 임시 데이터
+    const postData = {
+      senderEmail: '지니',
+      receiverEmail: 'rlawnsgh8395@gmail.com',
+    };
+    dispatch(pressPost(postData));
+  }
+
+  // 도움 요청 보내는 함수
+  function sendHelp() {
+    // Alert.alert('도움 요청을 보냈어요!');
+    setModalVisible(true);
+    setModalType('sendhelp');
+    // 임시 데이터
+    const postData = {
+      senderEmail: 'rlawnsgh8395@naver.com',
+      chatRoomId: 6,
+    };
+    dispatch(helpPost(postData));
+  }
+
   return (
     <View>
       {myPosition && (
@@ -209,7 +222,7 @@ function RealtimeMap({client, users, roomId}: Props) {
           onMapClick={e => {
             drawPath(e);
           }}
-          center={{...myPosition, zoom: 14}}>
+          center={{...myPosition.content, zoom: 14}}>
           {/* 임시 목적지 역삼 멀티캠퍼스 */}
           <Marker
             coordinate={destination}
@@ -223,11 +236,11 @@ function RealtimeMap({client, users, roomId}: Props) {
             color={'rgba(221, 226, 252, 0.5)'}
             radius={50}
           /> */}
-          {myPosition?.latitude && (
+          {myPosition?.content.latitude && (
             <Marker
               coordinate={{
-                latitude: myPosition.latitude,
-                longitude: myPosition.longitude,
+                latitude: myPosition.content.latitude,
+                longitude: myPosition.content.longitude,
               }}
               image={require('../../assets/icons/bear.png')}
               width={45}
@@ -335,7 +348,8 @@ function RealtimeMap({client, users, roomId}: Props) {
       {sideModal ? <AboutMoim setSideModal={setSideModal} /> : null}
       {/* 등수 보여주는 예시 */}
       <View>
-        <Text>{userGrades.grade}등으로 도착하셨습니다!</Text>
+        <Text>{userGrades.ranking.overall}명 중에</Text>
+        <Text>{userGrades.ranking.rank}등으로 도착하셨습니다!</Text>
       </View>
     </View>
   );

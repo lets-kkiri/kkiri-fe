@@ -44,4 +44,4 @@ const guidesSlice = createSlice({
   },
 });
 
-export default guidesSlice.reducer;
+export default guidesSlice;

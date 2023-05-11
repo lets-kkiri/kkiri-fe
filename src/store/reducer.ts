@@ -10,14 +10,14 @@ import notiSlice from '../slices/noti';
 import socketSlice from '../slices/socket';
 
 const rootReducer = combineReducers({
-  guides: guidesSlice,
-  arrives: arriveSlice,
-  marks: markSlice,
-  press: pressSlice,
-  help: helpSlice,
+  guides: guidesSlice.reducer,
+  arrives: arriveSlice.reducer,
+  marks: markSlice.reducer,
+  press: pressSlice.reducer,
+  help: helpSlice.reducer,
   user: userSlice.reducer,
   noti: notiSlice.reducer,
-  socket: socketSlice,
+  sockets: socketSlice.reducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

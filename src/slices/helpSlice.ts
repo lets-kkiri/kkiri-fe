@@ -37,4 +37,4 @@ const helpSlice = createSlice({
   },
 });
 
-export default helpSlice.reducer;
+export default helpSlice;
