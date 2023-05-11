@@ -64,6 +64,10 @@ function AppInner() {
   // 푸쉬 알람을 위한 설정
   const dispatch = useAppDispatch();
 
+  // 채팅 연결
+  const token = useSelector((state: RootState) => state.sockets.value);
+  dispatch(createSocket(1));
+
   messaging().setBackgroundMessageHandler(async remoteMessage => {
     console.log(
       'Message handled in the background!',

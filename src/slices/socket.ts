@@ -13,6 +13,8 @@ interface ClientToServerEvents {
 
 type socket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
+const initialState: SocketsState = {};
+
 const socketsSlice = createSlice({
   name: 'sockets',
   initialState: {},
@@ -31,8 +33,12 @@ const socketsSlice = createSlice({
 export const {addSocket, removeSocket} = socketsSlice.actions;
 
 export const createSocket = (moimId: number) => (dispatch: any) => {
-  const socket = io(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`);
-  dispatch(addSocket({moimId, socket}));
+  console.log('hey');
+  const socket = io(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`, {
+    extraHeaders: {Authorization: `Bearer ${token}`},
+  });
+  socket.on('connect', () => {});
+  console.log('socket :', socket);
 };
 
-export default socketsSlice.reducer;
+export default socketsSlice;

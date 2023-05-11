@@ -17,6 +17,7 @@ import {TextEncoder} from 'text-encoding';
 import {WithLocalSvg} from 'react-native-svg';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
 import {useHeaderHeight} from '@react-navigation/elements';
+import {useSelector} from 'react-redux';
 
 // API
 import {requests} from '../../api/requests';
@@ -24,16 +25,13 @@ import {requests} from '../../api/requests';
 // Types
 import {MessageData} from '../../types';
 
-// Icons
-// import close_btn from '../../assets/icons/close_white.svg';
-// import send_btn from '../../assets/icons/chat_send_btn.svg';
-
 const close_btn = require('../../assets/icons/close_white.svg') as string;
 const send_btn = require('../../assets/icons/chat_send_btn.svg') as string;
 
 // Components
 import EmojiBtn from './EmojiBtn';
 import DismissKeyboardView from '../DismissKeyboardView';
+import {RootState} from '../../store/reducer';
 
 // Styled component
 const ChatAreaContainer = styled.ScrollView`
@@ -52,15 +50,12 @@ const CloseBtnRow = styled.View`
 `;
 
 const InputContainer = styled.View<{keyboardHeight: number}>`
-  /* position: absolute; */
   flex-direction: row;
   background-color: transparent;
   justify-content: center;
   align-items: center;
   margin-bottom: ${({keyboardHeight}) => keyboardHeight}px;
   bottom: 0px;
-  /* height: 48px; */
-  /* margin: 8px; */
 `;
 
 const TextInputContainer = styled.View<{parentWidth: number}>`
@@ -93,27 +88,28 @@ const TextSendBtn = styled.TouchableHighlight`
 type ChatAreaProps = {
   data: MessageData[];
   client: any;
-  roomId: number;
+  moimId: number;
 };
 
-const ChatArea = ({data, client, roomId}: ChatAreaProps) => {
-  const [inputValue, setInputValue] = useState('');
+const ChatArea = ({data, client, moimId}: ChatAreaProps) => {
+  const [inputValue, setInputValue] = useState<string>('');
 
-  const encoder = new TextEncoder();
+  const socket = useSelector((state: RootState) => state.socket.value); // 수정필요
+  const userInfo = useSelector((state: RootState) => state.user);
 
   // 채팅메시지 발신
   const sendMessage = () => {
     console.log('client check :', client.current);
-    client.current.send(
-      JSON.stringify({
-        messageType: 'ENTER',
-        moimId: 1,
-        memberId: 1,
-        nickname: '일',
-        message: inputValue,
-      }),
-    );
-
+    const msg = JSON.stringify({
+      type: 'MESSAGE', //or EMOJI, URGENT
+      content: {
+        moimId: moimId, //e.g. 1
+        memberId: userInfo.memberId, //e.g. 1
+        nickname: userInfo.nickname,
+        message: inputValue.trim(),
+      },
+    });
+    socket.send(msg);
     setInputValue('');
   };
 
