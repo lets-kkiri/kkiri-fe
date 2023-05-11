@@ -2,8 +2,13 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Text, TextInput, TouchableOpacity, View} from 'react-native';
 import MyCalender from '../components/CreateMoim/MyCalender';
 import {MoimType} from '../slices/moim';
+import MyTimePicker from '../components/CreateMoim/MyTimePicker';
 
 export type SetMoimType = React.Dispatch<React.SetStateAction<MoimType>>;
+export interface CreateMoimProps {
+  moim: MoimType;
+  setMoim: SetMoimType;
+}
 
 function CreateMoim() {
   const [moim, setMoim] = useState<MoimType>({
@@ -39,6 +44,7 @@ function CreateMoim() {
     <View>
       <Text>모임 생성 중</Text>
       <TextInput placeholder="모임 이름을 입력해주세요." />
+
       <TouchableOpacity onPress={() => formOpenHandler(0)}>
         <Text>날짜</Text>
         {moim?.date !== '' ? <Text>{moim.date}</Text> : null}
@@ -46,10 +52,15 @@ function CreateMoim() {
       {formOpen && formOpen[0] === true && (
         <MyCalender moim={moim} setMoim={setMoim} />
       )}
+
       <TouchableOpacity onPress={() => formOpenHandler(1)}>
         <Text>시간</Text>
+        {moim?.time !== '' ? <Text>{moim.time}</Text> : null}
       </TouchableOpacity>
-      {formOpen && formOpen[1] === true && <Text>시간 선택 컴포넌트</Text>}
+      {formOpen && formOpen[1] === true && (
+        <MyTimePicker moim={moim} setMoim={setMoim} />
+      )}
+
       <TouchableOpacity onPress={() => formOpenHandler(2)}>
         <Text>장소</Text>
       </TouchableOpacity>

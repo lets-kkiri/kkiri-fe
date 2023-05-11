@@ -1,8 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import {Button} from 'react-native';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
-import {MoimType} from '../../slices/moim';
-import {SetMoimType} from '../../pages/CreateMoim';
+import {CreateMoimProps} from '../../pages/CreateMoim';
 
 LocaleConfig.locales.kr = {
   monthNames: [
@@ -45,14 +43,9 @@ LocaleConfig.locales.kr = {
   dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
 };
 
-interface CalenderProps {
-  moim: MoimType;
-  setMoim: SetMoimType;
-}
-
 LocaleConfig.defaultLocale = 'kr';
 
-function MyCalender({moim, setMoim}: CalenderProps) {
+function MyCalender({moim, setMoim}: CreateMoimProps) {
   const [todayString, setTodayString] = useState('');
   const [selected, setSelected] = useState('');
 
