@@ -1,5 +1,6 @@
 import React from 'react';
-import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
+import {StyleSheet, TouchableOpacity} from 'react-native';
+import styled from 'styled-components/native';
 
 interface ButtonProps {
   text: string;
@@ -41,34 +42,29 @@ const btnStatus: BtnStatusType = {
   },
 };
 
+const Button = styled.View`
+  height: 50;
+  justify-content: center;
+  align-items: center;
+  padding-left: 34;
+  padding-right: 34;
+  border-radius: 15;
+  background-color: #5968f2;
+`;
+
+const Font = styled.Text`
+  color: #fff;
+  font-size: 14;
+`;
+
 const CustomButton = ({text, status, width, onPress}: ButtonProps) => {
   return (
     <TouchableOpacity onPress={onPress}>
-      <View
-        style={StyleSheet.flatten([
-          styles.button,
-          btnStatus[status],
-          btnStatus[width],
-        ])}>
-        <Text style={styles.font}>{text}</Text>
-      </View>
+      <Button style={StyleSheet.flatten([btnStatus[status], btnStatus[width]])}>
+        <Font>{text}</Font>
+      </Button>
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 34,
-    borderRadius: 15,
-    backgroundColor: '#5968F2',
-  },
-  font: {
-    color: '#FFF',
-    fontSize: 14,
-  },
-});
 
 export default CustomButton;

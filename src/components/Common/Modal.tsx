@@ -1,12 +1,29 @@
 import React from 'react';
-import {View, StyleSheet, Text, Image} from 'react-native';
 import Modal from 'react-native-modal';
+import styled from 'styled-components/native';
 
 interface ModalProps {
   modalVisible: boolean;
   content: JSX.Element;
-  // onClick: () => void;
 }
+
+const CenteredView = styled.View`
+  justify-content: center;
+  align-items: center;
+`;
+
+const ModalView = styled.View`
+  margin: 20px;
+  background-color: white;
+  border-radius: 15;
+  border-color: #5968f2;
+  border-style: solid;
+  border-width: 2;
+  padding-right: 10;
+  padding-left: 10;
+  padding-top: 20;
+  padding-bottom: 10;
+`;
 
 const CustomModal = ({modalVisible, content}: ModalProps) => {
   return (
@@ -15,32 +32,11 @@ const CustomModal = ({modalVisible, content}: ModalProps) => {
       coverScreen={true}
       hasBackdrop={true}
       backdropColor="#F8F9FF">
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>{content}</View>
-      </View>
+      <CenteredView>
+        <ModalView>{content}</ModalView>
+      </CenteredView>
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  centeredView: {
-    // flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 15,
-    borderColor: '#5968F2',
-    borderStyle: 'solid',
-    borderWidth: 2,
-    paddingHorizontal: 10,
-    paddingTop: 20,
-    paddingBottom: 10,
-    // elevation: 5,
-  },
-});
 
 export default CustomModal;
