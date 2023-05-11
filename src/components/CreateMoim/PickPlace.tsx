@@ -57,6 +57,7 @@ function PickPlace({moim, setMoim, setFormOpen}: PickPlaceProps) {
     setLat(moim.latitude);
   }, [moim]);
 
+  // persist 처리 말고 방법 없을까..? 새 약속 만들때도 기존 약속 장소가 그대로 남아있음.
   const addr = useSelector((state: RootState) => state.persisted.marks.addr);
 
   // 미래에 검색 기능 넣어야 함
