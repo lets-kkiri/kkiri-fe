@@ -1,18 +1,12 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  Switch,
-  ScrollView,
-} from 'react-native';
+import {Text, View, Switch, Modal} from 'react-native';
 import MyCalender from '../components/CreateMoim/MyCalender';
 import {MoimType} from '../slices/moim';
 import MyTimePicker from '../components/CreateMoim/MyTimePicker';
 import CustomButton from '../components/Common/Button';
 import {WithLocalSvg} from 'react-native-svg';
 import styled from 'styled-components/native';
+import PickPlace from '../components/CreateMoim/PickPlace';
 
 // Styled component
 const CreateMoimConatiner = styled.View`
@@ -98,7 +92,8 @@ const FeeInput = styled.TextInput`
 const ButtonContainer = styled.View`
   flex: 0.15;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
+  padding-bottom: 20px;
   align-items: center;
 `;
 
@@ -241,18 +236,17 @@ function CreateMoim() {
             </IconConatiner>
             <Text>장소</Text>
           </ViewBinder>
+          {moim?.placeName !== '' ? <Text>{moim.placeName}</Text> : null}
         </ListContainer>
         {formOpen && formOpen[2] === true && (
           <View>
-            <TextInput
-              placeholder="임시 장소 선택 컴포넌트"
-              value={moim.placeName}
-              onChangeText={text => {
-                const newMoim = {...moim};
-                newMoim.placeName = text;
-                setMoim(newMoim);
-              }}
-            />
+            <Modal>
+              <PickPlace
+                moim={moim}
+                setMoim={setMoim}
+                setFormOpen={setFormOpen}
+              />
+            </Modal>
           </View>
         )}
 
