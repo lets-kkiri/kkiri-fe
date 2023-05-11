@@ -2,7 +2,8 @@ import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from '../pages/Home';
 import CreateMoim from '../pages/CreateMoim';
-import MyPage from '../pages/MyPage';
+// import MyPage from '../pages/MyPage';
+import SignIn from '../pages/SignIn';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
 import {
@@ -31,16 +32,18 @@ const TabNavigator = () => {
       <Tab.Navigator
         screenOptions={({route}) => ({
           tabBarIcon: ({focused, color, size}) => {
-            if (route.name === 'Home')
+            if (route.name === 'Home') {
               return (
                 <WithLocalSvg asset={focused ? home_active : home_inactive} />
               );
-            if (route.name === 'Mypage')
+            }
+            if (route.name === 'Mypage') {
               return (
                 <WithLocalSvg
                   asset={focused ? mypage_active : mypage_inactive}
                 />
               );
+            }
           },
           headerShown: false,
           tabBarActiveTintColor: '#5968F2',
@@ -79,7 +82,8 @@ const TabNavigator = () => {
         />
         <Tab.Screen
           name="Mypage"
-          component={MyPage}
+          // component={MyPage}
+          component={SignIn}
           options={{tabBarLabel: '마이페이지'}}
         />
       </Tab.Navigator>
