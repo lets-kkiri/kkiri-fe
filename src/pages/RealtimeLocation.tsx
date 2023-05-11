@@ -1,6 +1,5 @@
 import React, {useEffect, useState, useRef} from 'react';
 import {Button, View} from 'react-native';
-import StompJs from '@stomp/stompjs';
 import Geolocation from '@react-native-community/geolocation';
 import NaverMapView, {Marker, Polyline} from 'react-native-nmap';
 
@@ -46,57 +45,6 @@ function RealtimeLocation() {
       },
     );
   }, []);
-
-  useEffect(() => {
-    connect();
-
-    return () => disconnect();
-  }, []);
-
-  // 임시 roomId
-  const roomId = 1;
-
-  const connect = () => {
-    client.current = new StompJs.Client({
-      brokerURL: 'socket_url', // 웹소켓 서버로 직접 접속
-      debug: function (str) {
-        console.log(str);
-      },
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-      onConnect: () => {
-        console.log('connect success');
-        subscribe();
-        send();
-      },
-      onStompError: frame => {
-        console.error(frame);
-      },
-    });
-
-    client.current.activate();
-  };
-
-  const disconnect = () => {
-    client.current.deactivate();
-  };
-
-  // 서버에서 다른 사용자들의 위치 받아오기
-  const subscribe = () => {
-    client.current.subscribe(`/stomp/gps/location/${roomId}`, user => {
-      setUsers(userLocate => [...userLocate, JSON.parse(user.body)]);
-    });
-  };
-
-  // 내 위치 서버로 보내기
-  const send = () => {
-    client.current.send(
-      `/stomp/gps/location/${roomId}`,
-      {},
-      JSON.stringify(myPosition),
-    );
-  };
 
   const drawPath = e => {
     if (startDraw) {
