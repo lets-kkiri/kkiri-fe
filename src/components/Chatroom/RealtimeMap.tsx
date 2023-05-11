@@ -23,6 +23,13 @@ import ArriveNoti from '../Map/ArriveNoti';
 import SendPathNoti from '../Map/SendPathNoti';
 import SendHelpNoti from '../Map/SendHelpNoti';
 import CustomButton from '../Common/Button';
+import {WithLocalSvg} from 'react-native-svg';
+
+// svg
+import Pencil from '../../assets/icons/pencil.svg';
+import Help from '../../assets/icons/help.svg';
+import Info from '../../assets/icons/info.svg';
+import NotiBox from '../Common/NotiBox';
 
 interface UserProps {
   id: number;
@@ -101,13 +108,8 @@ function RealtimeMap({client, users, roomId}: Props) {
       });
       // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
       if (distance <= 50) {
-        const arriveTime =
-          date.getHours() +
-          '시' +
-          date.getMinutes() +
-          '분' +
-          date.getSeconds() +
-          '초';
+        console.log('목적지 도착');
+        const arriveTime = date.toISOString();
         // Alert.alert('목적지에 도착하였습니다!', arriveTime);
         setModalVisible(true);
         setModalType('arrive');
@@ -211,7 +213,7 @@ function RealtimeMap({client, users, roomId}: Props) {
           {/* 임시 목적지 역삼 멀티캠퍼스 */}
           <Marker
             coordinate={destination}
-            image={require('../../assets/icons/destination.svg')}
+            image={require('../../assets/icons/destination.png')}
             width={50}
             height={55}
           />
@@ -227,7 +229,7 @@ function RealtimeMap({client, users, roomId}: Props) {
                 latitude: myPosition.latitude,
                 longitude: myPosition.longitude,
               }}
-              image={require('../../assets/icons/bear.svg')}
+              image={require('../../assets/icons/bear.png')}
               width={45}
               height={50}
             />
@@ -240,7 +242,7 @@ function RealtimeMap({client, users, roomId}: Props) {
                 latitude: user.latitude,
                 longitude: user.longitude,
               }}
-              image={require('../../assets/icons/bear.svg')}
+              image={require('../../assets/icons/bear.png')}
               // caption={{text: user.id}}
             />
           ))}
@@ -254,27 +256,15 @@ function RealtimeMap({client, users, roomId}: Props) {
         </NaverMapView>
       )}
       {startDraw === false ? (
-        <TouchableOpacity 
-          style={{
-            width: '100%',
-            height: '100%',
-            position: 'absolute',
-            top: 10,
-            left: 360,
-          }}
-          onPress={() => setStartDraw(true)}>
-          <Image
-            source={require('../../assets/icons/draw.svg')}
-            style={{resizeMode: 'cover'}}
-          />
-        </TouchableOpacity>
+        <NotiBox
+          mainTitle="@친구가 도움을 요청했어요"
+          subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
+          onPress={() => setStartDraw(true)}
+        />
       ) : sendpath === false ? (
         <View style={{position: 'absolute', alignItems: 'center'}}>
           <View style={styles.drawnoti}>
-            <Image
-              source={require('../../assets/icons/pencil.svg')}
-              style={{resizeMode: 'cover', marginRight: 10}}
-            />
+            <WithLocalSvg asset={Pencil} width={16} height={18} />
             <Text>손가락으로 길을 그려 친구에게 보내주세요!</Text>
           </View>
           <View
@@ -313,28 +303,22 @@ function RealtimeMap({client, users, roomId}: Props) {
           width: '100%',
           height: '100%',
           position: 'absolute',
-          top: 70,
+          top: 110,
           left: 350,
         }}
         onPress={sendHelp}>
-        <Image
-          style={{resizeMode: 'cover'}}
-          source={require('../../assets/icons/help.svg')}
-        />
+        <WithLocalSvg asset={Help} />
       </TouchableOpacity>
       <TouchableOpacity
         style={{
           width: '100%',
           height: '100%',
           position: 'absolute',
-          top: 120,
+          top: 160,
           left: 350,
         }}
         onPress={() => setSideModal(true)}>
-        <Image
-          style={{resizeMode: 'cover'}}
-          source={require('../../assets/icons/info.svg')}
-        />
+        <WithLocalSvg asset={Info} />
       </TouchableOpacity>
       <CustomModal
         modalVisible={modalVisible}
@@ -358,18 +342,6 @@ function RealtimeMap({client, users, roomId}: Props) {
 }
 
 const styles = StyleSheet.create({
-  button1: {
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    backgroundColor: '#D0D0D0',
-    borderRadius: 15,
-  },
-  button2: {
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    backgroundColor: '#FF9270',
-    borderRadius: 15,
-  },
   font: {
     color: '#FFFFFF',
     fontWeight: 'bold',
