@@ -1,15 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {
-  TouchableHighlight,
-  View,
-  Text,
-  StyleSheet,
-  Alert,
-  Image,
-  TouchableOpacity,
-  Button,
-} from 'react-native';
-import NaverMapView, {Circle, Marker, Polyline} from 'react-native-nmap';
+import {View, Text, StyleSheet, Alert, TouchableOpacity} from 'react-native';
+import NaverMapView, {Marker, Polyline} from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
 import store from '../store';
 import {guidesPost} from '../slices/guidesSlice';
@@ -21,6 +12,13 @@ import SendPathNoti from '../components/Map/SendPathNoti';
 import SendHelpNoti from '../components/Map/SendHelpNoti';
 import CustomButton from '../components/Common/Button';
 import AboutMoim from '../components/Map/AboutMoim';
+import NotiBox from '../components/Common/NotiBox';
+import {WithLocalSvg} from 'react-native-svg';
+
+// svg
+import Pencil from '../assets/icons/pencil.svg';
+import Help from '../assets/icons/help.svg';
+import Info from '../assets/icons/info.svg';
 
 interface PathProps {
   latitude: number;
@@ -206,27 +204,15 @@ function Map() {
         </NaverMapView>
       ) : null}
       {startDraw === false ? (
-        <TouchableOpacity 
-          style={{
-            width: '100%',
-            height: '100%',
-            position: 'absolute',
-            top: 10,
-            left: 360,
-          }}
-          onPress={() => setStartDraw(true)}>
-          <Image
-            source={require('../assets/icons/draw.png')}
-            style={{resizeMode: 'cover'}}
-          />
-        </TouchableOpacity>
+        <NotiBox
+          mainTitle="@친구가 도움을 요청했어요"
+          subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
+          onPress={() => setStartDraw(true)}
+        />
       ) : sendpath === false ? (
         <View style={{position: 'absolute', alignItems: 'center'}}>
           <View style={styles.drawnoti}>
-            <Image
-              source={require('../assets/icons/pencil.png')}
-              style={{resizeMode: 'cover', marginRight: 10}}
-            />
+            <WithLocalSvg asset={Pencil} width={16} height={18} />
             <Text>손가락으로 길을 그려 친구에게 보내주세요!</Text>
           </View>
           <View
@@ -265,28 +251,22 @@ function Map() {
           width: '100%',
           height: '100%',
           position: 'absolute',
-          top: 70,
+          top: 110,
           left: 350,
         }}
         onPress={sendHelp}>
-        <Image
-          style={{resizeMode: 'cover'}}
-          source={require('../assets/icons/help.png')}
-        />
+        <WithLocalSvg asset={Help} />
       </TouchableOpacity>
       <TouchableOpacity
         style={{
           width: '100%',
           height: '100%',
           position: 'absolute',
-          top: 120,
+          top: 160,
           left: 350,
         }}
         onPress={() => setSideModal(true)}>
-        <Image
-          style={{resizeMode: 'cover'}}
-          source={require('../assets/icons/info.png')}
-        />
+        <WithLocalSvg asset={Info} />
       </TouchableOpacity>
       <CustomModal
         modalVisible={modalVisible}

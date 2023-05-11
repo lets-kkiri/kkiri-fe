@@ -14,8 +14,7 @@ const CustomModal = ({modalVisible, content}: ModalProps) => {
       isVisible={modalVisible}
       coverScreen={true}
       hasBackdrop={true}
-      backdropColor="#F8F9FF"
-      style={styles.modal}>
+      backdropColor="#F8F9FF">
       <View style={styles.centeredView}>
         <View style={styles.modalView}>{content}</View>
       </View>
@@ -24,14 +23,11 @@ const CustomModal = ({modalVisible, content}: ModalProps) => {
 };
 
 const styles = StyleSheet.create({
-  modal: {
-    paddingHorizontal: 16,
-  },
   centeredView: {
-    flex: 1,
+    // flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 22,
+    // marginTop: 22,
   },
   modalView: {
     margin: 20,
@@ -40,8 +36,10 @@ const styles = StyleSheet.create({
     borderColor: '#5968F2',
     borderStyle: 'solid',
     borderWidth: 2,
-    padding: 20,
-    elevation: 5,
+    paddingHorizontal: 10,
+    paddingTop: 20,
+    paddingBottom: 10,
+    // elevation: 5,
   },
 });
 
