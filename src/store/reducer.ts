@@ -8,5 +8,5 @@ const rootReducer = combineReducers({
   noti: notiSlice.reducer,
 });
 
-export type RootState = ReturnType<typeof rootReducer>;
+export type PersistedRootState = ReturnType<typeof rootReducer>;
 export default rootReducer;

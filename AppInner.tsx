@@ -32,9 +32,8 @@ import uuid from 'react-native-uuid';
 
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {requests} from './src/api/requests';
-import userSlice from './src/slices/user';
 import {useSelector} from 'react-redux';
-import {RootState} from './src/store/reducer';
+import {RootState} from './src/store/index';
 import SignIn from './src/pages/SignIn';
 
 // Splash Screen
@@ -51,13 +50,13 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppInner() {
   const isLoggedIn: boolean = useSelector(
-    (state: RootState) => state.user.isLoggedIn,
+    (state: RootState) => state.persisted.user.isLoggedIn,
   );
   const deviceTokens: string[] = useSelector(
-    (state: RootState) => state.user.deviceTokens,
+    (state: RootState) => state.persisted.user.deviceTokens,
   );
   const accessToken: string = useSelector(
-    (state: RootState) => state.user.accessToken,
+    (state: RootState) => state.persisted.user.accessToken,
   );
 
   // 푸쉬 알람을 위한 설정
