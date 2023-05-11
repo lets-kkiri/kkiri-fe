@@ -11,6 +11,7 @@ import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import com.viromedia.bridge.ReactViroPackage;
+import org.devio.rn.splashscreen.SplashScreenReactPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -29,6 +30,17 @@ public class MainApplication extends Application implements ReactApplication {
           // packages.add(new MyReactNativePackage());
           packages.add(new ReactViroPackage(ReactViroPackage.ViroPlatform.valueOf("AR")));
           
+          // Check if SplashScreenReactPackage is not already in the list
+          boolean splashScreenPackageExists = false;
+          for (ReactPackage pkg : packages) {
+              if (pkg instanceof SplashScreenReactPackage) {
+                  splashScreenPackageExists = true;
+                  break;
+              }
+          }
+          if (!splashScreenPackageExists) {
+              packages.add(new SplashScreenReactPackage());
+          }
           return packages;
         }
 
@@ -62,7 +74,7 @@ public class MainApplication extends Application implements ReactApplication {
     if (BuildConfig.DEBUG) {
       try {
         /*
-         We use reflection here to pick up the class that initializes Flipper,
+        We use reflection here to pick up the class that initializes Flipper,
         since Flipper library is not available in release mode
         */
         Class<?> aClass = Class.forName("com.kkiri.ReactNativeFlipper");
