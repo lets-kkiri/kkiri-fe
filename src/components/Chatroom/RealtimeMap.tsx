@@ -9,7 +9,7 @@ import NaverMapView, {Marker, Polyline} from 'react-native-nmap';
 // redux
 import {useSelector} from 'react-redux';
 import {useAppDispatch} from '../../store';
-import {RootState} from '../../store/reducer';
+import {PersistedRootState, RootState} from '../../store/reducer';
 import {guidesPost} from '../../slices/guidesSlice';
 import {arrivePost} from '../../slices/arriveSlice';
 import {pressPost} from '../../slices/pressSlice';
@@ -28,6 +28,7 @@ import Pencil from '../../assets/icons/pencil.svg';
 import Help from '../../assets/icons/help.svg';
 import Info from '../../assets/icons/info.svg';
 import NotiBox from '../Common/NotiBox';
+import { Socket } from 'socket.io-client';
 
 interface UserProps {
   type: string;
@@ -83,30 +84,40 @@ function RealtimeMap() {
   const destination = {latitude: 37.501303, longitude: 127.039603};
   const moimId = 1;
 
-  const socket = useSelector((state: RootState) => state.sockets.socket);
+  const socket = useSelector(
+    (state: PersistedRootState) => state.sockets.socket,
+  );
+
+  // const newsock = new WebSocket('wss://k8a606.p.ssafy.io/ws/api');
 
   // 서버와 연결되면 실행될 콜백 함수
-  socket.on('connect', () => {
-    console.log('connected to server');
-    Geolocation.watchPosition(
-      position => {
-        setMyPosition({
-          type: 'GPS',
-          content: {
-            memberId: 1, // 임시
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            regDate: date.toISOString(),
+  useEffect(() => {
+    if (socket !== undefined) {
+      // socket 값을 이용한 처리
+      const newSocket: WebSocket = JSON.parse(socket);
+      newSocket.onopen = () => {
+        console.log('connected to server');
+        Geolocation.watchPosition(
+          position => {
+            setMyPosition({
+              type: 'GPS',
+              content: {
+                memberId: 1, // 임시
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                regDate: date.toISOString(),
+              },
+            });
           },
-        });
-      },
-      error => console.log(error),
-      {
-        enableHighAccuracy: true,
-        timeout: 20000,
-      },
-    );
-  });
+          error => console.log(error),
+          {
+            enableHighAccuracy: true,
+            timeout: 20000,
+          },
+        );
+      };
+    }
+  }, [socket]);
 
   // 두 위치의 거리 계산 함수
   function calculateDistance({lat1, lon1, lat2, lon2}: LocateType) {
@@ -150,11 +161,13 @@ function RealtimeMap() {
     }
   }
 
-  // 내 위치 서버로 보내기
-  socket.emit('sendMyLocate', JSON.stringify(myPosition));
+  // 내 위치 서버로 보내기 -> websocket 로직으로 변경하기
+  // socket.emit('sendMyLocate', JSON.stringify(myPosition));
 
   // const userGrades = useSelector(userGrade);
-  const userGrades = useSelector((state: RootState) => state.arrives.userGrade);
+  // const userGrades = useSelector(
+  //   (state: PersistedRootState) => state.arrives.userGrade,
+  // );
 
   const drawPath = (e: any) => {
     if (startDraw) {
@@ -247,7 +260,7 @@ function RealtimeMap() {
               height={50}
             />
           )}
-          {users.map(user => (
+          {/* {users.map(user => (
             <Marker
               onClick={sendPress}
               key={user.id}
@@ -258,7 +271,7 @@ function RealtimeMap() {
               image={require('../../assets/icons/bear.png')}
               // caption={{text: user.id}}
             />
-          ))}
+          ))} */}
           {drawpath.length > 1 ? (
             <Polyline
               coordinates={drawpath}
@@ -347,10 +360,12 @@ function RealtimeMap() {
       />
       {sideModal ? <AboutMoim setSideModal={setSideModal} /> : null}
       {/* 등수 보여주는 예시 */}
-      <View>
-        <Text>{userGrades.ranking.overall}명 중에</Text>
-        <Text>{userGrades.ranking.rank}등으로 도착하셨습니다!</Text>
-      </View>
+      {/* {userGrades ? (
+        <View>
+          <Text>{userGrades.ranking.overall}명 중에</Text>
+          <Text>{userGrades.ranking.rank}등으로 도착하셨습니다!</Text>
+        </View>
+      ) : null} */}
     </View>
   );
 }
