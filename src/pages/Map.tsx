@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, Alert, TouchableOpacity} from 'react-native';
 import NaverMapView, {Marker, Polyline} from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
-import store from '../store';
+import store, { RootState } from '../store';
 import {guidesPost} from '../slices/guidesSlice';
 import {pressPost} from '../slices/pressSlice';
 import {helpPost} from '../slices/helpSlice';
@@ -19,6 +19,8 @@ import {WithLocalSvg} from 'react-native-svg';
 import Pencil from '../assets/icons/pencil.svg';
 import Help from '../assets/icons/help.svg';
 import Info from '../assets/icons/info.svg';
+import { useSelector } from 'react-redux';
+import { io } from 'socket.io-client';
 
 interface PathProps {
   latitude: number;
