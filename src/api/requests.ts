@@ -6,13 +6,13 @@ export const requests = {
   CONNECT: '/stomp',
 
   // 채팅
-  CHAT(roomId) {
+  CHAT(roomId: number) {
     return `/pub/chat.enter.${roomId}`;
     // return `/pub/chat`;
   },
 
   // 실시간 위치
-  LOCATION(roomId) {
+  LOCATION(roomId: number) {
     return `/gps/location/${roomId}`;
   },
 
@@ -29,5 +29,10 @@ export const requests = {
   // 사용자 FCM 토큰 저장
   POST_FCM_TOKEN() {
     return `${this.base_url}/api/members/devices`;
+  },
+
+  // 이전 채팅 내용 불러오기
+  GET_CHAT(moimId: number, size: number, lastMessageId: number) {
+    return `api/chat?moimId=${moimId}&size=${size}&lastMessageId=${lastMessageId}`;
   },
 };

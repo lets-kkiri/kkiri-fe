@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 import {TextEncoder} from 'text-encoding';
 import SockJS from 'sockjs-client';
 import io from 'socket.io-client';
+import {useSelector} from 'react-redux';
 
 // API
 import {requests} from '../api/requests';
@@ -17,6 +18,7 @@ import MessagePreview from '../components/Chatroom/MessagePreview';
 // types
 import {MessageData} from '../types/index';
 import EmojiBtn from '../components/Chatroom/EmojiBtn';
+import {RootState} from '../store/reducer';
 
 interface ChatroomProp {
   navigation: NativeStackNavigationProp<any>;
@@ -49,11 +51,12 @@ function Chatroom({route}: ChatroomProp) {
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
   const client = useRef<any>(null);
 
-  const encoder = new TextEncoder();
-
   // 채팅방 id
-  const roomId = route.params.roomId;
-  console.log('roomId :', roomId);
+  const moimId = route.params.moimId;
+  console.log('moimId :', moimId);
+
+  // 해당 moimId에 대한 소켓
+  const socket = useSelector((state: RootState) => state.socket.value); // 수정필요
 
   useEffect(() => {
     setMessages([
@@ -140,44 +143,21 @@ function Chatroom({route}: ChatroomProp) {
     ]);
   }, []);
 
-  // 채팅방 입장시 연결
-  const [wsConnected, setWsConnected] = useState(false);
-  useEffect(() => {
-    console.log('start connect');
-    // start();
-    // client.current = io('http://k8a606.p.ssafy.io:8080/ws/api');
-    if (!client.current) {
-      console.log('here');
-      client.current = new WebSocket('wss://k8a606.p.ssafy.io/ws/api');
-      client.current.onopen = () => {
-        console.log('ws connected');
-        setWsConnected(true);
-      };
+  useEffect(() => {}, []);
 
-      client.current.onclose = error => {
-        console.log(error);
-      };
-    }
-
-    return () => {
-      console.log('end connect');
-      client.current.close();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (wsConnected) {
-      client.current.send(
-        JSON.stringify({
-          messageType: 'ENTER',
-          moimId: 1,
-          memberId: 1,
-          nickname: '일',
-          message: '반갑다',
-        }),
-      );
-    }
-  }, [wsConnected]);
+  // useEffect(() => {
+  //   if (wsConnected) {
+  //     client.current.send(
+  //       JSON.stringify({
+  //         messageType: 'ENTER',
+  //         moimId: 1,
+  //         memberId: 1,
+  //         nickname: '일',
+  //         message: '반갑다',
+  //       }),
+  //     );
+  //   }
+  // }, [wsConnected]);
 
   return (
     <View style={{flex: 1, position: 'relative'}}>
