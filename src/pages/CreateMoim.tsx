@@ -129,6 +129,9 @@ function CreateMoim() {
   const formOpenHandler = useCallback(
     idx => {
       const newFormOpen = [false, false, false, false];
+      if (idx === -1) {
+        return setFormOpen([...newFormOpen]);
+      }
       if (formOpen[idx] === false) {
         newFormOpen[idx] = true;
       }
@@ -147,7 +150,17 @@ function CreateMoim() {
   };
 
   const postMoim = () => {
+    if (canPost === false) {
+      console.log('아직 POST 못하지롱');
+    }
     console.log(moim);
+    // 버튼 클릭시 Client 단에서 URL 생성
+    // URL 생성 후 해당 정보 담아서 POST 요청
+    // 성공한 경우 성공 Page로 이동
+    // 성공 Page에서는 URL 확인 및 공유 가능
+    // 공유 버튼 클릭시 네이티브 공유
+    // 카드 확인하기 -> 카드 페이지로 이동
+    // 홈으로 돌아가기 -> 홈으로 이동
   };
 
   useEffect(() => {
@@ -200,6 +213,7 @@ function CreateMoim() {
             newMoim.name = text;
             setMoim(newMoim);
           }}
+          onFocus={() => formOpenHandler(-1)}
           placeholder="모임 이름을 입력해주세요."
         />
 
@@ -265,6 +279,7 @@ function CreateMoim() {
                   keyboardType="numeric"
                   textAlign="right"
                   value={moim?.lateFee === 0 ? '' : moim?.lateFee.toString()}
+                  onFocus={() => formOpenHandler(-1)}
                   onChangeText={text => {
                     const newMoim = {...moim};
                     newMoim.lateFee = parseInt(text, 10);
