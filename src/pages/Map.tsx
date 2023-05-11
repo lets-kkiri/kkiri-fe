@@ -7,6 +7,7 @@ import {
   Alert,
   Image,
   TouchableOpacity,
+  Button,
 } from 'react-native';
 import NaverMapView, {Circle, Marker, Polyline} from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
@@ -19,7 +20,7 @@ import ArriveNoti from '../components/Map/ArriveNoti';
 import SendPathNoti from '../components/Map/SendPathNoti';
 import SendHelpNoti from '../components/Map/SendHelpNoti';
 import CustomButton from '../components/Common/Button';
-import Modal from 'react-native-modal';
+import AboutMoim from '../components/Map/AboutMoim';
 
 interface PathProps {
   latitude: number;
@@ -60,13 +61,7 @@ function Map() {
         // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
         if (distance <= 50) {
           console.log('목적지 도착');
-          const arriveTime =
-            date.getHours() +
-            '시' +
-            date.getMinutes() +
-            '분' +
-            date.getSeconds() +
-            '초';
+          const arriveTime = date.toISOString();
           // Alert.alert('목적지에 도착하였습니다!', arriveTime);
           setModalVisible(true);
           setModalType('arrive');
@@ -305,16 +300,7 @@ function Map() {
           )
         }
       />
-      <Modal
-        isVisible={sideModal}
-        // isVisible={false}
-        coverScreen={false}
-        hasBackdrop={true}
-        backdropColor="#F8F9FF">
-        <View>
-          <Text>사이드 모달</Text>
-        </View>
-      </Modal>
+      {sideModal ? <AboutMoim setSideModal={setSideModal} /> : null}
     </View>
   );
 }
