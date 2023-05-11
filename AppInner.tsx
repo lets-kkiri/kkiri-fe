@@ -8,7 +8,6 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Setting from './src/pages/Setting';
 import Notification from './src/pages/Notification';
 import Map from './src/pages/Map';
-import RealtimeLocation from './src/pages/RealtimeLocation';
 
 // Components
 import Header from './src/components/Header';
@@ -23,6 +22,7 @@ import CreateMoim from './src/pages/CreateMoim';
 // import userSlice from './src/slices/user';
 import notiSlice from './src/slices/noti';
 import {useAppDispatch} from './src/store';
+import {createSocket} from './src/slices/socket';
 
 // FCM 및 푸쉬 알림
 import messaging from '@react-native-firebase/messaging';
@@ -138,6 +138,13 @@ function AppInner() {
           );
         }
       }
+
+      // 모임 한 시간 전 알림 감지
+      if (notification.channelId === 'open') {
+        // 임시 모임 아이디 (알림 메시지에서 추출할 것)
+        const moimId = 1;
+        dispatch(createSocket(moimId));
+      }
       // process the notification
 
       // (required) 리모트 노티를 수신하거나, 열었거나 로컬 노티를 열었을 때 실행
@@ -189,6 +196,19 @@ function AppInner() {
     },
     (created: boolean) =>
       console.log(`createChannel hurry returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
+  );
+
+  PushNotification.createChannel(
+    {
+      channelId: 'open',
+      channelName: '모임 한 시간 전 알림',
+      channelDescription: '모임 한 시간 전에 울리는 알림', // (optional) default: undefined.
+      soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+      importance: 4, // (optional) default: 4. Int value of the Android notification importance
+      vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+    },
+    (created: boolean) =>
+      console.log(`createChannel socket returned ${created}`),
   );
 
   // 로그인 관리를 위한 Token 확인
@@ -273,11 +293,6 @@ function AppInner() {
             name="Map"
             component={Map}
             options={{title: '실시간 위치'}}
-          />
-          <Stack.Screen
-            name="RealtimeLocation"
-            component={RealtimeLocation}
-            options={{title: '모임원 실시간 위치'}}
           />
         </Stack.Navigator>
       ) : (
