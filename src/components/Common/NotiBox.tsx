@@ -1,18 +1,19 @@
 import React from 'react';
-import {Text} from 'react-native';
+import {Animated, Text} from 'react-native';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
 
 // svg
 import Draw from '../../assets/icons/draw.svg';
 
-const Container = styled.View`
+const Container = styled(Animated.View)`
+  position: absolute;
   flex-direction: row;
   justify-content: center;
-  margin-top: 20;
 `;
 
 const Inner = styled.View`
+  width: 300px;
   justify-content: center;
   padding: 0 27px;
   border-top-left-radius: 15;
@@ -21,8 +22,8 @@ const Inner = styled.View`
 `;
 
 const Button = styled.TouchableOpacity`
-  width: 70;
-  height: 85;
+  width: 70px;
+  height: 85px;
   justify-content: center;
   align-items: center;
   border-top-right-radius: 15;
@@ -38,16 +39,17 @@ const Font = styled.Text`
 interface NotiProps {
   mainTitle: string;
   subTitle: string;
+  onPress: () => void;
 }
 
-const NotiBox = ({mainTitle, subTitle}: NotiProps) => {
+const NotiBox = ({mainTitle, subTitle, onPress}: NotiProps) => {
   return (
     <Container>
       <Inner>
         <Font>{mainTitle}</Font>
         <Text style={{fontSize: 12}}>{subTitle}</Text>
       </Inner>
-      <Button activeOpacity={0.8}>
+      <Button activeOpacity={0.8} onPress={onPress}>
         <WithLocalSvg asset={Draw} width={30} height={30} />
         <Font
           style={{

@@ -12,10 +12,6 @@ function Home() {
         onPress={() => navigation.navigate('Chatroom', {roomId: 1})}
       />
       <Button title="지도" onPress={() => navigation.navigate('Map')} />
-      <Button
-        title="모임원 위치"
-        onPress={() => navigation.navigate('RealtimeLocation')}
-      />
     </View>
   );
 }

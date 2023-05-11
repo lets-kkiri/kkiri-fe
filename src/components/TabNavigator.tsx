@@ -20,14 +20,16 @@ const TabNavigator = () => {
     <Tab.Navigator
       screenOptions={({route}) => ({
         tabBarIcon: ({focused, color, size}) => {
-          if (route.name === 'Home')
+          if (route.name === 'Home') {
             return (
               <WithLocalSvg asset={focused ? home_active : home_inactive} />
             );
-          if (route.name === 'Mypage')
+          }
+          if (route.name === 'Mypage') {
             return (
               <WithLocalSvg asset={focused ? mypage_active : mypage_inactive} />
             );
+          }
         },
         headerShown: false,
         tabBarActiveTintColor: '#5968F2',
@@ -61,7 +63,7 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="Mypage"
-        component={MyPage}
+        component={SignIn}
         options={{tabBarLabel: '마이페이지'}}
       />
     </Tab.Navigator>
