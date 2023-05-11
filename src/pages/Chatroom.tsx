@@ -3,7 +3,6 @@ import {View} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import styled from 'styled-components/native';
 import {TextEncoder} from 'text-encoding';
-import {Client} from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import io from 'socket.io-client';
 
@@ -55,111 +54,6 @@ function Chatroom({route}: ChatroomProp) {
   // 채팅방 id
   const roomId = route.params.roomId;
   console.log('roomId :', roomId);
-
-  const start = () => {
-    // const ws = new WebSocket('wss://k8a606.p.ssafy.io/stomp');
-    // // const socket = new WebSocket('wss://k8a606.p.ssafy.io/stomp');
-    // client.current = Stomp.over(socket);
-
-    // client.current.connect({}, () => {
-    //   console.log('Connected');
-    //   client.current.send(
-    //     requests.CHAT(roomId),
-    //     {},
-    //     JSON.stringify({message: 'hello'}),
-    //   );
-    // });
-
-    // @stomp/stompjs
-    // const socket = new SockJS('')
-    client.current = new Client({
-      brokerURL: 'ws://k8a606.p.ssafy.io:8080/stomp', // 웹소켓 서버로 직접 접속
-      webSocketFactory: () => {
-        return new SockJS('http://k8a606.p.ssafy.io:8080/stomp');
-      },
-      debug: function (str) {
-        console.log('debug :', str);
-      },
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-      forceBinaryWSFrames: true,
-      appendMissingNULLonIncoming: true,
-    });
-
-    client.current.onConnect = function (frame) {
-      // Do something, all subscribes must be done is this callback
-      // This is needed because this will be executed after a (re)connect
-      console.log('onConnect :', frame);
-    };
-
-    // client.current.onConnect({}, () => {
-    //   console.log('connected');
-    // });
-
-    // client.current.send(
-    //   `/pub/chat/message/${roomId}`,
-    //   JSON.stringify({text: 'hello'}),
-    // );
-
-    // if (typeof WebSocket !== 'function') {
-    //   client.current.options.webSocketFactory = function () {
-    //     return new SockJS('https://k8a606.p.ssafy.io/stomp', {
-    //       // headers: {
-    //       //   Host: 'k8a606.p.ssafy.io:8080',
-    //       //   Connection: 'Upgrade',
-    //       //   Upgrade: 'websocket',
-    //       // },
-    //     });
-    //   };
-    // }
-
-    client.current.activate();
-
-    // client.current.publish({
-    //   destination: `/pub/chat/message/${roomId}`,
-    //   body: JSON.stringify({
-    //     message: 'Hello World',
-    //   }),
-    // });
-  };
-
-  const disconnect = () => {
-    client.current.deactivate();
-  };
-
-  function onConnected() {
-    console.log('connect success');
-    // subscribeLocation();
-    // sendLocation();r
-    receiveMessage();
-  }
-
-  // 서버에서 다른 사용자들의 위치 받아오기
-  const subscribeLocation = () => {
-    client.current.subscribe(`/stomp/gps/location/${roomId}`, user => {
-      setUsers(userLocate => [...userLocate, JSON.parse(user.body)]);
-    });
-  };
-
-  // 내 위치 서버로 보내기
-  const sendLocation = () => {
-    client.current.send(
-      `/stomp/gps/location/${roomId}`,
-      {},
-      JSON.stringify(myPosition),
-    );
-  };
-
-  // 채팅메시지 수신
-  const receiveMessage = () => {
-    client.current.subscribe(
-      requests.base_url + requests.CHAT(roomId),
-      message => {
-        setMessages(JSON.parse(message.body));
-      },
-    );
-  };
 
   useEffect(() => {
     setMessages([
@@ -267,7 +161,6 @@ function Chatroom({route}: ChatroomProp) {
 
     return () => {
       console.log('end connect');
-      // disconnect();
       client.current.close();
     };
   }, []);
