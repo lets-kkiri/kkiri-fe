@@ -39,7 +39,7 @@ const btnStatus: BtnStatusType = {
 
 const CustomButton = ({text, status, width, onPress}: ButtonProps) => {
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={onPress} activeOpacity={1}>
       <View
         style={StyleSheet.flatten([
           styles.button,
