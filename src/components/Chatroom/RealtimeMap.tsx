@@ -17,6 +17,12 @@ import {useSelector} from 'react-redux';
 import {RootState} from '../../store/reducer';
 import {pressPost} from '../../slices/pressSlice';
 import {helpPost} from '../../slices/helpSlice';
+import CustomModal from '../Common/Modal';
+import AboutMoim from '../Map/AboutMoim';
+import ArriveNoti from '../Map/ArriveNoti';
+import SendPathNoti from '../Map/SendPathNoti';
+import SendHelpNoti from '../Map/SendHelpNoti';
+import CustomButton from '../Common/Button';
 
 interface UserProps {
   id: number;
@@ -50,13 +56,16 @@ function RealtimeMap({client, users, roomId}: Props) {
   const [drawpoint, setDrawpoint] = useState<PathProps | null>(null);
   const [drawpath, setDrawpath] = useState<PathProps[]>([]);
   const [sendpath, setSendpath] = useState<boolean>(false);
+  const [modalType, setModalType] = useState<string>('');
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [sideModal, setSideModal] = useState<boolean>(false);
   const date = new Date();
 
   // 임시 목적지: 역삼 멀티캠퍼스
   const destination = {latitude: 37.501303, longitude: 127.039603};
 
   useEffect(() => {
-    Geolocation.getCurrentPosition(
+    Geolocation.watchPosition(
       position => {
         setMyPosition({
           id: 1, // 임시
@@ -92,7 +101,6 @@ function RealtimeMap({client, users, roomId}: Props) {
       });
       // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
       if (distance <= 50) {
-        console.log('목적지 도착');
         const arriveTime =
           date.getHours() +
           '시' +
@@ -100,12 +108,15 @@ function RealtimeMap({client, users, roomId}: Props) {
           '분' +
           date.getSeconds() +
           '초';
+        // Alert.alert('목적지에 도착하였습니다!', arriveTime);
+        setModalVisible(true);
+        setModalType('arrive');
         store.dispatch(
           arrivePost({roomId: roomId, memberId: 1, arrivalTime: arriveTime}),
         );
       }
     }
-  }, [myPosition]);
+  }, []);
 
   // const userGrades = useSelector(userGrade);
   const userGrades = useSelector((state: RootState) => state.arrives.userGrade);
@@ -129,18 +140,23 @@ function RealtimeMap({client, users, roomId}: Props) {
 
   // 경로 서버로 보내기
   function sendPath() {
+    // 임시 데이터
     const postData = {
       senderEmail: 'rlawnsgh8395@naver.com',
       receiverEmail: 'rlawnsgh8395@gmail.com',
       path: drawpath,
     };
     store.dispatch(guidesPost(postData));
-    Alert.alert('길안내 알림을 전송했어요!');
+    // setSendpath(true);
+    // Alert.alert('길안내 알림을 전송했어요!');
+    setModalVisible(true);
+    setModalType('sendpath');
     setSendpath(false);
     setStartDraw(false);
   }
 
   function sendPress() {
+    Alert.alert('재촉했어요!');
     // 임시 데이터
     const postData = {
       senderEmail: '지니',
@@ -150,10 +166,13 @@ function RealtimeMap({client, users, roomId}: Props) {
   }
 
   function sendHelp() {
+    // Alert.alert('도움 요청을 보냈어요!');
+    setModalVisible(true);
+    setModalType('sendhelp');
     // 임시 데이터
     const postData = {
       senderEmail: 'rlawnsgh8395@naver.com',
-      chatRoomId: '1',
+      chatRoomId: 6,
     };
     store.dispatch(helpPost(postData));
   }
@@ -196,12 +215,12 @@ function RealtimeMap({client, users, roomId}: Props) {
             width={50}
             height={55}
           />
-          {/* 반경 n미터 원으로 표시 */}
+          {/* 반경 n미터 원으로 표시
           <Circle
             coordinate={destination}
             color={'rgba(221, 226, 252, 0.5)'}
             radius={50}
-          />
+          /> */}
           {myPosition?.latitude && (
             <Marker
               coordinate={{
@@ -235,44 +254,57 @@ function RealtimeMap({client, users, roomId}: Props) {
         </NaverMapView>
       )}
       {startDraw === false ? (
-        <View style={{position: 'absolute', top: 0, left: 0}}>
-          <TouchableHighlight
-            style={styles.button1}
-            onPress={() => setStartDraw(true)}>
-            <Text style={styles.font}>그리기</Text>
-          </TouchableHighlight>
-        </View>
+        <TouchableOpacity 
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            top: 10,
+            left: 360,
+          }}
+          onPress={() => setStartDraw(true)}>
+          <Image
+            source={require('../../assets/icons/draw.png')}
+            style={{resizeMode: 'cover'}}
+          />
+        </TouchableOpacity>
       ) : sendpath === false ? (
-        <View style={{position: 'absolute'}}>
-          <View style={{backgroundColor: '#FFFFFF', alignItems: 'center'}}>
+        <View style={{position: 'absolute', alignItems: 'center'}}>
+          <View style={styles.drawnoti}>
+            <Image
+              source={require('../../assets/icons/pencil.png')}
+              style={{resizeMode: 'cover', marginRight: 10}}
+            />
             <Text>손가락으로 길을 그려 친구에게 보내주세요!</Text>
           </View>
           <View
             style={{
-              top: 630,
+              top: 580,
               left: 0,
               width: '100%',
               flexDirection: 'row',
               justifyContent: 'space-evenly',
             }}>
-            <TouchableHighlight
-              style={styles.button1}
+            <CustomButton
+              text="다시 그리기"
+              status="disabled"
+              width="short"
               onPress={() => {
                 setDrawpoint(null);
                 setDrawpath([]);
-              }}>
-              <Text style={styles.font}>다시 그리기</Text>
-            </TouchableHighlight>
-            <TouchableHighlight
-              style={styles.button2}
+              }}
+            />
+            <CustomButton
+              text="경로 전송하기"
+              status="active"
+              width="short"
               onPress={() => {
                 setDrawpoint(null);
                 setDrawpath([]);
                 sendPath();
                 console.log(drawpath);
-              }}>
-              <Text style={styles.font}>길 안내 전송하기</Text>
-            </TouchableHighlight>
+              }}
+            />
           </View>
         </View>
       ) : null}
@@ -281,7 +313,7 @@ function RealtimeMap({client, users, roomId}: Props) {
           width: '100%',
           height: '100%',
           position: 'absolute',
-          top: 50,
+          top: 70,
           left: 350,
         }}
         onPress={sendHelp}>
@@ -295,14 +327,28 @@ function RealtimeMap({client, users, roomId}: Props) {
           width: '100%',
           height: '100%',
           position: 'absolute',
-          top: 110,
+          top: 120,
           left: 350,
-        }}>
+        }}
+        onPress={() => setSideModal(true)}>
         <Image
           style={{resizeMode: 'cover'}}
           source={require('../../assets/icons/info.png')}
         />
       </TouchableOpacity>
+      <CustomModal
+        modalVisible={modalVisible}
+        content={
+          modalType === 'arrive' ? (
+            <ArriveNoti setModalVisible={setModalVisible} />
+          ) : modalType === 'sendpath' ? (
+            <SendPathNoti setModalVisible={setModalVisible} />
+          ) : (
+            <SendHelpNoti setModalVisible={setModalVisible} />
+          )
+        }
+      />
+      {sideModal ? <AboutMoim setSideModal={setSideModal} /> : null}
       {/* 등수 보여주는 예시 */}
       <View>
         <Text>{userGrades.grade}등으로 도착하셨습니다!</Text>
@@ -327,6 +373,19 @@ const styles = StyleSheet.create({
   font: {
     color: '#FFFFFF',
     fontWeight: 'bold',
+  },
+  drawnoti: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    height: 50,
+    width: '90%',
+    borderStyle: 'solid',
+    borderColor: '#5968F2',
+    borderWidth: 1,
+    borderRadius: 15,
+    marginTop: 15,
   },
 });
 
