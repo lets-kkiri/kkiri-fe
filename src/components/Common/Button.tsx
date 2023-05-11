@@ -9,9 +9,10 @@ interface ButtonProps {
 }
 
 type StatusType = 'active' | 'disabled' | 'blur';
-type WidthType = 'short' | 'long';
+type WidthType = 'tiny' | 'short' | 'long';
 type BtnStatusType = {
   [index: string]: object;
+  tiny: object;
   short: object;
   long: object;
   active: object;
@@ -20,6 +21,9 @@ type BtnStatusType = {
 };
 
 const btnStatus: BtnStatusType = {
+  tiny: {
+    width: 100,
+  },
   short: {
     width: 165,
   },
@@ -39,7 +43,7 @@ const btnStatus: BtnStatusType = {
 
 const CustomButton = ({text, status, width, onPress}: ButtonProps) => {
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={onPress} activeOpacity={1}>
       <View
         style={StyleSheet.flatten([
           styles.button,
@@ -63,6 +67,7 @@ const styles = StyleSheet.create({
   },
   font: {
     color: '#FFF',
+    fontSize: 14,
   },
 });
 

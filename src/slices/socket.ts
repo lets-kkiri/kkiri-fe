@@ -1,32 +1,51 @@
-import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {io, Socket} from 'socket.io-client';
+import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 
-interface ServerToClientEvents {
-  noArg: () => void;
-  basicEmit: (a: number, b: string, c: Buffer) => void;
-  withAck: (d: string, callback: (e: number) => void) => void;
-}
+const initialState = {
+  moimId: 0,
+  socket: '',
+};
 
-interface ClientToServerEvents {
-  hello: () => void;
-}
+export const socketConnect = createAsyncThunk(
+  'sockets/connect',
+  async (data: number, thunkAPI) => {
+    const response = await JSON.stringify(
+      new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${data}`),
+    );
+    return thunkAPI.fulfillWithValue(response);
+  },
+);
 
-type socket = Socket<ServerToClientEvents, ClientToServerEvents>;
+const initialState: SocketsState = {};
 
 const initialState: SocketsState = {};
 
 const socketsSlice = createSlice({
   name: 'sockets',
-  initialState: {},
+  initialState,
   reducers: {
-    addSocket: (state, action) => {
-      const {id, socket} = action.payload;
-      state[id] = socket;
-    },
-    removeSocket: (state, action) => {
-      const {id} = action.payload;
-      delete state[id];
-    },
+    // createSocket: (state, action) => {
+    // const moimId = action.payload.moimId;
+    // const newSocket = JSON.stringify(
+    //   new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`),
+    // );
+    // state.socket = newSocket;
+    // },
+    // removeSocket: (state, action) => {
+    //   const {id} = action.payload;
+    //   delete state[id];
+    // },
+  },
+  extraReducers: builder => {
+    builder.addCase(socketConnect.pending, state => {
+      console.log('pending');
+    });
+    builder.addCase(socketConnect.fulfilled, (state, action) => {
+      console.log('fulfilled');
+      state.socket = action.payload;
+    });
+    builder.addCase(socketConnect.rejected, (state, action) => {
+      console.log('reject', action.error);
+    });
   },
 });
 
@@ -41,4 +60,5 @@ export const createSocket = (moimId: number) => (dispatch: any) => {
   console.log('socket :', socket);
 };
 
+export default socketsSlice;
 export default socketsSlice;
