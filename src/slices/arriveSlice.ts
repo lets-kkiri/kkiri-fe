@@ -1,20 +1,21 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {baseInstance} from '../api/axios';
 import {requests} from '../api/requests';
-import {RootState} from '../store/reducer';
 
 interface ArriveProps {
-  roomId: number;
-  memberId: number;
+  moimId: number;
   arrivalTime: string;
 }
 
 const initialState = {
   userGrade: {
-    roomId: 0,
-    memberId: 0,
+    moimId: 0,
+    kakaoId: 0,
     arrivalTime: '',
-    grade: 0,
+    ranking: {
+      rank: 0,
+      overall: 0,
+    },
   },
 };
 
@@ -44,6 +45,4 @@ const arriveSlice = createSlice({
   },
 });
 
-export const userGrade = (state: RootState) => state.arrives.userGrade;
-
-export default arriveSlice.reducer;
+export default arriveSlice;
