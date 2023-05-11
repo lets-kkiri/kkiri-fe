@@ -1,6 +1,6 @@
 import * as React from 'react';
 import axios from 'axios';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
@@ -22,7 +22,7 @@ import CreateMoim from './src/pages/CreateMoim';
 // import userSlice from './src/slices/user';
 import notiSlice from './src/slices/noti';
 import {useAppDispatch} from './src/store';
-import {createSocket} from './src/slices/socket';
+import {createSocket, socketConnect} from './src/slices/socket';
 
 // FCM 및 푸쉬 알림
 import messaging from '@react-native-firebase/messaging';
@@ -38,6 +38,7 @@ import SignIn from './src/pages/SignIn';
 
 // Splash Screen
 import SplashScreen from 'react-native-splash-screen';
+import { Socket, io } from 'socket.io-client';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -143,7 +144,7 @@ function AppInner() {
       if (notification.channelId === 'open') {
         // 임시 모임 아이디 (알림 메시지에서 추출할 것)
         const moimId = 1;
-        dispatch(createSocket(moimId));
+        dispatch(socketConnect(moimId));
       }
       // process the notification
 
