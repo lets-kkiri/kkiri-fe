@@ -1,6 +1,6 @@
 import * as React from 'react';
 import axios from 'axios';
-import {useState, useEffect, useRef} from 'react';
+import {useState, useEffect, useRef, Linking} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
@@ -39,6 +39,8 @@ import SignIn from './src/pages/SignIn';
 // Splash Screen
 import SplashScreen from 'react-native-splash-screen';
 import {Socket, io} from 'socket.io-client';
+import Moim from './src/pages/Moim';
+import {Text} from 'react-native';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -116,7 +118,7 @@ function AppInner() {
     if (isLoggedIn === true) {
       getToken();
     }
-  }, [accessToken, deviceTokens, isLoggedIn]);
+  }, [accessToken, deviceTokens, dispatch, isLoggedIn]);
 
   PushNotification.configure({
     // (optional) 토큰이 생성될 때 실행됨(토큰을 서버에 등록할 때 쓸 수 있음)
@@ -263,8 +265,19 @@ function AppInner() {
     getTokenAndRefresh();
   }, [dispatch]);
 
+  // deep link를 위한 settings
+  // lets.kkiri://moim/1
+  const linking = {
+    prefixes: ['lets.kkiri://', 'http://끼리.kr'],
+    config: {
+      screens: {
+        Moim: 'moim/:moimId',
+      },
+    },
+  };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
       {isLoggedIn ? (
         <Stack.Navigator>
           <Stack.Screen
@@ -278,9 +291,9 @@ function AppInner() {
             options={{title: '세팅'}}
           />
           <Stack.Screen
-            name="SignIn"
-            component={SignIn}
-            options={{title: '로그인/로그아웃'}}
+            name="Moim"
+            component={Moim}
+            options={{title: '모임 상세'}}
           />
           <Stack.Screen
             name="Notification"
