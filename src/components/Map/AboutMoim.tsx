@@ -10,6 +10,7 @@ import Bear from '../../assets/icons/bear.svg';
 
 interface AboutProps {
   setSideModal: React.Dispatch<React.SetStateAction<boolean>>;
+  count: number;
 }
 
 const Container = styled.View`
@@ -45,15 +46,9 @@ const SubFont = styled.Text`
   padding: 0 10px;
 `;
 
-const AboutMoim = ({setSideModal}: AboutProps) => {
+const AboutMoim = ({setSideModal, count}: AboutProps) => {
   // redux에서 가져온 유저 정보
   const users = [
-    {
-      id: 'yjp8842',
-    },
-    {
-      id: 'yjp8842',
-    },
     {
       id: 'yjp8842',
     },
@@ -107,7 +102,7 @@ const AboutMoim = ({setSideModal}: AboutProps) => {
         </View>
         <Row>
           <Text>친구들을</Text>
-          <MainFont>00번</MainFont>
+          <MainFont>{count}번</MainFont>
           <Text>재촉했어요!</Text>
         </Row>
       </Padding>

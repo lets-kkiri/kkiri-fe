@@ -49,6 +49,8 @@ function Chatroom({route}: ChatroomProp) {
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
   const client = useRef<any>(null);
 
+  const [startDraw, setStartDraw] = useState<boolean>(false);
+
   const encoder = new TextEncoder();
 
   // 채팅방 id
@@ -182,18 +184,20 @@ function Chatroom({route}: ChatroomProp) {
   return (
     <View style={{flex: 1, position: 'relative'}}>
       {/* 지도 */}
-      <RealtimeMap />
+      <RealtimeMap startDraw={startDraw} setStartDraw={setStartDraw} />
       {/* 채팅 */}
       {showChatArea ? (
         <ChatArea data={messages} client={client} roomId={roomId} />
       ) : (
-        <MessagePreviewContainer>
-          <MessagePreview
-            message={messages[messages.length - 1]}
-            onPress={() => setShowChatArea(true)}
-          />
-          <EmojiBtn />
-        </MessagePreviewContainer>
+        !startDraw && (
+          <MessagePreviewContainer>
+            <MessagePreview
+              message={messages[messages.length - 1]}
+              onPress={() => setShowChatArea(true)}
+            />
+            <EmojiBtn />
+          </MessagePreviewContainer>
+        )
       )}
     </View>
   );
