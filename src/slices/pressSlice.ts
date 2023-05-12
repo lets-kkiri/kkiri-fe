@@ -1,21 +1,19 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {baseInstance} from '../api/axios';
+import {authInstance, baseInstance} from '../api/axios';
 import {requests} from '../api/requests';
 
 interface PressProps {
-  senderEmail: string;
-  receiverEmail: string;
+  receiverKakaoId: number;
 }
 
 const initialState: PressProps = {
-  senderEmail: '',
-  receiverEmail: '',
+  receiverKakaoId: 0,
 };
 
 export const pressPost = createAsyncThunk(
   'press/post',
   async (data: PressProps) => {
-    const response = await baseInstance.post(requests.POST_PRESS(), data);
+    const response = await authInstance.post(requests.POST_PRESS(), data);
     return response.data;
   },
 );
