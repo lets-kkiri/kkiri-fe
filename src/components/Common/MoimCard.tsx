@@ -7,6 +7,7 @@ import {WithLocalSvg} from 'react-native-svg';
 import Cash from '../../assets/icons/cash.svg';
 import Time from '../../assets/icons/time.svg';
 import People from '../../assets/icons/people.svg';
+import Person from '../../assets/icons/person.svg';
 
 const Container = styled.View`
   width: 290px;
@@ -51,6 +52,12 @@ const SubFont = styled.Text`
   margin-left: 15px;
 `;
 
+const Inner = styled.View`
+  height: 130px;
+  justify-content: space-between;
+  margin-top: 30px;
+`;
+
 const MoimCard = () => {
   return (
     <Container>
@@ -61,7 +68,7 @@ const MoimCard = () => {
         <WithLocalSvg asset={Cash} />
       </Row>
       <MainFont>4월 20일</MainFont>
-      <View style={{height: 120, justifyContent: 'space-between', marginTop: 30}}>
+      <Inner>
         <Row>
           <WithLocalSvg asset={Time} />
           <SubFont>모임 이름 텍스트</SubFont>
@@ -74,11 +81,30 @@ const MoimCard = () => {
           <WithLocalSvg asset={Time} />
           <SubFont>서울특별시 용산구</SubFont>
         </Row>
-        <Row>
+        <Row style={{alignItems: 'flex-start'}}>
           <WithLocalSvg asset={People} />
-          <SubFont>6명</SubFont>
+          <SubFont>4명</SubFont>
+          <View style={{flexDirection: 'row', position: 'relative'}}>
+            {/* 모임원의 수만큼 svg 생성 및 left 값 변경 */}
+            <WithLocalSvg
+              asset={Person}
+              style={{position: 'absolute', left: 15}}
+            />
+            <WithLocalSvg
+              asset={Person}
+              style={{position: 'absolute', left: 40}}
+            />
+            <WithLocalSvg
+              asset={Person}
+              style={{position: 'absolute', left: 65}}
+            />
+            <WithLocalSvg
+              asset={Person}
+              style={{position: 'absolute', left: 90}}
+            />
+          </View>
         </Row>
-      </View>
+      </Inner>
     </Container>
   );
 };
