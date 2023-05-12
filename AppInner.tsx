@@ -60,6 +60,8 @@ function AppInner() {
     (state: RootState) => state.persisted.user.accessToken,
   );
 
+  const [newSocket, SetNewSocket] = useState<WebSocket>();
+
   // 푸쉬 알람을 위한 설정
   const dispatch = useAppDispatch();
 
@@ -88,8 +90,8 @@ function AppInner() {
 
   // FCM을 위한 기기 토큰 설정
   useEffect(() => {
-    const moimId = 1;
-    dispatch(socketConnect(moimId));
+    // const moimId = 1;
+    // dispatch(socketConnect(moimId));
     async function getToken() {
       console.log('========= getToken 함수 시작 =========');
       try {
@@ -146,7 +148,10 @@ function AppInner() {
       if (notification.channelId === 'open') {
         // 임시 모임 아이디 (알림 메시지에서 추출할 것)
         const moimId = 1;
-        dispatch(socketConnect(moimId));
+        const socket = new WebSocket(
+          `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
+        );
+        SetNewSocket(socket);
       }
       // process the notification
 
