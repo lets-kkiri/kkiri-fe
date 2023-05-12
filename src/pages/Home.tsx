@@ -3,6 +3,7 @@ import moment from 'moment-timezone';
 import {WeekCalendar, CalendarProvider} from 'react-native-calendars';
 import {Text} from 'react-native';
 import styled from 'styled-components/native';
+import MoimCard from '../components/Moim/MoimCard';
 
 // Styled component
 const HomeContainer = styled.View`
@@ -66,7 +67,7 @@ export default function Home() {
         </CalendarProvider>
       </CalendarContainer>
       <CardsContainer>
-        <Text>카드 들어갈 곳</Text>
+        <MoimCard cardData={1} />
       </CardsContainer>
     </HomeContainer>
   );
