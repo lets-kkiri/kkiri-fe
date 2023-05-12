@@ -88,6 +88,8 @@ function AppInner() {
 
   // FCM을 위한 기기 토큰 설정
   useEffect(() => {
+    const moimId = 1;
+    dispatch(socketConnect(moimId));
     async function getToken() {
       console.log('========= getToken 함수 시작 =========');
       try {
