@@ -24,10 +24,6 @@ export const socketConnect = createAsyncThunk(
   },
 );
 
-const initialState: SocketsState = {};
-
-const initialState: SocketsState = {};
-
 const socketsSlice = createSlice({
   name: 'sockets',
   initialState,
@@ -40,6 +36,7 @@ const socketsSlice = createSlice({
       console.log('fulfilled');
       console.log('웹소켓 연결되어라 제발');
       state.socket = action.payload;
+      console.log('origin socket:', action.payload);
     });
     builder.addCase(socketConnect.rejected, (state, action) => {
       console.log('reject', action.error);
@@ -49,14 +46,4 @@ const socketsSlice = createSlice({
 
 export const {addSocket, removeSocket} = socketsSlice.actions;
 
-export const createSocket = (moimId: number) => (dispatch: any) => {
-  console.log('hey');
-  const socket = io(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`, {
-    extraHeaders: {Authorization: `Bearer ${token}`},
-  });
-  socket.on('connect', () => {});
-  console.log('socket :', socket);
-};
-
-export default socketsSlice;
 export default socketsSlice;

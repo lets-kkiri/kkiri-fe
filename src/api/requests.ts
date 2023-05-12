@@ -58,7 +58,10 @@ export const requests = {
   },
 
   // 이전 채팅 내용 불러오기
-  GET_CHAT(moimId: number, size: number, lastMessageId: number) {
-    return `api/chat?moimId=${moimId}&size=${size}&lastMessageId=${lastMessageId}`;
+  GET_CHAT(moimId: number, size: number, lastMessageId?: string) {
+    if (lastMessageId) {
+      return `api/chat?moimId=${moimId}&size=${size}&lastMessageId=${lastMessageId}`;
+    }
+    return `api/chat?moimId=${moimId}&size=${size}&`;
   },
 };
