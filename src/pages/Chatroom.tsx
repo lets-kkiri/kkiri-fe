@@ -182,7 +182,7 @@ function Chatroom({route}: ChatroomProp) {
   return (
     <View style={{flex: 1, position: 'relative'}}>
       {/* 지도 */}
-      <RealtimeMap />
+      {/* <RealtimeMap /> */}
       {/* 채팅 */}
       {showChatArea ? (
         <ChatArea data={messages} client={client} roomId={roomId} />
