@@ -13,12 +13,14 @@ import axios from 'axios';
 import {useDispatch, useSelector} from 'react-redux';
 import userSlice from '../slices/user';
 import EncryptedStorage from 'react-native-encrypted-storage';
-import {RootState} from '../store/reducer';
+import {RootState} from '../store/index';
 
 function SignIn() {
   const [result, setResult] = useState('');
-  const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
-  const user = useSelector((state: RootState) => state.user);
+  const isLoggedIn = useSelector(
+    (state: RootState) => state.persisted.user.isLoggedIn,
+  );
+  const user = useSelector((state: RootState) => state.persisted.user);
 
   const dispatch = useDispatch();
 

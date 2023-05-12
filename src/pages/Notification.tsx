@@ -4,7 +4,7 @@ import {SwipeListView} from 'react-native-swipe-list-view';
 
 import {notiType} from '../slices/noti';
 import {useSelector} from 'react-redux';
-import {RootState} from '../store/reducer';
+import {RootState} from '../store/index';
 import EachNoti from '../components/EachNoti';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
@@ -13,7 +13,7 @@ import {useAppDispatch} from '../store';
 
 function Notification() {
   const dispatch = useAppDispatch();
-  const notices = useSelector((state: RootState) => state.noti);
+  const notices = useSelector((state: RootState) => state.persisted.noti);
 
   const renderNoti = useCallback(({item}: {item: notiType}) => {
     console.log('noti', item);

@@ -31,11 +31,12 @@ import NotiBox from '../Common/NotiBox';
 
 interface UserProps {
   type: string;
-  content: Object;
-  memberId: number;
-  latitude: number;
-  longitude: number;
-  regDate: string;
+  content: {
+    memberId: number;
+    latitude: number;
+    longitude: number;
+    regDate: string;
+  };
 }
 
 const UserData = {
@@ -53,12 +54,6 @@ interface PathProps {
   longitude: number;
 }
 
-interface Props {
-  client: React.MutableRefObject<any>;
-  users: UserProps[];
-  roomId: number;
-}
-
 type LocateType = {
   lat1: number;
   lon1: number;
@@ -67,7 +62,15 @@ type LocateType = {
 };
 
 function RealtimeMap() {
-  const [myPosition, setMyPosition] = useState(UserData);
+  const [myPosition, setMyPosition] = useState<UserProps | null>({
+    type: '',
+    content: {
+      memberId: 0,
+      longitude: 0,
+      latitude: 0,
+      regDate: '',
+    },
+  });
   const [startDraw, setStartDraw] = useState<boolean>(false);
   const [drawpoint, setDrawpoint] = useState<PathProps | null>(null);
   const [drawpath, setDrawpath] = useState<PathProps[]>([]);
@@ -83,12 +86,8 @@ function RealtimeMap() {
   const destination = {latitude: 37.501303, longitude: 127.039603};
   const moimId = 1;
 
-  const socket = useSelector((state: RootState) => state.sockets.socket);
-
-  // 서버와 연결되면 실행될 콜백 함수
-  socket.on('connect', () => {
-    console.log('connected to server');
-    Geolocation.watchPosition(
+  useEffect(() => {
+    Geolocation.getCurrentPosition(
       position => {
         setMyPosition({
           type: 'GPS',
@@ -99,6 +98,25 @@ function RealtimeMap() {
             regDate: date.toISOString(),
           },
         });
+        // 현재 위치와 목적지 위치의 거리 계산
+        if (myPosition) {
+          const distance = calculateDistance({
+            lat1: myPosition.content.latitude,
+            lon1: myPosition.content.longitude,
+            lat2: 37.501303,
+            lon2: 127.039603,
+          });
+
+          // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
+          if (distance <= 50) {
+            console.log('목적지 도착');
+            const arrivalTime = date.toISOString();
+            // Alert.alert('목적지에 도착하였습니다!', arriveTime);
+            dispatch(arrivePost({moimId: moimId, arrivalTime: arrivalTime}));
+            setModalVisible(true);
+            setModalType('arrive');
+          }
+        }
       },
       error => console.log(error),
       {
@@ -106,55 +124,40 @@ function RealtimeMap() {
         timeout: 20000,
       },
     );
-  });
 
-  // 두 위치의 거리 계산 함수
-  function calculateDistance({lat1, lon1, lat2, lon2}: LocateType) {
-    const R = 6371e3; // 지구 반경 (m)
-    const cal1 = toRadians(lat1);
-    const cal2 = toRadians(lat2);
-    const cal3 = toRadians(lat2 - lat1);
-    const cal4 = toRadians(lon2 - lon1);
+    // 두 위치의 거리 계산 함수
+    function calculateDistance({lat1, lon1, lat2, lon2}: LocateType) {
+      const R = 6371e3; // 지구 반경 (m)
+      const cal1 = toRadians(lat1);
+      const cal2 = toRadians(lat2);
+      const cal3 = toRadians(lat2 - lat1);
+      const cal4 = toRadians(lon2 - lon1);
 
-    const a =
-      Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
-      Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const a =
+        Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
+        Math.cos(cal1) *
+          Math.cos(cal2) *
+          Math.sin(cal4 / 2) *
+          Math.sin(cal4 / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-    const distance = R * c; // 두 지점 사이의 거리 (m)
+      const distance = R * c; // 두 지점 사이의 거리 (m)
 
-    return distance;
-  }
-
-  function toRadians(degrees: any) {
-    return (degrees * Math.PI) / 180;
-  }
-
-  // 현재 위치와 목적지 위치의 거리 계산
-  if (myPosition) {
-    const distance = calculateDistance({
-      lat1: myPosition.content.latitude,
-      lon1: myPosition.content.longitude,
-      lat2: 37.501303,
-      lon2: 127.039603,
-    });
-
-    // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-    if (distance <= 50) {
-      console.log('목적지 도착');
-      const arrivalTime = date.toISOString();
-      // Alert.alert('목적지에 도착하였습니다!', arriveTime);
-      dispatch(arrivePost({moimId: moimId, arrivalTime: arrivalTime}));
-      setModalVisible(true);
-      setModalType('arrive');
+      return distance;
     }
-  }
 
-  // 내 위치 서버로 보내기
-  socket.emit('sendMyLocate', JSON.stringify(myPosition));
+    function toRadians(degrees: any) {
+      return (degrees * Math.PI) / 180;
+    }
+  }, []);
+
+  // 내 위치 서버로 보내기 -> websocket 로직으로 변경하기
+  // socket.emit('sendMyLocate', JSON.stringify(myPosition));
 
   // const userGrades = useSelector(userGrade);
-  const userGrades = useSelector((state: RootState) => state.arrives.userGrade);
+  // const userGrades = useSelector(
+  //   (state: PersistedRootState) => state.arrives.userGrade,
+  // );
 
   const drawPath = (e: any) => {
     if (startDraw) {
@@ -222,13 +225,16 @@ function RealtimeMap() {
           onMapClick={e => {
             drawPath(e);
           }}
-          center={{...myPosition.content, zoom: 14}}>
+          center={{
+            latitude: myPosition.content.latitude,
+            longitude: myPosition.content.longitude,
+          }}>
           {/* 임시 목적지 역삼 멀티캠퍼스 */}
           <Marker
             coordinate={destination}
             image={require('../../assets/icons/destination.png')}
-            width={50}
-            height={55}
+            width={30}
+            height={35}
           />
           {/* 반경 n미터 원으로 표시
           <Circle
@@ -236,7 +242,7 @@ function RealtimeMap() {
             color={'rgba(221, 226, 252, 0.5)'}
             radius={50}
           /> */}
-          {myPosition?.content.latitude && (
+          {/* {myPosition?.content.latitude && (
             <Marker
               coordinate={{
                 latitude: myPosition.content.latitude,
@@ -246,8 +252,8 @@ function RealtimeMap() {
               width={45}
               height={50}
             />
-          )}
-          {users.map(user => (
+          )} */}
+          {/* {users.map(user => (
             <Marker
               onClick={sendPress}
               key={user.id}
@@ -258,14 +264,14 @@ function RealtimeMap() {
               image={require('../../assets/icons/bear.png')}
               // caption={{text: user.id}}
             />
-          ))}
-          {drawpath.length > 1 ? (
+          ))} */}
+          {/* {drawpath.length > 1 ? (
             <Polyline
               coordinates={drawpath}
               strokeColor="#B0BDFF"
               strokeWidth={5}
             />
-          ) : null}
+          ) : null} */}
         </NaverMapView>
       )}
       {startDraw === false ? (
@@ -347,10 +353,12 @@ function RealtimeMap() {
       />
       {sideModal ? <AboutMoim setSideModal={setSideModal} /> : null}
       {/* 등수 보여주는 예시 */}
-      <View>
-        <Text>{userGrades.ranking.overall}명 중에</Text>
-        <Text>{userGrades.ranking.rank}등으로 도착하셨습니다!</Text>
-      </View>
+      {/* {userGrades ? (
+        <View>
+          <Text>{userGrades.ranking.overall}명 중에</Text>
+          <Text>{userGrades.ranking.rank}등으로 도착하셨습니다!</Text>
+        </View>
+      ) : null} */}
     </View>
   );
 }
