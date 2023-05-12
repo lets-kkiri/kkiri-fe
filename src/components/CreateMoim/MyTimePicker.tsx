@@ -1,37 +1,47 @@
 import React, {useEffect, useState} from 'react';
-import {View} from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import {CreateMoimProps} from '../../pages/CreateMoim';
+import styled from 'styled-components/native';
+
+const TimePickerContainer = styled.View`
+  background-color: #f8f9ff;
+  justify-content: center;
+  align-items: center;
+`;
 
 function MyTimePicker({moim, setMoim}: CreateMoimProps) {
   const [date, setDate] = useState(new Date());
 
-  // useEffect(() => {
-  //   if (!moim || moim.time === '') {
-  //     return;
-  //   }
-  //   setDate(moim.time);
-  // }, [moim]);
+  useEffect(() => {
+    if (moim.time !== '') {
+      const [hours, minutes] = moim.time.split(':').map(Number);
+      const newDate = new Date();
+      newDate.setHours(hours, minutes);
+      setDate(newDate);
+    }
+  }, [moim.time]);
 
   if (!moim) {
     return null; // moim이 존재하지 않을 때 렌더링하지 않음
   }
 
   return (
-    <View style={{backgroundColor: '#F8F9FF'}}>
+    <TimePickerContainer>
       <DatePicker
         textColor="#5968F2"
-        androidVariant="nativeAndroid"
         date={date}
-        onDateChange={date => {
-          setDate(date);
-          console.log(date);
+        onDateChange={newDate => {
+          setDate(newDate);
+          const hours = newDate.getHours();
+          const minutes = newDate.getMinutes();
+          setMoim(prevMoim => ({...prevMoim, time: `${hours}:${minutes}`}));
         }}
+        locale="kr"
         mode="time"
         minuteInterval={5}
         fadeToColor="none"
       />
-    </View>
+    </TimePickerContainer>
   );
 }
 

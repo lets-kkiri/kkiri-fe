@@ -22,25 +22,14 @@ const initialState: SocketsState = {};
 const socketsSlice = createSlice({
   name: 'sockets',
   initialState,
-  reducers: {
-    // createSocket: (state, action) => {
-    // const moimId = action.payload.moimId;
-    // const newSocket = JSON.stringify(
-    //   new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`),
-    // );
-    // state.socket = newSocket;
-    // },
-    // removeSocket: (state, action) => {
-    //   const {id} = action.payload;
-    //   delete state[id];
-    // },
-  },
+  reducers: {},
   extraReducers: builder => {
     builder.addCase(socketConnect.pending, state => {
       console.log('pending');
     });
     builder.addCase(socketConnect.fulfilled, (state, action) => {
       console.log('fulfilled');
+      console.log('웹소켓 연결되어라 제발');
       state.socket = action.payload;
     });
     builder.addCase(socketConnect.rejected, (state, action) => {
