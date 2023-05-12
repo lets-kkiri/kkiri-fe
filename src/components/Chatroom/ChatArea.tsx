@@ -30,7 +30,6 @@ const send_btn = require('../../assets/icons/chat_send_btn.svg') as string;
 
 // Components
 import EmojiBtn from './EmojiBtn';
-import DismissKeyboardView from '../DismissKeyboardView';
 import {RootState} from '../../store/reducer';
 
 // Styled component
@@ -49,16 +48,15 @@ const CloseBtnRow = styled.View`
   top: 0px;
 `;
 
-const InputContainer = styled.View<{keyboardHeight: number}>`
+const InputContainer = styled.View`
   flex-direction: row;
   background-color: transparent;
   justify-content: center;
   align-items: center;
-  margin-bottom: ${({keyboardHeight}) => keyboardHeight}px;
   bottom: 0px;
 `;
 
-const TextInputContainer = styled.View<{parentWidth: number}>`
+const TextInputContainer = styled.View`
   position: relative;
   display: flex;
   flex-direction: row;
@@ -73,11 +71,10 @@ const TextInputContainer = styled.View<{parentWidth: number}>`
   height: 40px;
 `;
 
-const StyledTextInput = styled.TextInput<{parentWidth: number}>`
+const StyledTextInput = styled.TextInput`
   font-size: 12px;
   position: relative;
   bottom: -1px;
-  width: ${({parentWidth}) => parentWidth}px;
 `;
 
 const TextSendBtn = styled.TouchableHighlight`
@@ -89,109 +86,70 @@ type ChatAreaProps = {
   data: MessageData[];
   client: any;
   moimId: number;
+  closeHandler: () => void;
+  previousMessages: MessageData[];
 };
 
-const ChatArea = ({data, client, moimId}: ChatAreaProps) => {
+const ChatArea = ({
+  data,
+  client,
+  moimId,
+  closeHandler,
+  previousMessages,
+}: ChatAreaProps) => {
   const [inputValue, setInputValue] = useState<string>('');
 
-  const socket = useSelector((state: RootState) => state.socket.value); // 수정필요
-  const userInfo = useSelector((state: RootState) => state.user);
+  const userInfo = useSelector((state: RootState) => state.persisted.user);
+  const accessToken =
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyNzgzNTQ1NTA5IiwiaXNzIjoiS0tJUkkiLCJleHAiOjE2OTU5NTAzMjQsImlhdCI6MTY4Mzg1NDMyNH0.8J8MBeiWPMJPXZy8X5i49jw-LAUff_S7RZWv8pYKOOzogqc3JTuIJevoOMi_1ANy4OynvTKNjwsr517_fNYxKA';
 
+  const headers = {
+    Authorization:
+      'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyNzgzNTQ1NTA5IiwiaXNzIjoiS0tJUkkiLCJleHAiOjE2OTU5NTAzMjQsImlhdCI6MTY4Mzg1NDMyNH0.8J8MBeiWPMJPXZy8X5i49jw-LAUff_S7RZWv8pYKOOzogqc3JTuIJevoOMi_1ANy4OynvTKNjwsr517_fNYxKA',
+    // 'X-Custom-Header': 'myvalue',
+  };
+  console.log('previousMessages :', previousMessages);
   // 채팅메시지 발신
   const sendMessage = () => {
-    console.log('client check :', client.current);
+    console.log('client :', client);
     const msg = JSON.stringify({
       type: 'MESSAGE', //or EMOJI, URGENT
       content: {
         moimId: moimId, //e.g. 1
-        memberId: userInfo.memberId, //e.g. 1
+        memberKakaoId: userInfo.id, //e.g. 1
         nickname: userInfo.nickname,
         message: inputValue.trim(),
       },
     });
-    socket.send(msg);
+    client.current.send(msg);
+    client.current.onerror = e => {
+      console.log('socket error :', e);
+    };
     setInputValue('');
   };
 
-  // header 높이
-  const headerHeight = useHeaderHeight();
-
-  // 부모 요소의 높이 혹은 넓이 구하는 로직 (사용하지 않음)
-  const [inputConWidth, setInputConWidth] = useState<number>(0);
-  const [chatAreaConHeight, setChatAreaConHeight] = useState<number>(0);
-  const [textInputConWidth, setTextInputConWidth] = useState<number>(0);
-
-  const onChatAreaConLayout = useCallback(event => {
-    const {height} = event.nativeEvent.layout;
-    setChatAreaConHeight(height);
-  }, []);
-
-  const onInputConLayout = useCallback(event => {
-    const {width} = event.nativeEvent.layout;
-    setInputConWidth(width);
-  }, []);
-
-  const onTextInputConLayout = useCallback(event => {
-    const {width} = event.nativeEvent.layout;
-    setTextInputConWidth(width);
-  }, []);
-
-  // textinput 움직이기
-  const [keyboardh, setKeyboardh] = useState(0);
-  const {height: windowHeight} = Dimensions.get('window');
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      event => {
-        const keyboardHeight = event.endCoordinates.height;
-        const screenHeight = windowHeight;
-        const remainingHeight = screenHeight - keyboardHeight;
-        setKeyboardh(keyboardHeight);
-      },
-    );
-
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        setKeyboardh(0);
-      },
-    );
-
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, []);
-  const keyboardVerticalOffset = Platform.OS === 'ios' ? 64 : 0;
-
   return (
     <KeyboardAvoidingView style={{flex: 1}}>
-      <ChatAreaContainer onLayout={onChatAreaConLayout}>
+      <ChatAreaContainer>
         <CloseBtnRow>
-          <TouchableHighlight>
+          <TouchableHighlight onPress={closeHandler}>
             <WithLocalSvg asset={close_btn} />
           </TouchableHighlight>
         </CloseBtnRow>
-        <ChatFlatList data={data} parentHeight={chatAreaConHeight} />
-        <InputContainer onLayout={onInputConLayout} keyboardHeight={keyboardh}>
-          <DismissKeyboardView>
-            <TextInputContainer
-              parentWidth={inputConWidth}
-              onLayout={onTextInputConLayout}>
-              <TextInput
-                placeholder="메시지를 입력해주세요"
-                onChangeText={text => {
-                  setInputValue(text);
-                }}
-                value={inputValue}
-                // parentWidth={textInputConWidth}
-              />
-              <TextSendBtn onPress={() => sendMessage()}>
-                <WithLocalSvg asset={send_btn} />
-              </TextSendBtn>
-            </TextInputContainer>
-          </DismissKeyboardView>
+        <ChatFlatList data={previousMessages} />
+        <InputContainer>
+          <TextInputContainer>
+            <StyledTextInput
+              placeholder="메시지를 입력해주세요"
+              onChangeText={text => {
+                setInputValue(text);
+              }}
+              value={inputValue}
+            />
+            <TextSendBtn onPress={() => sendMessage()}>
+              <WithLocalSvg asset={send_btn} />
+            </TextSendBtn>
+          </TextInputContainer>
           <EmojiBtn />
         </InputContainer>
       </ChatAreaContainer>

@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, Text, Alert, TouchableOpacity} from 'react-native';
 import {WithLocalSvg} from 'react-native-svg';
+import styled from 'styled-components/native';
 
 // Naver Map
 import Geolocation from '@react-native-community/geolocation';
@@ -28,7 +29,8 @@ import Pencil from '../../assets/icons/pencil.svg';
 import Help from '../../assets/icons/help.svg';
 import Info from '../../assets/icons/info.svg';
 import NotiBox from '../Common/NotiBox';
-import styled from 'styled-components/native';
+import {Socket} from 'socket.io-client';
+import {createSocket, socketConnect} from '../../slices/socket';
 
 interface UserState {
   type: string;

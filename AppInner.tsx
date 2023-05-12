@@ -22,7 +22,7 @@ import CreateMoim from './src/pages/CreateMoim';
 // import userSlice from './src/slices/user';
 import notiSlice from './src/slices/noti';
 import {useAppDispatch} from './src/store';
-import {createSocket, socketConnect} from './src/slices/socket';
+import {socketConnect} from './src/slices/socket';
 
 // FCM 및 푸쉬 알림
 import messaging from '@react-native-firebase/messaging';
@@ -67,10 +67,6 @@ function AppInner() {
   // 푸쉬 알람을 위한 설정
   const dispatch = useAppDispatch();
 
-  // 채팅 연결
-  const token = useSelector((state: RootState) => state.sockets.value);
-  dispatch(createSocket(1));
-
   messaging().setBackgroundMessageHandler(async remoteMessage => {
     console.log(
       'Message handled in the background!',
@@ -95,6 +91,9 @@ function AppInner() {
   });
 
   // FCM을 위한 기기 토큰 설정
+  // const moimId = 1;
+  // dispatch(socketConnect(moimId));
+
   useEffect(() => {
     async function getToken() {
       console.log('========= getToken 함수 시작 =========');

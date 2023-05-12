@@ -19,10 +19,14 @@ import MessagePreview from '../components/Chatroom/MessagePreview';
 import {MessageData} from '../types/index';
 import EmojiBtn from '../components/Chatroom/EmojiBtn';
 import {RootState} from '../store/reducer';
+import axios, {AxiosResponse} from 'axios';
+import {RootStackParamList} from '../types';
+import {RouteProp} from '@react-navigation/native';
+import {authInstance, baseInstance} from '../api/axios';
 
 interface ChatroomProp {
-  navigation: NativeStackNavigationProp<any>;
-  route: any;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Chatroom'>;
+  route: RouteProp<RootStackParamList, 'Chatroom'>;
 }
 
 interface UserProps {
@@ -45,11 +49,29 @@ const MessagePreviewContainer = styled.View`
 `;
 
 function Chatroom({route}: ChatroomProp) {
-  const [messages, setMessages] = useState<MessageData[]>([]);
-  const [users, setUsers] = useState<UserProps[]>([]);
-  const [myPosition, setMyPosition] = useState<UserProps | null>(null);
+  const [previousMessages, setPreviousMessages] = useState<MessageData[]>([]);
+  const [messages, setMessages] = useState<MessageData[]>([
+    {
+      messageType: 'MESSAGE',
+      moimId: 9, //e.g. 1
+      memberKakaoId: 123, //e.g. 1
+      nickname: '한별',
+      message: '안녕',
+      time: '2023-05-07T19:05:25.867+00:00',
+    },
+    {
+      messageType: 'MESSAGE',
+      moimId: 9, //e.g. 1
+      memberKakaoId: 2785529705, //e.g. 1
+      nickname: '은지',
+      message: '하지모태',
+      time: '2023-05-07T19:05:25.867+00:00',
+    },
+  ]);
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
-  const client = useRef<any>(null);
+
+  // socket 저장하는 변수
+  const client = useRef<WebSocket | null>(null);
 
   const [startDraw, setStartDraw] = useState<boolean>(false);
 
@@ -57,119 +79,97 @@ function Chatroom({route}: ChatroomProp) {
 
   // 채팅방 id
   const moimId = route.params.moimId;
-  console.log('moimId :', moimId);
 
-  // 해당 moimId에 대한 소켓
-  const socket = useSelector((state: RootState) => state.socket.value); // 수정필요
+  // 나 자신
+  const myId = useSelector((state: RootState) => state.persisted.user.id);
+
+  // 임시 토큰
+  const accessToken =
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyNzg1NTI5NzA1IiwiaXNzIjoiS0tJUkkiLCJleHAiOjE2ODM5NTk1MDEsImlhdCI6MTY4Mzg3MzEwMX0.BAuff1KtXDdU_nAPLC1trZvmMlW_IbSf7B9BPSI8Uq7D-DF-FtC5v-B5ilADtsY8tPSuqo08_0AkbO3kaiTemA';
+
+  // console.log('은지의 토큰 :', accessToken);
+
+  interface Data {
+    meta: {
+      lastMessageId: string;
+      last: boolean;
+    };
+    chat: MessageData[];
+  }
 
   useEffect(() => {
-    setMessages([
-      {
-        id: 0,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 1,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 2,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 3,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 4,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 5,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 6,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 7,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 8,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 9,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-    ]);
-  }, []);
+    console.log('====================  채팅방 ========================');
+    // 이전 메시지 fetch
+    const get_previous_chat = async (id: number) => {
+      try {
+        const {data} = await baseInstance.get(requests.GET_CHAT(id, 20));
+        // console.log('get previous chat data :', data);
+        setPreviousMessages(data.chat);
+      } catch (error) {
+        console.log('get previous chat error :', error);
+      }
+    };
+    get_previous_chat(moimId);
 
-  useEffect(() => {}, []);
+    // WebSocket;
 
-  // useEffect(() => {
-  //   if (wsConnected) {
-  //     client.current.send(
-  //       JSON.stringify({
-  //         messageType: 'ENTER',
-  //         moimId: 1,
-  //         memberId: 1,
-  //         nickname: '일',
-  //         message: '반갑다',
-  //       }),
-  //     );
-  //   }
-  // }, [wsConnected]);
+    if (!client.current) {
+      client.current = new WebSocket(
+        `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
+      );
+      client.current.onopen = () => {
+        console.log('client :', client);
+        console.log('연결!');
+        // 소켓 열고 유저 정보 보내기
+        client.current?.send(
+          JSON.stringify({
+            type: 'JOIN',
+            content: {
+              kakaoId: myId,
+            },
+          }),
+        );
+      };
+
+      client.current.onerror = e => {
+        console.log('socket error :', e);
+      };
+    }
+
+    if (!client.current) {
+      // 메시지 수신 이벤트
+      client.current.onmessage((event: WebSocketMessageEvent) => {
+        // 채팅 메시지인 경우
+        if (event.data.messageType === 'MESSAGE') {
+          setMessages(prev => [...prev, event.data]);
+        }
+
+        // 이모티콘인 경우
+        if (event.data.messageType === 'EMOJI') {
+          // setMessages(prev => [...prev, event.data]);
+        }
+
+        // 재촉인 경우
+        if (event.data.messageType === 'URGENT') {
+          setMessages(prev => [...prev, event.data]);
+        }
+      });
+    }
+  }, [moimId]);
 
   return (
     <View style={{flex: 1, position: 'relative'}}>
       {/* 지도 */}
-      <RealtimeMap startDraw={startDraw} setStartDraw={setStartDraw} />
+      {/* <RealtimeMap startDraw={startDraw} setStartDraw={setStartDraw} /> */}
       {/* 채팅 */}
       {showChatArea ? (
-        <ChatArea data={messages} client={client} roomId={roomId} />
+        <ChatArea
+          previousMessages={previousMessages}
+          data={previousMessages}
+          client={client}
+          moimId={moimId}
+          closeHandler={() => setShowChatArea(false)}
+        />
       ) : (
         !startDraw && (
           <MessagePreviewContainer>

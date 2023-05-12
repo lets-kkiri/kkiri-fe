@@ -3,6 +3,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from '../pages/Home';
 import CreateMoim from '../pages/CreateMoim';
 import MyPage from '../pages/MyPage';
+import SignIn from '../pages/SignIn';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
 import {TouchableOpacity} from 'react-native';
