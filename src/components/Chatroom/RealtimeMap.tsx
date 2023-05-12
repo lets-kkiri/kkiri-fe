@@ -9,7 +9,7 @@ import NaverMapView, {Marker, Polyline} from 'react-native-nmap';
 // redux
 import {useSelector} from 'react-redux';
 import {useAppDispatch} from '../../store';
-import {PersistedRootState, RootState} from '../../store/reducer';
+import {RootState} from '../../store/reducer';
 import {guidesPost} from '../../slices/guidesSlice';
 import {arrivePost} from '../../slices/arriveSlice';
 import {pressPost} from '../../slices/pressSlice';
@@ -29,6 +29,7 @@ import Help from '../../assets/icons/help.svg';
 import Info from '../../assets/icons/info.svg';
 import NotiBox from '../Common/NotiBox';
 import { Socket } from 'socket.io-client';
+import { createSocket, socketConnect } from '../../slices/socket';
 
 interface UserProps {
   type: string;
@@ -54,12 +55,6 @@ interface PathProps {
   longitude: number;
 }
 
-interface Props {
-  client: React.MutableRefObject<any>;
-  users: UserProps[];
-  roomId: number;
-}
-
 type LocateType = {
   lat1: number;
   lon1: number;
@@ -68,7 +63,15 @@ type LocateType = {
 };
 
 function RealtimeMap() {
-  const [myPosition, setMyPosition] = useState(UserData);
+  const [myPosition, setMyPosition] = useState({
+    type: '',
+    content: {
+      memberId: 0,
+      longitude: 0,
+      latitude: 0,
+      regDate: '',
+    },
+  });
   const [startDraw, setStartDraw] = useState<boolean>(false);
   const [drawpoint, setDrawpoint] = useState<PathProps | null>(null);
   const [drawpath, setDrawpath] = useState<PathProps[]>([]);
@@ -84,40 +87,52 @@ function RealtimeMap() {
   const destination = {latitude: 37.501303, longitude: 127.039603};
   const moimId = 1;
 
-  const socket = useSelector(
-    (state: PersistedRootState) => state.sockets.socket,
-  );
+  // const socket: WebSocket = JSON.parse(
+  //   useSelector((state: RootState) => state.persisted.sockets.socket),
+  // );
 
-  // const newsock = new WebSocket('wss://k8a606.p.ssafy.io/ws/api');
+  // socket.onopen = () => {
+  //   console.log('connected to server');
+  //   Geolocation.watchPosition(
+  //     position => {
+  //       setMyPosition({
+  //         type: 'GPS',
+  //         content: {
+  //           memberId: 1, // 임시
+  //           latitude: position.coords.latitude,
+  //           longitude: position.coords.longitude,
+  //           regDate: date.toISOString(),
+  //         },
+  //       });
+  //     },
+  //     error => console.log(error),
+  //     {
+  //       enableHighAccuracy: true,
+  //       timeout: 20000,
+  //     },
+  //   );
+  // };
 
-  // 서버와 연결되면 실행될 콜백 함수
   useEffect(() => {
-    if (socket !== undefined) {
-      // socket 값을 이용한 처리
-      const newSocket: WebSocket = JSON.parse(socket);
-      newSocket.onopen = () => {
-        console.log('connected to server');
-        Geolocation.watchPosition(
-          position => {
-            setMyPosition({
-              type: 'GPS',
-              content: {
-                memberId: 1, // 임시
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-                regDate: date.toISOString(),
-              },
-            });
+    Geolocation.getCurrentPosition(
+      position => {
+        setMyPosition({
+          type: 'GPS',
+          content: {
+            memberId: 1, // 임시
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            regDate: date.toISOString(),
           },
-          error => console.log(error),
-          {
-            enableHighAccuracy: true,
-            timeout: 20000,
-          },
-        );
-      };
-    }
-  }, [socket]);
+        });
+      },
+      error => console.log(error),
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+      },
+    );
+  }, []);
 
   // 두 위치의 거리 계산 함수
   function calculateDistance({lat1, lon1, lat2, lon2}: LocateType) {
@@ -232,24 +247,27 @@ function RealtimeMap() {
       {myPosition && (
         <NaverMapView
           style={{width: '100%', height: '100%'}}
-          onMapClick={e => {
-            drawPath(e);
-          }}
-          center={{...myPosition.content, zoom: 14}}>
+          // onMapClick={e => {
+          //   drawPath(e);
+          // }}
+          center={{
+            latitude: myPosition.content.latitude,
+            longitude: myPosition.content.longitude,
+          }}>
           {/* 임시 목적지 역삼 멀티캠퍼스 */}
-          <Marker
+          {/* <Marker
             coordinate={destination}
             image={require('../../assets/icons/destination.png')}
             width={50}
             height={55}
-          />
+          /> */}
           {/* 반경 n미터 원으로 표시
           <Circle
             coordinate={destination}
             color={'rgba(221, 226, 252, 0.5)'}
             radius={50}
           /> */}
-          {myPosition?.content.latitude && (
+          {/* {myPosition?.content.latitude && (
             <Marker
               coordinate={{
                 latitude: myPosition.content.latitude,
@@ -259,7 +277,7 @@ function RealtimeMap() {
               width={45}
               height={50}
             />
-          )}
+          )} */}
           {/* {users.map(user => (
             <Marker
               onClick={sendPress}
@@ -272,13 +290,13 @@ function RealtimeMap() {
               // caption={{text: user.id}}
             />
           ))} */}
-          {drawpath.length > 1 ? (
+          {/* {drawpath.length > 1 ? (
             <Polyline
               coordinates={drawpath}
               strokeColor="#B0BDFF"
               strokeWidth={5}
             />
-          ) : null}
+          ) : null} */}
         </NaverMapView>
       )}
       {startDraw === false ? (
