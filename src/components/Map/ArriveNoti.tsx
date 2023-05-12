@@ -7,6 +7,8 @@ import styled from 'styled-components/native';
 
 interface BtnProps {
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  overall: number;
+  ranking: number;
 }
 
 const Container = styled.View`
@@ -46,7 +48,7 @@ const SubFont = styled.Text`
   font-size: 12;
 `;
 
-const ArriveNoti = ({setModalVisible}: BtnProps) => {
+const ArriveNoti = ({setModalVisible, overall, ranking}: BtnProps) => {
   return (
     <Container>
       <Inner>
@@ -55,8 +57,10 @@ const ArriveNoti = ({setModalVisible}: BtnProps) => {
       </Inner>
       <Hr />
       <Margin>
-        <SubFont>유저님은 5명 중 2등으로 도착했어요!</SubFont>
-        <SubFont>약속 시간까지 아직 10분 남았어요!</SubFont>
+        <SubFont>
+          유저님은 {overall}명 중 {ranking}등으로 도착했어요!
+        </SubFont>
+        <SubFont>약속 시간까지 아직 분 남았어요!</SubFont>
       </Margin>
       <View style={{alignItems: 'flex-end'}}>
         <CustomButton
