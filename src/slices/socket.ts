@@ -5,11 +5,20 @@ const initialState = {
   socket: '',
 };
 
+// export const socketConnect = createAsyncThunk(
+//   'sockets/connect',
+//   async (data: number, thunkAPI) => {
+//     const response = await JSON.stringify(
+//       new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${data}`),
+//     );
+//     return thunkAPI.fulfillWithValue(response);
+//   },
+// );
 export const socketConnect = createAsyncThunk(
   'sockets/connect',
   async (data: number, thunkAPI) => {
     const response = await JSON.stringify(
-      new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${data}`),
+      new WebSocket('wss://k8a606.p.ssafy.io/ws/api'),
     );
     return thunkAPI.fulfillWithValue(response);
   },
