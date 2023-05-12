@@ -21,6 +21,7 @@ const CalendarContainer = styled.View`
 const CardsContainer = styled.View`
   flex-direction: row;
   flex: 0.5;
+  justify-content: center;
 `;
 
 export default function Home() {
