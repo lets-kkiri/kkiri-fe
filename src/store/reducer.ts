@@ -20,5 +20,5 @@ const rootReducer = combineReducers({
   sockets: socketSlice.reducer,
 });
 
-export type RootState = ReturnType<typeof rootReducer>;
+export type PersistedRootState = ReturnType<typeof rootReducer>;
 export default rootReducer;

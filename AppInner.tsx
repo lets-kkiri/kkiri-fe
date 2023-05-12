@@ -1,6 +1,6 @@
 import * as React from 'react';
 import axios from 'axios';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
@@ -22,7 +22,7 @@ import CreateMoim from './src/pages/CreateMoim';
 // import userSlice from './src/slices/user';
 import notiSlice from './src/slices/noti';
 import {useAppDispatch} from './src/store';
-import {createSocket} from './src/slices/socket';
+import {createSocket, socketConnect} from './src/slices/socket';
 
 // FCM 및 푸쉬 알림
 import messaging from '@react-native-firebase/messaging';
@@ -32,13 +32,13 @@ import uuid from 'react-native-uuid';
 
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {requests} from './src/api/requests';
-import userSlice from './src/slices/user';
 import {useSelector} from 'react-redux';
-import {RootState} from './src/store/reducer';
+import {RootState} from './src/store/index';
 import SignIn from './src/pages/SignIn';
 
 // Splash Screen
 import SplashScreen from 'react-native-splash-screen';
+import {Socket, io} from 'socket.io-client';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -51,14 +51,16 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppInner() {
   const isLoggedIn: boolean = useSelector(
-    (state: RootState) => state.user.isLoggedIn,
+    (state: RootState) => state.persisted.user.isLoggedIn,
   );
   const deviceTokens: string[] = useSelector(
-    (state: RootState) => state.user.deviceTokens,
+    (state: RootState) => state.persisted.user.deviceTokens,
   );
   const accessToken: string = useSelector(
-    (state: RootState) => state.user.accessToken,
+    (state: RootState) => state.persisted.user.accessToken,
   );
+
+  const [newSocket, SetNewSocket] = useState<WebSocket>();
 
   // 푸쉬 알람을 위한 설정
   const dispatch = useAppDispatch();
@@ -88,6 +90,8 @@ function AppInner() {
 
   // FCM을 위한 기기 토큰 설정
   useEffect(() => {
+    // const moimId = 1;
+    // dispatch(socketConnect(moimId));
     async function getToken() {
       console.log('========= getToken 함수 시작 =========');
       try {
@@ -144,7 +148,10 @@ function AppInner() {
       if (notification.channelId === 'open') {
         // 임시 모임 아이디 (알림 메시지에서 추출할 것)
         const moimId = 1;
-        dispatch(createSocket(moimId));
+        const socket = new WebSocket(
+          `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
+        );
+        SetNewSocket(socket);
       }
       // process the notification
 
@@ -274,6 +281,11 @@ function AppInner() {
             name="Setting"
             component={Setting}
             options={{title: '세팅'}}
+          />
+          <Stack.Screen
+            name="SignIn"
+            component={SignIn}
+            options={{title: '로그인/로그아웃'}}
           />
           <Stack.Screen
             name="Notification"
