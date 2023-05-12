@@ -38,7 +38,7 @@ import SignIn from './src/pages/SignIn';
 
 // Splash Screen
 import SplashScreen from 'react-native-splash-screen';
-import { Socket, io } from 'socket.io-client';
+import {Socket, io} from 'socket.io-client';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -276,6 +276,11 @@ function AppInner() {
             name="Setting"
             component={Setting}
             options={{title: '세팅'}}
+          />
+          <Stack.Screen
+            name="SignIn"
+            component={SignIn}
+            options={{title: '로그인/로그아웃'}}
           />
           <Stack.Screen
             name="Notification"
