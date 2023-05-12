@@ -28,16 +28,15 @@ import Pencil from '../../assets/icons/pencil.svg';
 import Help from '../../assets/icons/help.svg';
 import Info from '../../assets/icons/info.svg';
 import NotiBox from '../Common/NotiBox';
-import { Socket } from 'socket.io-client';
-import { createSocket, socketConnect } from '../../slices/socket';
 
 interface UserProps {
   type: string;
-  content: Object;
-  memberId: number;
-  latitude: number;
-  longitude: number;
-  regDate: string;
+  content: {
+    memberId: number;
+    latitude: number;
+    longitude: number;
+    regDate: string;
+  };
 }
 
 const UserData = {
@@ -63,7 +62,7 @@ type LocateType = {
 };
 
 function RealtimeMap() {
-  const [myPosition, setMyPosition] = useState({
+  const [myPosition, setMyPosition] = useState<UserProps | null>({
     type: '',
     content: {
       memberId: 0,
@@ -87,32 +86,6 @@ function RealtimeMap() {
   const destination = {latitude: 37.501303, longitude: 127.039603};
   const moimId = 1;
 
-  // const socket: WebSocket = JSON.parse(
-  //   useSelector((state: RootState) => state.persisted.sockets.socket),
-  // );
-
-  // socket.onopen = () => {
-  //   console.log('connected to server');
-  //   Geolocation.watchPosition(
-  //     position => {
-  //       setMyPosition({
-  //         type: 'GPS',
-  //         content: {
-  //           memberId: 1, // 임시
-  //           latitude: position.coords.latitude,
-  //           longitude: position.coords.longitude,
-  //           regDate: date.toISOString(),
-  //         },
-  //       });
-  //     },
-  //     error => console.log(error),
-  //     {
-  //       enableHighAccuracy: true,
-  //       timeout: 20000,
-  //     },
-  //   );
-  // };
-
   useEffect(() => {
     Geolocation.getCurrentPosition(
       position => {
@@ -125,6 +98,25 @@ function RealtimeMap() {
             regDate: date.toISOString(),
           },
         });
+        // 현재 위치와 목적지 위치의 거리 계산
+        if (myPosition) {
+          const distance = calculateDistance({
+            lat1: myPosition.content.latitude,
+            lon1: myPosition.content.longitude,
+            lat2: 37.501303,
+            lon2: 127.039603,
+          });
+
+          // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
+          if (distance <= 50) {
+            console.log('목적지 도착');
+            const arrivalTime = date.toISOString();
+            // Alert.alert('목적지에 도착하였습니다!', arriveTime);
+            dispatch(arrivePost({moimId: moimId, arrivalTime: arrivalTime}));
+            setModalVisible(true);
+            setModalType('arrive');
+          }
+        }
       },
       error => console.log(error),
       {
@@ -132,49 +124,32 @@ function RealtimeMap() {
         timeout: 20000,
       },
     );
-  }, []);
 
-  // 두 위치의 거리 계산 함수
-  function calculateDistance({lat1, lon1, lat2, lon2}: LocateType) {
-    const R = 6371e3; // 지구 반경 (m)
-    const cal1 = toRadians(lat1);
-    const cal2 = toRadians(lat2);
-    const cal3 = toRadians(lat2 - lat1);
-    const cal4 = toRadians(lon2 - lon1);
+    // 두 위치의 거리 계산 함수
+    function calculateDistance({lat1, lon1, lat2, lon2}: LocateType) {
+      const R = 6371e3; // 지구 반경 (m)
+      const cal1 = toRadians(lat1);
+      const cal2 = toRadians(lat2);
+      const cal3 = toRadians(lat2 - lat1);
+      const cal4 = toRadians(lon2 - lon1);
 
-    const a =
-      Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
-      Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const a =
+        Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
+        Math.cos(cal1) *
+          Math.cos(cal2) *
+          Math.sin(cal4 / 2) *
+          Math.sin(cal4 / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-    const distance = R * c; // 두 지점 사이의 거리 (m)
+      const distance = R * c; // 두 지점 사이의 거리 (m)
 
-    return distance;
-  }
-
-  function toRadians(degrees: any) {
-    return (degrees * Math.PI) / 180;
-  }
-
-  // 현재 위치와 목적지 위치의 거리 계산
-  if (myPosition) {
-    const distance = calculateDistance({
-      lat1: myPosition.content.latitude,
-      lon1: myPosition.content.longitude,
-      lat2: 37.501303,
-      lon2: 127.039603,
-    });
-
-    // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-    if (distance <= 50) {
-      console.log('목적지 도착');
-      const arrivalTime = date.toISOString();
-      // Alert.alert('목적지에 도착하였습니다!', arriveTime);
-      dispatch(arrivePost({moimId: moimId, arrivalTime: arrivalTime}));
-      setModalVisible(true);
-      setModalType('arrive');
+      return distance;
     }
-  }
+
+    function toRadians(degrees: any) {
+      return (degrees * Math.PI) / 180;
+    }
+  }, []);
 
   // 내 위치 서버로 보내기 -> websocket 로직으로 변경하기
   // socket.emit('sendMyLocate', JSON.stringify(myPosition));
@@ -247,20 +222,20 @@ function RealtimeMap() {
       {myPosition && (
         <NaverMapView
           style={{width: '100%', height: '100%'}}
-          // onMapClick={e => {
-          //   drawPath(e);
-          // }}
+          onMapClick={e => {
+            drawPath(e);
+          }}
           center={{
             latitude: myPosition.content.latitude,
             longitude: myPosition.content.longitude,
           }}>
           {/* 임시 목적지 역삼 멀티캠퍼스 */}
-          {/* <Marker
+          <Marker
             coordinate={destination}
             image={require('../../assets/icons/destination.png')}
-            width={50}
-            height={55}
-          /> */}
+            width={30}
+            height={35}
+          />
           {/* 반경 n미터 원으로 표시
           <Circle
             coordinate={destination}
