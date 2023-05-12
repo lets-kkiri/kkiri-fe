@@ -1,5 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {baseInstance} from '../api/axios';
+import {authInstance, baseInstance} from '../api/axios';
 import {requests} from '../api/requests';
 
 interface PathProps {
@@ -8,21 +8,19 @@ interface PathProps {
 }
 
 interface GuidesProps {
-  senderEmail: string;
-  receiverEmail: string;
+  receiverKakaoId: number;
   path: PathProps[];
 }
 
 const initialState: GuidesProps = {
-  senderEmail: '',
-  receiverEmail: '',
+  receiverKakaoId: 0,
   path: [{latitude: 0, longitude: 0}],
 };
 
 export const guidesPost = createAsyncThunk(
   'guides/post',
   async (data: GuidesProps) => {
-    const response = await baseInstance.post(requests.POST_GUIDES(), data);
+    const response = await authInstance.post(requests.POST_GUIDES(), data);
     return response.data;
   },
 );

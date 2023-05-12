@@ -1,21 +1,19 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {baseInstance} from '../api/axios';
+import {authInstance, baseInstance} from '../api/axios';
 import {requests} from '../api/requests';
 
 interface helpProps {
-  senderEmail: string;
   chatRoomId: number;
 }
 
 const initialState: helpProps = {
-  senderEmail: '',
   chatRoomId: 0,
 };
 
 export const helpPost = createAsyncThunk(
   'help/post',
   async (data: helpProps) => {
-    const response = await baseInstance.post(requests.POST_HELP(), data);
+    const response = await authInstance.post(requests.POST_HELP(), data);
     return response.data;
   },
 );
