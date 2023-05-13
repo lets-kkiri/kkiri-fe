@@ -25,7 +25,7 @@ const naverAPI = (url: string, options?: any) => {
 
 const setTokenHeader = (config: any) => {
   config.headers.Authorization =
-    'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyNzgzNTQ1NTA5IiwiaXNzIjoiS0tJUkkiLCJleHAiOjE2OTU5NTAzMjQsImlhdCI6MTY4Mzg1NDMyNH0.8J8MBeiWPMJPXZy8X5i49jw-LAUff_S7RZWv8pYKOOzogqc3JTuIJevoOMi_1ANy4OynvTKNjwsr517_fNYxKA';
+    'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyNzgzMzc0NjQ4IiwiaXNzIjoiS0tJUkkiLCJleHAiOjE2OTYwMDU0NjMsImlhdCI6MTY4MzkwOTQ2M30.E6hPIi_78WVgRdbKsD5uIlVS8YQpj0eZC-QFzEkDFxv4MYJmHhOni9KdS77TGZNsQC5fJ8w_uEjCJNGVfLovSA';
   return config;
 };
 
