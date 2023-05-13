@@ -4,7 +4,7 @@ export type RootStackParamList = {
   Tab: undefined;
   Setting: undefined;
   Notification: undefined;
-  Chatroom: {roomId: number};
+  Chatroom: {moimId: number};
   Map: undefined;
   CreateMoim: undefined;
   SignIn: undefined;
@@ -13,9 +13,11 @@ export type RootStackParamList = {
 
 // 단일 메시지
 export type MessageData = {
-  id: number;
-  userName: string;
-  userImg: string;
-  text: string;
-  created: string;
+  seq: number;
+  messageType: string;
+  moimId: number;
+  kakaoId: number | null;
+  nickname: string | null;
+  message: string;
+  time: string | null;
 };

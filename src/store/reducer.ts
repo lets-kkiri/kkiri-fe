@@ -7,7 +7,7 @@ import pressSlice from '../slices/pressSlice';
 import helpSlice from '../slices/helpSlice';
 import userSlice from '../slices/user';
 import notiSlice from '../slices/noti';
-import socketSlice from '../slices/socket';
+import socketsSlice from '../slices/socket';
 
 const rootReducer = combineReducers({
   guides: guidesSlice.reducer,
@@ -17,7 +17,7 @@ const rootReducer = combineReducers({
   help: helpSlice.reducer,
   user: userSlice.reducer,
   noti: notiSlice.reducer,
-  sockets: socketSlice.reducer,
+  sockets: socketsSlice.reducer,
 });
 
 export type PersistedRootState = ReturnType<typeof rootReducer>;
