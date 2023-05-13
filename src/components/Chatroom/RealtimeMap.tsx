@@ -99,6 +99,7 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
           if (client) {
             client.send(JSON.stringify(myPosition));
             console.log('내 위치 보낸다');
+            console.log(myPosition);
             // socket.send(JSON.stringify(myPosition));
           }
 
@@ -131,6 +132,7 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
       client.onmessage = function (event: any) {
         console.log('구성원들 위치 받아온다');
         const data = JSON.parse(event.data);
+        console.log(data);
         if (data.type === 'GPS') {
           setUser(data.content);
         }
