@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, Text, Alert, TouchableOpacity} from 'react-native';
 import {WithLocalSvg} from 'react-native-svg';
+import styled from 'styled-components/native';
 
 // Naver Map
 import Geolocation from '@react-native-community/geolocation';
@@ -28,7 +29,8 @@ import Pencil from '../../assets/icons/pencil.svg';
 import Help from '../../assets/icons/help.svg';
 import Info from '../../assets/icons/info.svg';
 import NotiBox from '../Common/NotiBox';
-import styled from 'styled-components/native';
+import {Socket} from 'socket.io-client';
+import {createSocket, socketConnect} from '../../slices/socket';
 
 interface UserState {
   type: string;
@@ -175,7 +177,7 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
         type: 'GPS',
         content: {
           moimId: 0,
-          kakaoId: 0,
+          kakaoId: 1,
           longitude: 127.078081,
           latitude: 37.513914,
           pubTime: '',
@@ -277,7 +279,7 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
   }
 
   return (
-    <View>
+    <View style={{position: 'absolute', width: '100%', height: '100%'}}>
       {myPosition ? (
         <NaverMapView
           style={{width: '100%', height: '100%'}}
