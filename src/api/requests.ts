@@ -64,4 +64,19 @@ export const requests = {
     }
     return `api/chat?moimId=${moimId}&size=${size}&`;
   },
+
+  // 모임 생성
+  POST_CREATE_MOIM() {
+    return '/api/moims';
+  },
+
+  // 모임 링크 연결
+  POST_CREATE_LINK() {
+    return '/api/moims/links';
+  },
+
+  // 모임 상세 정보 조회
+  GET_MOIM_INFO(moimId: number) {
+    return `/api/moims/${moimId}`;
+  },
 };
