@@ -9,6 +9,8 @@ import styled from 'styled-components/native';
 import PickPlace from '../components/CreateMoim/PickPlace';
 import {authInstance} from '../api/axios';
 import {requests} from '../api/requests';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 // Styled component
 const CreateMoimConatiner = styled.View`
@@ -113,6 +115,7 @@ export interface CreateMoimProps {
 }
 
 function CreateMoim() {
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [moim, setMoim] = useState<MoimType>({
     name: '',
     date: '',
@@ -161,6 +164,10 @@ function CreateMoim() {
         requests.POST_CREATE_MOIM(),
         moim,
       );
+      // console.log('주소:', requests.POST_CREATE_MOIM);
+      // console.log('요청하는 모임 내용:', moim);
+      // console.log('API 요청 결과 :', createMoimRes);
+
       const moimId = createMoimRes.data.moimId;
       console.log(moimId);
       const createLinkBody = {
@@ -171,7 +178,10 @@ function CreateMoim() {
         requests.POST_CREATE_LINK(),
         createLinkBody,
       );
-      console.log(createLinkRes);
+      if (createLinkRes.status === 200) {
+        console.log('navigate to', moimId);
+        navigation.navigate('CompleteCreate', {moimId: moimId});
+      }
     } catch (error) {
       console.error(error);
     }
