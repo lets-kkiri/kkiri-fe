@@ -8,6 +8,7 @@ export type RootStackParamList = {
   Map: undefined;
   CreateMoim: undefined;
   SignIn: undefined;
+  Moim: {moimId: number};
 };
 
 // 단일 메시지
