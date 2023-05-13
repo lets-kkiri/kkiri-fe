@@ -6,9 +6,12 @@ import {TextEncoder} from 'text-encoding';
 import SockJS from 'sockjs-client';
 import io from 'socket.io-client';
 import {useSelector} from 'react-redux';
+import EmojiBtn from '../components/Chatroom/EmojiBtn';
+import {RouteProp} from '@react-navigation/native';
 
 // API
 import {requests} from '../api/requests';
+import {authInstance, baseInstance} from '../api/axios';
 
 // Components
 import ChatArea from '../components/Chatroom/ChatArea';
@@ -17,12 +20,9 @@ import MessagePreview from '../components/Chatroom/MessagePreview';
 
 // types
 import {MessageData} from '../types/index';
-import EmojiBtn from '../components/Chatroom/EmojiBtn';
+
+// Redux
 import {RootState} from '../store/reducer';
-import axios, {AxiosResponse} from 'axios';
-import {RootStackParamList} from '../types';
-import {RouteProp} from '@react-navigation/native';
-import {authInstance, baseInstance} from '../api/axios';
 
 interface ChatroomProp {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Chatroom'>;
@@ -49,31 +49,15 @@ const MessagePreviewContainer = styled.View`
 `;
 
 function Chatroom({route}: ChatroomProp) {
-  const [previousMessages, setPreviousMessages] = useState<MessageData[]>([]);
-  const [messages, setMessages] = useState<MessageData[]>([
-    {
-      messageType: 'MESSAGE',
-      moimId: 9, //e.g. 1
-      memberKakaoId: 123, //e.g. 1
-      nickname: '한별',
-      message: '안녕',
-      time: '2023-05-07T19:05:25.867+00:00',
-    },
-    {
-      messageType: 'MESSAGE',
-      moimId: 9, //e.g. 1
-      memberKakaoId: 2785529705, //e.g. 1
-      nickname: '은지',
-      message: '하지모태',
-      time: '2023-05-07T19:05:25.867+00:00',
-    },
-  ]);
+  const [messages, setMessages] = useState<MessageData[]>([]);
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
+  const [startDraw, setStartDraw] = useState<boolean>(false);
+  const [emojiSelected, setEmojiSelected] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState('');
 
   // socket 저장하는 변수
   const client = useRef<WebSocket | null>(null);
-
-  const [startDraw, setStartDraw] = useState<boolean>(false);
 
   const encoder = new TextEncoder();
 
@@ -103,8 +87,7 @@ function Chatroom({route}: ChatroomProp) {
     const get_previous_chat = async (id: number) => {
       try {
         const {data} = await baseInstance.get(requests.GET_CHAT(id, 20));
-        // console.log('get previous chat data :', data);
-        setPreviousMessages(data.chat);
+        setMessages(data.chat);
       } catch (error) {
         console.log('get previous chat error :', error);
       }
@@ -112,13 +95,12 @@ function Chatroom({route}: ChatroomProp) {
     get_previous_chat(moimId);
 
     // WebSocket;
-
     if (!client.current) {
       client.current = new WebSocket(
         `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
       );
+
       client.current.onopen = () => {
-        console.log('client :', client);
         console.log('연결!');
         // 소켓 열고 유저 정보 보내기
         client.current?.send(
@@ -130,18 +112,17 @@ function Chatroom({route}: ChatroomProp) {
           }),
         );
       };
-
-      client.current.onerror = e => {
-        console.log('socket error :', e);
-      };
     }
 
-    if (!client.current) {
+    if (client.current) {
+      console.log('안녕');
       // 메시지 수신 이벤트
-      client.current.onmessage((event: WebSocketMessageEvent) => {
+      client.current.onmessage = event => {
+        const data = JSON.parse(event.data);
         // 채팅 메시지인 경우
-        if (event.data.messageType === 'MESSAGE') {
-          setMessages(prev => [...prev, event.data]);
+        if (data.messageType === 'MESSAGE') {
+          let newMessages = [data];
+          setMessages(prev => [...newMessages, ...prev]);
         }
 
         // 이모티콘인 경우
@@ -151,33 +132,51 @@ function Chatroom({route}: ChatroomProp) {
 
         // 재촉인 경우
         if (event.data.messageType === 'URGENT') {
-          setMessages(prev => [...prev, event.data]);
+          // setMessages(prev => [...prev, event.data]);
         }
-      });
+      };
+
+      client.current.onerror = e => {
+        console.log('socket error :', e);
+      };
+
+      client.current.onclose = e => {
+        console.log('socket close :', e.code, e.reason);
+      };
     }
+    return () => {
+      console.log('=======================채팅방 나감========================');
+    };
   }, [moimId]);
+
+  const sendEmoji = () => {};
+
+  const pushNewMessage = message => {};
 
   return (
     <View style={{flex: 1, position: 'relative'}}>
       {/* 지도 */}
-      {/* <RealtimeMap startDraw={startDraw} setStartDraw={setStartDraw} /> */}
+      <RealtimeMap startDraw={startDraw} setStartDraw={setStartDraw} />
       {/* 채팅 */}
       {showChatArea ? (
         <ChatArea
-          previousMessages={previousMessages}
-          data={previousMessages}
+          messages={messages}
+          pushNewMessage={pushNewMessage}
           client={client}
           moimId={moimId}
           closeHandler={() => setShowChatArea(false)}
+          onPress={emojiSelected ? sendEmoji : () => setShowEmoji(true)}
         />
       ) : (
         !startDraw && (
           <MessagePreviewContainer>
             <MessagePreview
-              message={messages[messages.length - 1]}
+              message={messages[0]}
               onPress={() => setShowChatArea(true)}
             />
-            <EmojiBtn />
+            <EmojiBtn
+              onPress={emojiSelected ? sendEmoji : () => setShowEmoji(true)}
+            />
           </MessagePreviewContainer>
         )
       )}

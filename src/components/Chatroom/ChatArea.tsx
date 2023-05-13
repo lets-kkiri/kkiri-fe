@@ -25,8 +25,9 @@ import {requests} from '../../api/requests';
 // Types
 import {MessageData} from '../../types';
 
-const close_btn = require('../../assets/icons/close_white.svg') as string;
-const send_btn = require('../../assets/icons/chat_send_btn.svg') as string;
+import close_btn from '../../assets/icons/close_white.svg';
+// const close_btn = require('../../assets/icons/close_white.svg');
+const send_btn = require('../../assets/icons/chat_send_btn.svg');
 
 // Components
 import EmojiBtn from './EmojiBtn';
@@ -83,19 +84,21 @@ const TextSendBtn = styled.TouchableHighlight`
 `;
 
 type ChatAreaProps = {
-  data: MessageData[];
+  messages: MessageData[];
   client: any;
   moimId: number;
   closeHandler: () => void;
   previousMessages: MessageData[];
+  onPress: () => void;
 };
 
 const ChatArea = ({
-  data,
+  messages,
   client,
   moimId,
   closeHandler,
   previousMessages,
+  onPress,
 }: ChatAreaProps) => {
   const [inputValue, setInputValue] = useState<string>('');
 
@@ -108,15 +111,15 @@ const ChatArea = ({
       'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyNzgzNTQ1NTA5IiwiaXNzIjoiS0tJUkkiLCJleHAiOjE2OTU5NTAzMjQsImlhdCI6MTY4Mzg1NDMyNH0.8J8MBeiWPMJPXZy8X5i49jw-LAUff_S7RZWv8pYKOOzogqc3JTuIJevoOMi_1ANy4OynvTKNjwsr517_fNYxKA',
     // 'X-Custom-Header': 'myvalue',
   };
-  console.log('previousMessages :', previousMessages);
+
   // 채팅메시지 발신
   const sendMessage = () => {
-    console.log('client :', client);
+    if (!inputValue) return;
     const msg = JSON.stringify({
       type: 'MESSAGE', //or EMOJI, URGENT
       content: {
         moimId: moimId, //e.g. 1
-        memberKakaoId: userInfo.id, //e.g. 1
+        kakaoId: userInfo.id, //e.g. 1
         nickname: userInfo.nickname,
         message: inputValue.trim(),
       },
@@ -136,7 +139,7 @@ const ChatArea = ({
             <WithLocalSvg asset={close_btn} />
           </TouchableHighlight>
         </CloseBtnRow>
-        <ChatFlatList data={previousMessages} />
+        <ChatFlatList messages={messages} />
         <InputContainer>
           <TextInputContainer>
             <StyledTextInput
@@ -150,7 +153,7 @@ const ChatArea = ({
               <WithLocalSvg asset={send_btn} />
             </TextSendBtn>
           </TextInputContainer>
-          <EmojiBtn />
+          <EmojiBtn onPress={onPress} />
         </InputContainer>
       </ChatAreaContainer>
     </KeyboardAvoidingView>

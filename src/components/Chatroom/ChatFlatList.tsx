@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {FlatList, View, Dimensions, Text} from 'react-native';
 import MessageItem from './MessageItem';
 import styled from 'styled-components/native';
@@ -6,7 +6,7 @@ import styled from 'styled-components/native';
 import {MessageData} from '../../types/index';
 
 type ChatFlatListProp = {
-  data: MessageData[];
+  messages: MessageData[];
 };
 
 // Styled component
@@ -24,13 +24,19 @@ const ChatListContainer = styled.View`
   justify-content: flex-end;
 `;
 
-function ChatFlatList({data}: ChatFlatListProp) {
+function ChatFlatList({messages}: ChatFlatListProp) {
+  const [data, setData] = useState<MessageData[]>([]);
+
+  useEffect(() => {
+    setData(messages);
+  }, [messages]);
+
   return (
     <ChatListContainer>
       {data.length > 0 && (
         <FlatList
           inverted={true}
-          data={[...data, ...data, ...data]}
+          data={data}
           renderItem={({item}) => {
             // 메시지 타입이 채팅 메시지인 경우
             if (item.messageType === 'MESSAGE') {
@@ -39,6 +45,7 @@ function ChatFlatList({data}: ChatFlatListProp) {
             // 메시지 타입이 재촉 메시지인 경우
             return <Text>{item.message}</Text>;
           }}
+          keyExtractor={item => String(item.seq)}
         />
       )}
     </ChatListContainer>
