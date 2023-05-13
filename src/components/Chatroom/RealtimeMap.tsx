@@ -62,26 +62,8 @@ interface MapProps {
   moimId: number;
 }
 
-const UserData = {
-  type: '',
-  content: {
-    moimId: 0,
-    kakaoId: 0,
-    longitude: 0,
-    latitude: 0,
-    pubTime: '',
-  },
-};
-
 function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
-  const [myPosition, setMyPosition] = useState<UserState | null>({
-    type: '',
-    content: {
-      longitude: 0,
-      latitude: 0,
-      regDate: '',
-    },
-  });
+  const [myPosition, setMyPosition] = useState<UserState | null>(null);
   // const [startDraw, setStartDraw] = useState<boolean>(false);
   const [drawpoint, setDrawpoint] = useState<PathState | null>(null);
   const [drawpath, setDrawpath] = useState<PathState[]>([]);
@@ -90,8 +72,8 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [sideModal, setSideModal] = useState<boolean>(false);
   const [count, setCount] = useState<number>(0);
-  const [user, setUser] = useState(UserData);
-  const [users, setUsers] = useState<UserType[]>([UserData]);
+  const [user, setUser] = useState<UserType | null>(null);
+  const [users, setUsers] = useState<UserType[]>([]);
   const date = new Date();
 
   const dispatch = useAppDispatch();
@@ -147,14 +129,18 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
     // 서버로부터 모임원들 위치 받아오기
     if (client) {
       client.onmessage = function (event: any) {
+        console.log('구성원들 위치 받아온다');
         const data = JSON.parse(event.data);
         if (data.type === 'GPS') {
           setUser(data.content);
         }
-        setUsers([...users, user]);
+
+        if (user) {
+          setUsers([...users, user]);
+        }
       };
     }
-  }, 5000);
+  }, 10000);
 
   // 두 위치의 거리 계산 함수
   const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
@@ -248,7 +234,7 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
               height={50}
             />
           ) : null}
-          {users.map((data, index) => (
+          {users?.map((data, index) => (
             <Marker
               onClick={() => sendPress(data.content.kakaoId)}
               key={index}

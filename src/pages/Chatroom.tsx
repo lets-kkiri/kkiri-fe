@@ -128,6 +128,7 @@ function Chatroom({route}: ChatroomProp) {
     }
     return () => {
       console.log('=======================채팅방 나감========================');
+      client.current?.close();
     };
   }, [moimId, myId]);
 
