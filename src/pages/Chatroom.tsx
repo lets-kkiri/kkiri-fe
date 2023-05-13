@@ -182,7 +182,7 @@ function Chatroom({route}: ChatroomProp) {
   }, [wsConnected]);
 
   return (
-    <View style={{flex: 1, position: 'relative'}}>
+    <View style={{position: 'absolute', width: '100%', height: '100%'}}>
       {/* 지도 */}
       <RealtimeMap startDraw={startDraw} setStartDraw={setStartDraw} />
       {/* 채팅 */}

@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, Text, Alert, TouchableOpacity} from 'react-native';
-import {WithLocalSvg} from 'react-native-svg';
+import {View, Alert} from 'react-native';
 
 // Naver Map
 import Geolocation from '@react-native-community/geolocation';
@@ -10,10 +9,8 @@ import NaverMapView, {Marker, Polyline, Circle} from 'react-native-nmap';
 import {useSelector} from 'react-redux';
 import {useAppDispatch} from '../../store';
 import {PersistedRootState, RootState} from '../../store/reducer';
-import {guidesPost} from '../../slices/guidesSlice';
 import {arrivePost} from '../../slices/arriveSlice';
 import {pressPost} from '../../slices/pressSlice';
-import {helpPost} from '../../slices/helpSlice';
 
 // component
 import AboutMoim from '../Map/AboutMoim';
@@ -21,14 +18,10 @@ import ArriveNoti from '../Map/ArriveNoti';
 import SendPathNoti from '../Map/SendPathNoti';
 import SendHelpNoti from '../Map/SendHelpNoti';
 import CustomModal from '../Common/Modal';
-import CustomButton from '../Common/Button';
 
 // svg
-import Pencil from '../../assets/icons/pencil.svg';
-import Help from '../../assets/icons/help.svg';
-import Info from '../../assets/icons/info.svg';
-import NotiBox from '../Common/NotiBox';
-import styled from 'styled-components/native';
+import AboutPath from '../Map/AboutPath';
+import SideButton from '../Map/SideButton';
 
 interface UserState {
   type: string;
@@ -78,20 +71,6 @@ const UserData = {
   },
 };
 
-const DrawNoti = styled.View`
-  flex-direction: row;
-  align-items: center;
-  background-color: #fff;
-  height: 50;
-  width: 90%;
-  border-style: solid;
-  border-color: #5968f2;
-  border-width: 1;
-  border-radius: 15;
-  margin-top: 15;
-  padding-left: 20;
-`;
-
 function RealtimeMap({startDraw, setStartDraw}: MapProps) {
   const [myPosition, setMyPosition] = useState<UserState | null>({
     type: '',
@@ -120,7 +99,7 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
   const moimId = 1;
 
   useEffect(() => {
-    Geolocation.watchPosition(
+    Geolocation.getCurrentPosition(
       position => {
         setMyPosition({
           type: 'GPS',
@@ -175,7 +154,7 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
         type: 'GPS',
         content: {
           moimId: 0,
-          kakaoId: 0,
+          kakaoId: 1,
           longitude: 127.078081,
           latitude: 37.513914,
           pubTime: '',
@@ -232,26 +211,6 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
     }
   };
 
-  useEffect(() => {
-    if (drawpoint) {
-      setDrawpath(prevPoint => [...prevPoint, drawpoint]);
-    }
-  }, [drawpoint]);
-
-  // 서버로 그린 경로 보내는 함수
-  function sendPath() {
-    // 임시 데이터
-    const postData = {
-      receiverKakaoId: 2783374648,
-      path: drawpath,
-    };
-    dispatch(guidesPost(postData));
-    setModalVisible(true);
-    setModalType('sendpath');
-    setSendpath(false);
-    setStartDraw(false);
-  }
-
   // 재촉 보내는 함수
   function sendPress() {
     if (!startDraw) {
@@ -263,17 +222,6 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
       };
       dispatch(pressPost(postData));
     }
-  }
-
-  // 도움 요청 보내는 함수
-  function sendHelp() {
-    setModalVisible(true);
-    setModalType('sendhelp');
-    // 임시 데이터
-    const postData = {
-      chatRoomId: 6,
-    };
-    dispatch(helpPost(postData));
   }
 
   return (
@@ -315,10 +263,10 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
               onClick={sendPress}
             />
           ) : null}
-          {users.map(data => (
+          {users.map((data, index) => (
             <Marker
               onClick={sendPress}
-              key={data.content.kakaoId}
+              key={index}
               coordinate={{
                 latitude: data.content.latitude,
                 longitude: data.content.longitude,
@@ -338,78 +286,23 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
           ) : null}
         </NaverMapView>
       ) : null}
-      {startDraw === false ? (
-        <NotiBox
-          mainTitle="@친구가 도움을 요청했어요"
-          subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
-          onPress={() => setStartDraw(true)}
-        />
-      ) : sendpath === false ? (
-        <View style={{position: 'absolute', alignItems: 'center'}}>
-          <DrawNoti>
-            <WithLocalSvg
-              asset={Pencil}
-              width={16}
-              height={18}
-              style={{marginRight: 10}}
-            />
-            <Text style={{color: '#5968F2', fontWeight: '600'}}>
-              손가락으로 길을 그려 친구에게 보내주세요!
-            </Text>
-          </DrawNoti>
-          <View
-            style={{
-              top: 580,
-              left: 0,
-              width: '100%',
-              flexDirection: 'row',
-              justifyContent: 'space-evenly',
-            }}>
-            <CustomButton
-              text="다시 그리기"
-              status="disabled"
-              width="short"
-              onPress={() => {
-                setDrawpoint(null);
-                setDrawpath([]);
-              }}
-            />
-            <CustomButton
-              text="경로 전송하기"
-              status="active"
-              width="short"
-              onPress={() => {
-                setDrawpoint(null);
-                setDrawpath([]);
-                sendPath();
-                console.log(drawpath);
-              }}
-            />
-          </View>
-        </View>
-      ) : null}
-      <TouchableOpacity
-        style={{
-          width: '100%',
-          height: '100%',
-          position: 'absolute',
-          top: 110,
-          left: 350,
-        }}
-        onPress={sendHelp}>
-        <WithLocalSvg asset={Help} />
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={{
-          width: '100%',
-          height: '100%',
-          position: 'absolute',
-          top: 160,
-          left: 350,
-        }}
-        onPress={() => setSideModal(true)}>
-        <WithLocalSvg asset={Info} />
-      </TouchableOpacity>
+      <AboutPath
+        startDraw={startDraw}
+        setStartDraw={setStartDraw}
+        sendpath={sendpath}
+        setModalVisible={setModalVisible}
+        setModalType={setModalType}
+        setSendpath={setSendpath}
+        drawpoint={drawpoint}
+        setDrawpoint={setDrawpoint}
+        drawpath={drawpath}
+        setDrawpath={setDrawpath}
+      />
+      <SideButton
+        setSideModal={setSideModal}
+        setModalVisible={setModalVisible}
+        setModalType={setModalType}
+      />
       {userGrades.ranking.overall !== 0 ? (
         <CustomModal
           modalVisible={modalVisible}
