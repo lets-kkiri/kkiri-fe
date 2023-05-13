@@ -7,14 +7,13 @@ import {WithLocalSvg} from 'react-native-svg';
 import Cash from '../../assets/icons/cash.svg';
 import Time from '../../assets/icons/time.svg';
 import People from '../../assets/icons/people.svg';
-import Person from '../../assets/icons/person.svg';
+import Day from '../../assets/icons/day.svg';
 
 const Container = styled.View`
   width: 290px;
-  height: 310px;
+  height: 320px;
   background-color: #5968f2;
   border-radius: 15px;
-  padding: 30px 25px;
 `;
 
 const Row = styled.View`
@@ -24,8 +23,8 @@ const Row = styled.View`
 `;
 
 const DDay = styled.View`
-  width: 55px;
-  height: 30px;
+  width: 43px;
+  height: 23px;
   background-color: #f7ffd2;
   border-radius: 20px;
   align-items: center;
@@ -33,78 +32,65 @@ const DDay = styled.View`
 `;
 
 const DayFont = styled.Text`
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   color: #5968f2;
 `;
 
 const MainFont = styled.Text`
-  font-size: 22px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #dcf861;
+`;
+
+const MidFont = styled.Text`
+  font-size: 20px;
   font-weight: 700;
-  color: #fff;
-  margin-top: 10px;
+  color: #f4f4f4;
 `;
 
 const SubFont = styled.Text`
   font-size: 13px;
   font-weight: 500;
   color: #e9e9e9;
-  margin-left: 15px;
-`;
-
-const Inner = styled.View`
-  height: 130px;
-  justify-content: space-between;
-  margin-top: 30px;
+  margin-left: 10px;
 `;
 
 const MoimCard = () => {
   return (
     <Container>
-      <Row style={{justifyContent: 'space-between'}}>
+      <Row
+        style={{
+          justifyContent: 'space-between',
+          paddingVertical: 18,
+          paddingHorizontal: 20,
+        }}>
         <DDay>
           <DayFont>D-10</DayFont>
         </DDay>
+        <MainFont>4월 20일</MainFont>
         <WithLocalSvg asset={Cash} />
       </Row>
-      <MainFont>4월 20일</MainFont>
-      <Inner>
-        <Row>
+      <WithLocalSvg asset={Day} style={{left: -10, marginTop: 27}} />
+      <MidFont style={{position: 'absolute', top: 170, left: 70}}>
+        동기사랑 나라사랑
+      </MidFont>
+      <View style={{marginTop: 25}}>
+        <Row style={{paddingHorizontal: 20, marginBottom: 10}}>
           <WithLocalSvg asset={Time} />
-          <SubFont>모임 이름 텍스트</SubFont>
+          <SubFont>서울특별시 용산구 청파동 스타벅스</SubFont>
         </Row>
-        <Row>
-          <WithLocalSvg asset={People} />
-          <SubFont>오후 6시</SubFont>
-        </Row>
-        <Row>
-          <WithLocalSvg asset={Time} />
-          <SubFont>서울특별시 용산구</SubFont>
-        </Row>
-        <Row style={{alignItems: 'flex-start'}}>
-          <WithLocalSvg asset={People} />
-          <SubFont>4명</SubFont>
-          <View style={{flexDirection: 'row', position: 'relative'}}>
-            {/* 모임원의 수만큼 svg 생성 및 left 값 변경 */}
-            <WithLocalSvg
-              asset={Person}
-              style={{position: 'absolute', left: 15}}
-            />
-            <WithLocalSvg
-              asset={Person}
-              style={{position: 'absolute', left: 40}}
-            />
-            <WithLocalSvg
-              asset={Person}
-              style={{position: 'absolute', left: 65}}
-            />
-            <WithLocalSvg
-              asset={Person}
-              style={{position: 'absolute', left: 90}}
-            />
+        <Row style={{justifyContent: 'space-evenly', paddingHorizontal: 30}}>
+          <View style={{flexDirection: 'row'}}>
+            <WithLocalSvg asset={People} />
+            <SubFont>오후 6시</SubFont>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <WithLocalSvg asset={People} />
+            <SubFont>4명</SubFont>
           </View>
         </Row>
-      </Inner>
+      </View>
     </Container>
   );
 };
