@@ -1,5 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {baseInstance} from '../api/axios';
+import {authInstance, baseInstance} from '../api/axios';
 import {requests} from '../api/requests';
 
 interface ArriveProps {
@@ -22,7 +22,7 @@ const initialState = {
 export const arrivePost = createAsyncThunk(
   'arrives/post',
   async (data: ArriveProps, thunkAPI) => {
-    const response = await baseInstance.post(requests.POST_ARRIVE(), data);
+    const response = await authInstance.post(requests.POST_ARRIVE(), data);
     return thunkAPI.fulfillWithValue(response.data);
   },
 );

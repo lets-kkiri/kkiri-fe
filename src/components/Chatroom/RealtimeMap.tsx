@@ -58,6 +58,8 @@ interface UserType {
 interface MapProps {
   startDraw: boolean;
   setStartDraw: React.Dispatch<React.SetStateAction<boolean>>;
+  client: any;
+  moimId: number;
 }
 
 const UserData = {
@@ -71,7 +73,7 @@ const UserData = {
   },
 };
 
-function RealtimeMap({startDraw, setStartDraw}: MapProps) {
+function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
   const [myPosition, setMyPosition] = useState<UserState | null>({
     type: '',
     content: {
@@ -96,9 +98,8 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
 
   // 임시 목적지: 역삼 멀티캠퍼스
   const destination = {latitude: 37.501303, longitude: 127.039603};
-  const moimId = 1;
 
-  useEffect(() => {
+  setTimeout(() => {
     Geolocation.getCurrentPosition(
       position => {
         setMyPosition({
@@ -109,11 +110,16 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
             regDate: date.toISOString(),
           },
         });
-        // 내 위치 서버로 보내기 -> websocket 로직으로 변경하기
-        // socket.send(JSON.stringify(myPosition));
 
         // 현재 위치와 목적지 위치의 거리 계산
         if (myPosition) {
+          // 내 위치 서버로 보내기 -> websocket 로직으로 변경하기
+          if (client) {
+            client.send(JSON.stringify(myPosition));
+            console.log('내 위치 보낸다');
+            // socket.send(JSON.stringify(myPosition));
+          }
+
           const distance = calculateDistance({
             lat1: myPosition.content.latitude,
             lon1: myPosition.content.longitude,
@@ -138,63 +144,42 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
       },
     );
 
-    // 임시 유저 데이터
-    setUsers([
-      {
-        type: 'GPS',
-        content: {
-          moimId: 0,
-          kakaoId: 0,
-          longitude: 127.013373,
-          latitude: 37.616743,
-          pubTime: '',
-        },
-      },
-      {
-        type: 'GPS',
-        content: {
-          moimId: 0,
-          kakaoId: 1,
-          longitude: 127.078081,
-          latitude: 37.513914,
-          pubTime: '',
-        },
-      },
-    ]);
-
     // 서버로부터 모임원들 위치 받아오기
-    // socket.onmessage = function (event) {
-    //   if (event.data.type === 'GPS') {
-    //     setUser(event.data.content);
-    //   }
-    //   setUsers([...users, user]);
-    // };
-
-    // 두 위치의 거리 계산 함수
-    function calculateDistance({lat1, lon1, lat2, lon2}: LocateState) {
-      const R = 6371e3; // 지구 반경 (m)
-      const cal1 = toRadians(lat1);
-      const cal2 = toRadians(lat2);
-      const cal3 = toRadians(lat2 - lat1);
-      const cal4 = toRadians(lon2 - lon1);
-
-      const a =
-        Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
-        Math.cos(cal1) *
-          Math.cos(cal2) *
-          Math.sin(cal4 / 2) *
-          Math.sin(cal4 / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-      const distance = R * c; // 두 지점 사이의 거리 (m)
-
-      return distance;
+    if (client) {
+      client.onmessage = function (event: any) {
+        const data = JSON.parse(event.data);
+        if (data.type === 'GPS') {
+          setUser(data.content);
+        }
+        setUsers([...users, user]);
+      };
     }
+  }, 5000);
 
-    function toRadians(degrees: any) {
-      return (degrees * Math.PI) / 180;
-    }
-  }, []);
+  // 두 위치의 거리 계산 함수
+  const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
+    const R = 6371e3; // 지구 반경 (m)
+    const cal1 = toRadians(lat1);
+    const cal2 = toRadians(lat2);
+    const cal3 = toRadians(lat2 - lat1);
+    const cal4 = toRadians(lon2 - lon1);
+
+    const a =
+      Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
+      Math.cos(cal1) *
+        Math.cos(cal2) *
+        Math.sin(cal4 / 2) *
+        Math.sin(cal4 / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const distance = R * c; // 두 지점 사이의 거리 (m)
+
+    return distance;
+  };
+
+  const toRadians = (degrees: any) => {
+    return (degrees * Math.PI) / 180;
+  };
 
   const userGrades = useSelector(
     (state: RootState) => state.persisted.arrives.userGrade,
@@ -212,17 +197,18 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
   };
 
   // 재촉 보내는 함수
-  function sendPress() {
+  const sendPress = (kakaoId: number) => {
     if (!startDraw) {
       Alert.alert('재촉했어요!');
       setCount(count + 1);
       // 임시 데이터
       const postData = {
-        receiverKakaoId: 2783374648,
+        chatRoomId: moimId,
+        receiverKakaoId: kakaoId,
       };
       dispatch(pressPost(postData));
     }
-  }
+  };
 
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
@@ -260,12 +246,11 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
               image={require('../../assets/icons/bear.png')}
               width={45}
               height={50}
-              onClick={sendPress}
             />
           ) : null}
           {users.map((data, index) => (
             <Marker
-              onClick={sendPress}
+              onClick={() => sendPress(data.content.kakaoId)}
               key={index}
               coordinate={{
                 latitude: data.content.latitude,
@@ -302,6 +287,7 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
         setSideModal={setSideModal}
         setModalVisible={setModalVisible}
         setModalType={setModalType}
+        moimId={moimId}
       />
       {userGrades.ranking.overall !== 0 ? (
         <CustomModal
