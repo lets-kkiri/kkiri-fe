@@ -66,9 +66,7 @@ export default function Home() {
           />
         </CalendarProvider>
       </CalendarContainer>
-      <CardsContainer>
-        <MoimCard cardData={1} />
-      </CardsContainer>
+      <CardsContainer>{/* <MoimCard cardData={1} /> */}</CardsContainer>
     </HomeContainer>
   );
 }

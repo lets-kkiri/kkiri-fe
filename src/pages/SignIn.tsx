@@ -14,6 +14,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import userSlice from '../slices/user';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {RootState} from '../store/index';
+import {authInstance, setTokenHeader} from '../api/axios';
 
 function SignIn() {
   const [result, setResult] = useState('');
@@ -56,6 +57,9 @@ function SignIn() {
       await EncryptedStorage.setItem(
         'refreshToken',
         response.data.refreshToken,
+      );
+      authInstance.interceptors.request.use(config =>
+        setTokenHeader(config, userInfo.accessToken),
       );
       // console.log('리스폰스 데이타 : ', response.data);
     } catch (error: any) {

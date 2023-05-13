@@ -56,4 +56,14 @@ export const requests = {
   POST_FCM_TOKEN() {
     return `${this.base_url}/api/members/devices`;
   },
+
+  // 모임 생성
+  POST_CREATE_MOIM() {
+    return '/api/moims';
+  },
+
+  // 모임 링크 연결
+  POST_CREATE_LINK() {
+    return '/api/moims/links';
+  },
 };
