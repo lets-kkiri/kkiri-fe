@@ -65,7 +65,7 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="Mypage"
-        component={CompleteCreate}
+        component={MyPage}
         options={{tabBarLabel: '마이페이지'}}
       />
     </Tab.Navigator>
