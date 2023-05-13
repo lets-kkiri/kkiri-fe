@@ -41,10 +41,10 @@ const Nickname = styled.Text`
 function MessageItem({message}: MessageItemProp) {
   // 나 자신
   const myId = useSelector((state: RootState) => state.persisted.user.id);
-  const isMe = myId == message.memberKakaoId;
+  const isMe = myId == message.kakaoId;
   return (
     <MessageItemContainer isMe={isMe}>
-      {!isMe && <UserProfile userImg={message.userImg} width={50} />}
+      {!isMe && <UserProfile userImg={'sdf'} width={50} />}
       <MessageBubble isMe={isMe}>
         {!isMe && <Nickname>{message.nickname}</Nickname>}
         <Message text={message.message} />

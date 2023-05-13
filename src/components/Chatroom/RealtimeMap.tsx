@@ -177,7 +177,7 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
         type: 'GPS',
         content: {
           moimId: 0,
-          kakaoId: 0,
+          kakaoId: 1,
           longitude: 127.078081,
           latitude: 37.513914,
           pubTime: '',
@@ -279,7 +279,7 @@ function RealtimeMap({startDraw, setStartDraw}: MapProps) {
   }
 
   return (
-    <View>
+    <View style={{position: 'absolute', width: '100%', height: '100%'}}>
       {myPosition ? (
         <NaverMapView
           style={{width: '100%', height: '100%'}}

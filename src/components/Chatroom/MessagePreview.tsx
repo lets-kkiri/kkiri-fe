@@ -39,17 +39,19 @@ const MessagePreview = ({message, onPress}: MessagePreviewProps) => {
   // 임시 데이터
   const userImg =
     'https://image.dongascience.com/Photo/2020/03/5bddba7b6574b95d37b6079c199d7101.jpg';
-  const userName = '혜성';
-  const text = '빨랑 좀 오셈 ㅎㅎ';
 
   return (
     <Bubble
       style={{width: Dimensions.get('window').width - 78}}
       activeOpacity={0.8}
       onPress={onPress}>
-      <UserProfile userImg={userImg} width={32} />
-      <UserNameText>{userName}</UserNameText>
-      <MessageText>{text}</MessageText>
+      {message && (
+        <>
+          <UserProfile userImg={userImg} width={32} />
+          <UserNameText>{message.nickname}</UserNameText>
+          <MessageText>{message.message}</MessageText>
+        </>
+      )}
     </Bubble>
   );
 };

@@ -13,10 +13,11 @@ export type RootStackParamList = {
 
 // 단일 메시지
 export type MessageData = {
+  seq: number;
   messageType: string;
   moimId: number;
-  memberKakaoId: number;
-  nickname: string;
+  kakaoId: number | null;
+  nickname: string | null;
   message: string;
-  time: string;
+  time: string | null;
 };
