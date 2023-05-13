@@ -74,4 +74,9 @@ export const requests = {
   POST_CREATE_LINK() {
     return '/api/moims/links';
   },
+
+  // 모임 상세 정보 조회
+  GET_MOIM_INFO(moimId: number) {
+    return `/api/moims/${moimId}`;
+  },
 };
