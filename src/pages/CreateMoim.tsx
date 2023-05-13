@@ -7,6 +7,8 @@ import CustomButton from '../components/Common/Button';
 import {WithLocalSvg} from 'react-native-svg';
 import styled from 'styled-components/native';
 import PickPlace from '../components/CreateMoim/PickPlace';
+import {authInstance} from '../api/axios';
+import {requests} from '../api/requests';
 
 // Styled component
 const CreateMoimConatiner = styled.View`
@@ -26,6 +28,7 @@ const HeaderContainer = styled.View`
 
 const HeaderText = styled.Text`
   font-size: 16px;
+  font-weight: 600;
 `;
 
 const HeaderStepContainer = styled.View`
@@ -112,7 +115,6 @@ export interface CreateMoimProps {
 function CreateMoim() {
   const [moim, setMoim] = useState<MoimType>({
     name: '',
-    link: '',
     date: '',
     time: '',
     placeName: '',
@@ -149,18 +151,30 @@ function CreateMoim() {
     setIsEnabled(!isEnabled);
   };
 
-  const postMoim = () => {
+  const postMoim = async () => {
     if (canPost === false) {
       console.log('아직 POST 못하지롱');
     }
     console.log(moim);
-    // 버튼 클릭시 Client 단에서 URL 생성
-    // URL 생성 후 해당 정보 담아서 POST 요청
-    // 성공한 경우 성공 Page로 이동
-    // 성공 Page에서는 URL 확인 및 공유 가능
-    // 공유 버튼 클릭시 네이티브 공유
-    // 카드 확인하기 -> 카드 페이지로 이동
-    // 홈으로 돌아가기 -> 홈으로 이동
+    try {
+      const createMoimRes = await authInstance.post(
+        requests.POST_CREATE_MOIM(),
+        moim,
+      );
+      const moimId = createMoimRes.data.moimId;
+      console.log(moimId);
+      const createLinkBody = {
+        moimId: moimId,
+        link: `lets.kkiri://moim/${moimId}`,
+      };
+      const createLinkRes = await authInstance.post(
+        requests.POST_CREATE_LINK(),
+        createLinkBody,
+      );
+      console.log(createLinkRes);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
