@@ -81,70 +81,68 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
   // 임시 목적지: 역삼 멀티캠퍼스
   const destination = {latitude: 37.501303, longitude: 127.039603};
 
-  if (client) {
-    setTimeout(() => {
-      Geolocation.getCurrentPosition(
-        position => {
-          setMyPosition({
-            type: 'GPS',
-            content: {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-              regDate: date.toISOString(),
-            },
+  setTimeout(() => {
+    Geolocation.getCurrentPosition(
+      position => {
+        setMyPosition({
+          type: 'GPS',
+          content: {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            regDate: date.toISOString(),
+          },
+        });
+
+        // 현재 위치와 목적지 위치의 거리 계산
+        if (myPosition) {
+          // 내 위치 서버로 보내기 -> websocket 로직으로 변경하기
+          if (client) {
+            client.send(JSON.stringify(myPosition));
+            console.log('내 위치 보낸다');
+            console.log(myPosition);
+            // socket.send(JSON.stringify(myPosition));
+          }
+
+          const distance = calculateDistance({
+            lat1: myPosition.content.latitude,
+            lon1: myPosition.content.longitude,
+            lat2: 37.501303,
+            lon2: 127.039603,
           });
 
-          // 현재 위치와 목적지 위치의 거리 계산
-          if (myPosition) {
-            // 내 위치 서버로 보내기 -> websocket 로직으로 변경하기
-            if (client) {
-              client.send(JSON.stringify(myPosition));
-              console.log('내 위치 보낸다');
-              console.log(myPosition);
-              // socket.send(JSON.stringify(myPosition));
-            }
-
-            const distance = calculateDistance({
-              lat1: myPosition.content.latitude,
-              lon1: myPosition.content.longitude,
-              lat2: 37.501303,
-              lon2: 127.039603,
-            });
-
-            // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-            if (distance <= 50) {
-              console.log('목적지 도착');
-              const arrivalTime = date.toISOString();
-              dispatch(arrivePost({moimId: moimId, arrivalTime: arrivalTime}));
-              setModalVisible(true);
-              setModalType('arrive');
-            }
+          // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
+          if (distance <= 50) {
+            console.log('목적지 도착');
+            const arrivalTime = date.toISOString();
+            dispatch(arrivePost({moimId: moimId, arrivalTime: arrivalTime}));
+            setModalVisible(true);
+            setModalType('arrive');
           }
-        },
-        error => console.log(error),
-        {
-          enableHighAccuracy: true,
-          timeout: 20000,
-        },
-      );
+        }
+      },
+      error => console.log(error),
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+      },
+    );
 
-      // 서버로부터 모임원들 위치 받아오기
-      if (client) {
-        client.onmessage = function (event: any) {
-          console.log('구성원들 위치 받아온다');
-          const data = JSON.parse(event.data);
-          console.log(data);
-          if (data.type === 'GPS') {
-            setUser(data.content);
-          }
+    // 서버로부터 모임원들 위치 받아오기
+    if (client) {
+      client.onmessage = function (event: any) {
+        console.log('구성원들 위치 받아온다');
+        const data = JSON.parse(event.data);
+        console.log(data);
+        if (data.type === 'GPS') {
+          setUser(data.content);
+        }
 
-          if (user) {
-            setUsers([...users, user]);
-          }
-        };
-      }
-    }, 10000);
-  }
+        if (user) {
+          setUsers([...users, user]);
+        }
+      };
+    }
+  }, 10000);
 
   // 두 위치의 거리 계산 함수
   const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
