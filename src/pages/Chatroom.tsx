@@ -2,12 +2,13 @@ import React, {useEffect, useRef, useState} from 'react';
 import {View} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import styled from 'styled-components/native';
-import {TextEncoder} from 'text-encoding';
-import SockJS from 'sockjs-client';
-import io from 'socket.io-client';
+import {useSelector} from 'react-redux';
+import EmojiBtn from '../components/Chatroom/EmojiBtn';
+import {RouteProp} from '@react-navigation/native';
 
 // API
 import {requests} from '../api/requests';
+import {baseInstance} from '../api/axios';
 
 // Components
 import ChatArea from '../components/Chatroom/ChatArea';
@@ -15,12 +16,14 @@ import RealtimeMap from '../components/Chatroom/RealtimeMap';
 import MessagePreview from '../components/Chatroom/MessagePreview';
 
 // types
-import {MessageData} from '../types/index';
-import EmojiBtn from '../components/Chatroom/EmojiBtn';
+import {MessageData, RootStackParamList} from '../types/index';
+
+// Redux
+import {RootState} from '../store';
 
 interface ChatroomProp {
-  navigation: NativeStackNavigationProp<any>;
-  route: any;
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Chatroom'>;
+  route: RouteProp<RootStackParamList, 'Chatroom'>;
 }
 
 interface UserProps {
@@ -44,142 +47,91 @@ const MessagePreviewContainer = styled.View`
 
 function Chatroom({route}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
-  const [users, setUsers] = useState<UserProps[]>([]);
-  const [myPosition, setMyPosition] = useState<UserProps | null>(null);
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
-  const client = useRef<any>(null);
-
   const [startDraw, setStartDraw] = useState<boolean>(false);
+  const [emojiSelected, setEmojiSelected] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState('');
 
-  const encoder = new TextEncoder();
+  // socket 저장하는 변수
+  const client = useRef<WebSocket | null>(null);
 
   // 채팅방 id
-  const roomId = route.params.roomId;
-  console.log('roomId :', roomId);
+  const moimId = route.params.moimId;
+  // 나 자신
+  const myId = useSelector((state: RootState) => state.persisted.user.id);
 
-  useEffect(() => {
-    setMessages([
-      {
-        id: 0,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 1,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 2,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 3,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 4,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 5,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 6,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 7,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 8,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-      {
-        id: 9,
-        userName: '은지',
-        userImg:
-          'https://s3.ap-northeast-2.amazonaws.com/elasticbeanstalk-ap-northeast-2-176213403491/media/magazine_img/magazine_262/%EC%8D%B8%EB%84%A4%EC%9D%BC.jpg',
-        text: '안녕',
-        created: '2023.5.4',
-      },
-    ]);
-  }, []);
-
-  // 채팅방 입장시 연결
-  const [wsConnected, setWsConnected] = useState(false);
-  useEffect(() => {
-    console.log('start connect');
-    // start();
-    // client.current = io('http://k8a606.p.ssafy.io:8080/ws/api');
-    if (!client.current) {
-      console.log('here');
-      client.current = new WebSocket('wss://k8a606.p.ssafy.io/ws/api');
-      client.current.onopen = () => {
-        console.log('ws connected');
-        setWsConnected(true);
-      };
-
-      client.current.onclose = error => {
-        console.log(error);
-      };
-    }
-
-    return () => {
-      console.log('end connect');
-      client.current.close();
+  interface Data {
+    meta: {
+      lastMessageId: string;
+      last: boolean;
     };
-  }, []);
+    chat: MessageData[];
+  }
 
   useEffect(() => {
-    if (wsConnected) {
-      client.current.send(
-        JSON.stringify({
-          messageType: 'ENTER',
-          moimId: 1,
-          memberId: 1,
-          nickname: '일',
-          message: '반갑다',
-        }),
+    console.log('====================  채팅방 ========================');
+    // 이전 메시지 fetch
+    const get_previous_chat = async (id: number) => {
+      try {
+        const {data} = await baseInstance.get(requests.GET_CHAT(id, 20));
+        setMessages(data.chat);
+      } catch (error) {
+        console.log('get previous chat error :', error);
+      }
+    };
+    get_previous_chat(moimId);
+
+    // WebSocket;
+    if (!client.current) {
+      client.current = new WebSocket(
+        `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
       );
+
+      client.current.onopen = () => {
+        console.log('연결!');
+        // 소켓 열고 유저 정보 보내기
+        client.current?.send(
+          JSON.stringify({
+            type: 'JOIN',
+            content: {
+              kakaoId: myId,
+            },
+          }),
+        );
+      };
     }
-  }, [wsConnected]);
+
+    if (client.current) {
+      // 메시지 수신 이벤트
+      client.current.onmessage = event => {
+        const data = JSON.parse(event.data);
+        // 채팅 메시지, 재촉 메시지인 경우
+        if (data.messageType === 'MESSAGE' || data.messageType === 'URGENT') {
+          let newMessages = [data];
+          setMessages(prev => [...newMessages, ...prev]);
+        }
+
+        // 이모티콘인 경우
+        if (event.data.messageType === 'EMOJI') {
+          // setMessages(prev => [...prev, event.data]);
+        }
+      };
+
+      client.current.onerror = e => {
+        console.log('socket error :', e);
+      };
+
+      client.current.onclose = e => {
+        console.log('socket close :', e.code, e.reason);
+      };
+    }
+    return () => {
+      console.log('=======================채팅방 나감========================');
+    };
+  }, [moimId, myId]);
+
+  const sendEmoji = () => {};
 
   return (
     <View style={{flex: 1, position: 'relative'}}>
@@ -187,15 +139,23 @@ function Chatroom({route}: ChatroomProp) {
       <RealtimeMap startDraw={startDraw} setStartDraw={setStartDraw} />
       {/* 채팅 */}
       {showChatArea ? (
-        <ChatArea data={messages} client={client} roomId={roomId} />
+        <ChatArea
+          messages={messages}
+          client={client}
+          moimId={moimId}
+          closeHandler={() => setShowChatArea(false)}
+          onPress={emojiSelected ? sendEmoji : () => setShowEmoji(true)}
+        />
       ) : (
         !startDraw && (
           <MessagePreviewContainer>
             <MessagePreview
-              message={messages[messages.length - 1]}
+              message={messages[0]}
               onPress={() => setShowChatArea(true)}
             />
-            <EmojiBtn />
+            <EmojiBtn
+              onPress={emojiSelected ? sendEmoji : () => setShowEmoji(true)}
+            />
           </MessagePreviewContainer>
         )
       )}
