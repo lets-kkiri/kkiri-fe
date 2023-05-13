@@ -41,6 +41,7 @@ import SplashScreen from 'react-native-splash-screen';
 import {Socket, io} from 'socket.io-client';
 import Moim from './src/pages/Moim';
 import {Text} from 'react-native';
+import CompleteCreate from './src/components/CreateMoim/CompleteCreate';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -112,8 +113,8 @@ function AppInner() {
           {deviceToken: token},
           {headers: {authorization: `Bearer ${accessToken}`}},
         );
-        console.log('쏠 디바이스 토큰', token);
-        console.log('getTokenRes : ', response);
+        // console.log('쏠 디바이스 토큰', token);
+        // console.log('getTokenRes : ', response);
       } catch (error) {
         console.error(error);
       }
@@ -315,6 +316,11 @@ function AppInner() {
             name="CreateMoim"
             component={CreateMoim}
             options={{title: '모임 생성'}}
+          />
+          <Stack.Screen
+            name="CompleteCreate"
+            component={CompleteCreate}
+            options={{title: '모임 생성 완료'}}
           />
           <Stack.Screen
             name="Map"
