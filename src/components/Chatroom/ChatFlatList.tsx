@@ -11,9 +11,6 @@ type ChatFlatListProp = {
 
 // Styled component
 const ChatListContainer = styled.View`
-  /* bottom: 0px; */
-  /* padding-left: 16px; */
-  /* padding-right: 16px; */
   height: ${Dimensions.get('window').height - 24 - 32 - 40 - 80 - 16}px;
   border-radius: 1px;
   border-color: blue;

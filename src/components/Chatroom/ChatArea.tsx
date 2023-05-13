@@ -1,26 +1,13 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useState} from 'react';
 import ChatFlatList from './ChatFlatList';
 import {
-  View,
-  Text,
   TouchableHighlight,
-  TextInput,
   Dimensions,
   KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-  Platform,
-  Keyboard,
-  ScrollView,
 } from 'react-native';
 import styled from 'styled-components/native';
-import {TextEncoder} from 'text-encoding';
 import {WithLocalSvg} from 'react-native-svg';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
-import {useHeaderHeight} from '@react-navigation/elements';
 import {useSelector} from 'react-redux';
-
-// API
-import {requests} from '../../api/requests';
 
 // Types
 import {MessageData} from '../../types';
@@ -31,7 +18,7 @@ const send_btn = require('../../assets/icons/chat_send_btn.svg');
 
 // Components
 import EmojiBtn from './EmojiBtn';
-import {RootState} from '../../store/reducer';
+import {RootState} from '../../store';
 
 // Styled component
 const ChatAreaContainer = styled.ScrollView`
@@ -88,7 +75,6 @@ type ChatAreaProps = {
   client: any;
   moimId: number;
   closeHandler: () => void;
-  previousMessages: MessageData[];
   onPress: () => void;
 };
 
@@ -97,29 +83,22 @@ const ChatArea = ({
   client,
   moimId,
   closeHandler,
-  previousMessages,
   onPress,
 }: ChatAreaProps) => {
   const [inputValue, setInputValue] = useState<string>('');
 
   const userInfo = useSelector((state: RootState) => state.persisted.user);
-  const accessToken =
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyNzgzNTQ1NTA5IiwiaXNzIjoiS0tJUkkiLCJleHAiOjE2OTU5NTAzMjQsImlhdCI6MTY4Mzg1NDMyNH0.8J8MBeiWPMJPXZy8X5i49jw-LAUff_S7RZWv8pYKOOzogqc3JTuIJevoOMi_1ANy4OynvTKNjwsr517_fNYxKA';
-
-  const headers = {
-    Authorization:
-      'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyNzgzNTQ1NTA5IiwiaXNzIjoiS0tJUkkiLCJleHAiOjE2OTU5NTAzMjQsImlhdCI6MTY4Mzg1NDMyNH0.8J8MBeiWPMJPXZy8X5i49jw-LAUff_S7RZWv8pYKOOzogqc3JTuIJevoOMi_1ANy4OynvTKNjwsr517_fNYxKA',
-    // 'X-Custom-Header': 'myvalue',
-  };
 
   // 채팅메시지 발신
   const sendMessage = () => {
-    if (!inputValue) return;
+    if (!inputValue) {
+      return;
+    }
     const msg = JSON.stringify({
-      type: 'MESSAGE', //or EMOJI, URGENT
+      type: 'MESSAGE',
       content: {
-        moimId: moimId, //e.g. 1
-        kakaoId: userInfo.id, //e.g. 1
+        moimId: moimId,
+        kakaoId: userInfo.id,
         nickname: userInfo.nickname,
         message: inputValue.trim(),
       },
