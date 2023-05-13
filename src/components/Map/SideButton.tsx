@@ -11,12 +11,14 @@ interface ButtonProps {
   setSideModal: React.Dispatch<React.SetStateAction<boolean>>;
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
   setModalType: React.Dispatch<React.SetStateAction<string>>;
+  moimId: number;
 }
 
 const SideButton = ({
   setSideModal,
   setModalVisible,
   setModalType,
+  moimId,
 }: ButtonProps) => {
   const dispatch = useAppDispatch();
 
@@ -26,7 +28,7 @@ const SideButton = ({
     setModalType('sendhelp');
     // 임시 데이터
     const postData = {
-      chatRoomId: 6,
+      chatRoomId: moimId,
     };
     dispatch(helpPost(postData));
   }

@@ -136,7 +136,12 @@ function Chatroom({route}: ChatroomProp) {
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
       {/* 지도 */}
-      <RealtimeMap startDraw={startDraw} setStartDraw={setStartDraw} />
+      <RealtimeMap
+        startDraw={startDraw}
+        setStartDraw={setStartDraw}
+        client={client.current}
+        moimId={moimId}
+      />
       {/* 채팅 */}
       {showChatArea ? (
         <ChatArea
