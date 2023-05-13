@@ -2,16 +2,13 @@ import React, {useEffect, useRef, useState} from 'react';
 import {View} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import styled from 'styled-components/native';
-import {TextEncoder} from 'text-encoding';
-import SockJS from 'sockjs-client';
-import io from 'socket.io-client';
 import {useSelector} from 'react-redux';
 import EmojiBtn from '../components/Chatroom/EmojiBtn';
 import {RouteProp} from '@react-navigation/native';
 
 // API
 import {requests} from '../api/requests';
-import {authInstance, baseInstance} from '../api/axios';
+import {baseInstance} from '../api/axios';
 
 // Components
 import ChatArea from '../components/Chatroom/ChatArea';
@@ -19,10 +16,10 @@ import RealtimeMap from '../components/Chatroom/RealtimeMap';
 import MessagePreview from '../components/Chatroom/MessagePreview';
 
 // types
-import {MessageData} from '../types/index';
+import {MessageData, RootStackParamList} from '../types/index';
 
 // Redux
-import {RootState} from '../store/reducer';
+import {RootState} from '../store';
 
 interface ChatroomProp {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Chatroom'>;
@@ -59,19 +56,10 @@ function Chatroom({route}: ChatroomProp) {
   // socket 저장하는 변수
   const client = useRef<WebSocket | null>(null);
 
-  const encoder = new TextEncoder();
-
   // 채팅방 id
   const moimId = route.params.moimId;
-
   // 나 자신
   const myId = useSelector((state: RootState) => state.persisted.user.id);
-
-  // 임시 토큰
-  const accessToken =
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyNzg1NTI5NzA1IiwiaXNzIjoiS0tJUkkiLCJleHAiOjE2ODM5NTk1MDEsImlhdCI6MTY4Mzg3MzEwMX0.BAuff1KtXDdU_nAPLC1trZvmMlW_IbSf7B9BPSI8Uq7D-DF-FtC5v-B5ilADtsY8tPSuqo08_0AkbO3kaiTemA';
-
-  // console.log('은지의 토큰 :', accessToken);
 
   interface Data {
     meta: {
@@ -115,23 +103,17 @@ function Chatroom({route}: ChatroomProp) {
     }
 
     if (client.current) {
-      console.log('안녕');
       // 메시지 수신 이벤트
       client.current.onmessage = event => {
         const data = JSON.parse(event.data);
-        // 채팅 메시지인 경우
-        if (data.messageType === 'MESSAGE') {
+        // 채팅 메시지, 재촉 메시지인 경우
+        if (data.messageType === 'MESSAGE' || data.messageType === 'URGENT') {
           let newMessages = [data];
           setMessages(prev => [...newMessages, ...prev]);
         }
 
         // 이모티콘인 경우
         if (event.data.messageType === 'EMOJI') {
-          // setMessages(prev => [...prev, event.data]);
-        }
-
-        // 재촉인 경우
-        if (event.data.messageType === 'URGENT') {
           // setMessages(prev => [...prev, event.data]);
         }
       };
@@ -147,11 +129,9 @@ function Chatroom({route}: ChatroomProp) {
     return () => {
       console.log('=======================채팅방 나감========================');
     };
-  }, [moimId]);
+  }, [moimId, myId]);
 
   const sendEmoji = () => {};
-
-  const pushNewMessage = message => {};
 
   return (
     <View style={{flex: 1, position: 'relative'}}>
@@ -161,7 +141,6 @@ function Chatroom({route}: ChatroomProp) {
       {showChatArea ? (
         <ChatArea
           messages={messages}
-          pushNewMessage={pushNewMessage}
           client={client}
           moimId={moimId}
           closeHandler={() => setShowChatArea(false)}

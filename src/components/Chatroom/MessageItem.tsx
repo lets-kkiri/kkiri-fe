@@ -44,7 +44,7 @@ function MessageItem({message}: MessageItemProp) {
   const isMe = myId == message.kakaoId;
   return (
     <MessageItemContainer isMe={isMe}>
-      {!isMe && <UserProfile userImg={'sdf'} width={50} />}
+      {/* {!isMe && <UserProfile userImg={'sdf'} width={50} />} */}
       <MessageBubble isMe={isMe}>
         {!isMe && <Nickname>{message.nickname}</Nickname>}
         <Message text={message.message} />
