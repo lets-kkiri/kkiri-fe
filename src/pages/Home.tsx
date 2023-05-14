@@ -3,7 +3,11 @@ import moment from 'moment-timezone';
 import {WeekCalendar, CalendarProvider} from 'react-native-calendars';
 import {Text} from 'react-native';
 import styled from 'styled-components/native';
+<<<<<<< HEAD
+import MoimCard from '../components/Common/MoimCard';
+=======
 // import MoimCard from '../components/Moim/MoimCard';
+>>>>>>> 0540c6b0de9722efa8935d8a0667376dc366569e
 
 // Styled component
 const HomeContainer = styled.View`
@@ -21,6 +25,7 @@ const CalendarContainer = styled.View`
 const CardsContainer = styled.View`
   flex-direction: row;
   flex: 0.5;
+  justify-content: center;
 `;
 
 export default function Home() {
@@ -66,9 +71,10 @@ export default function Home() {
           />
         </CalendarProvider>
       </CalendarContainer>
-      {/* <CardsContainer>
-        <MoimCard cardData={1} />
-      </CardsContainer> */}
+      <CardsContainer>
+        <MoimCard />
+        {/* <Text>카드 들어갈 곳</Text> */}
+      </CardsContainer>
     </HomeContainer>
   );
 }
