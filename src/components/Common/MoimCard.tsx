@@ -68,25 +68,30 @@ const MoimCard = () => {
         <DDay>
           <DayFont>D-10</DayFont>
         </DDay>
+        {/* 모임 날짜 */}
         <MainFont>4월 20일</MainFont>
         <WithLocalSvg asset={Cash} />
       </Row>
       <WithLocalSvg asset={Day} style={{left: -10, marginTop: 27}} />
       <MidFont style={{position: 'absolute', top: 170, left: 70}}>
+        {/* 모임 이름 */}
         동기사랑 나라사랑
       </MidFont>
-      <View style={{marginTop: 25}}>
+      <View>
         <Row style={{paddingHorizontal: 20, marginBottom: 10}}>
           <WithLocalSvg asset={Time} />
+          {/* 모임 장소 */}
           <SubFont>서울특별시 용산구 청파동 스타벅스</SubFont>
         </Row>
         <Row style={{justifyContent: 'space-evenly', paddingHorizontal: 30}}>
           <View style={{flexDirection: 'row'}}>
             <WithLocalSvg asset={People} />
+            {/* 모임 시간 */}
             <SubFont>오후 6시</SubFont>
           </View>
           <View style={{flexDirection: 'row'}}>
             <WithLocalSvg asset={People} />
+            {/* 모임원 수 */}
             <SubFont>4명</SubFont>
           </View>
         </Row>
