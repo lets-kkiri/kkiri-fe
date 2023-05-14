@@ -4,9 +4,7 @@ const useGetDday = (target: string) => {
 
   const diff = targetTime - todayTime;
 
-  console.log('diff :', diff);
-  let cnt;
-  return 10;
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
 };
 
 export default useGetDday;

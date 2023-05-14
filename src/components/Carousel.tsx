@@ -13,9 +13,11 @@ const Indicator = styled.View<{focused: boolean}>`
 `;
 
 const IndicatorWrapper = styled.View`
+  width: 100%;
   flex-direction: row;
   align-items: center;
-  margin-top: 16px;
+  justify-content: center;
+  margin: 8px;
 `;
 
 const Carousel = ({gap, offset, pages, pageWidth}) => {

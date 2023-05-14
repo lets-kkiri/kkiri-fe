@@ -17,23 +17,30 @@ import {Moim} from '../types';
 import Carousel from '../components/Carousel';
 
 // Styled component
-const HomeContainer = styled.View<{theme}>`
+const HomeContainer = styled.View<{theme: any}>`
+  position: relative;
   flex-direction: column;
-  flex: 1;
-  background-color: ${({theme}) => theme.color.background};
+  width: 100%;
+  height: 100%;
+  /* background-color: ${({theme}) => theme.color.background}; */
 `;
 const HeaderContainer = styled.View`
+  background-color: ${({theme}) => theme.color.background};
   flex-direction: column;
-  flex: 0.3;
+  padding: 24px;
 `;
 const CalendarContainer = styled.View`
-  flex-direction: column;
-  flex: 0.2;
+  /* flex-direction: column; */
+  height: 40px;
 `;
-const CardsContainer = styled.View`
-  flex-direction: row;
-  flex: 0.5;
+const CardsContainer = styled.View<{theme: any}>`
+  background-color: ${({theme}) => theme.color.background};
+  /* flex-direction: row; */
+  position: absolute;
+  bottom: 0px;
   justify-content: center;
+  padding-bottom: 8px;
+  padding-top: 8px;
 `;
 
 export default function Home() {
@@ -45,6 +52,9 @@ export default function Home() {
   const theme = useSelector((state: RootState) => state.persisted.theme.theme);
   const dispatch = useDispatch();
 
+  // 유저정보
+  const userInfo = useSelector((state: RootState) => state.persisted.user);
+
   const windowWidth = Dimensions.get('window').width;
 
   useEffect(() => {
@@ -53,7 +63,6 @@ export default function Home() {
     const get_moim_list = async () => {
       const {data} = await authInstance.get(requests.GET_MOIM_LIST());
       setMoimList(data.moimCardList);
-      console.log('모임 리스트 get :', data);
     };
 
     get_moim_list();
@@ -66,7 +75,11 @@ export default function Home() {
   return (
     <HomeContainer theme={theme}>
       <HeaderContainer>
-        <Text>내용</Text>
+        <Text>{userInfo.nickname} 님</Text>
+        <Text>
+          이번 주 약속이 <Text style={{color: theme.color.blue}}>9개</Text>
+          있어요!
+        </Text>
       </HeaderContainer>
       <CalendarContainer>
         <CalendarProvider
@@ -77,13 +90,13 @@ export default function Home() {
           }}
           onMonthChange={month => console.log(month)}
           disabledOpacity={0.6}
+          style={{backgroundColor: theme.color.background}}
           theme={{
-            todayButtonTextColor: '#0059b3',
+            todayButtonTextColor: theme.color.blue,
           }}
           todayBottomMargin={16}>
           <WeekCalendar
-            allowShadow={true}
-            // allowShadow={false}
+            allowShadow={false}
             current={selectedDay}
             markedDates={{
               // 오늘 날짜를 표시하기 위한 설정
@@ -95,10 +108,9 @@ export default function Home() {
         </CalendarProvider>
       </CalendarContainer>
       <CardsContainer>
-        {/* {moimList} */}
         <Carousel
-          gap={windowWidth * 0.02}
-          offset={windowWidth * 0.1}
+          gap={windowWidth * 0.04}
+          offset={windowWidth * 0.08}
           pages={moimList}
           pageWidth={windowWidth * 0.78}
         />
