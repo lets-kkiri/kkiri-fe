@@ -1,11 +1,101 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import {Text, View, FlatList} from 'react-native';
+import {Text, ScrollView, FlatList} from 'react-native';
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../types';
+import styled from 'styled-components/native';
+import {WithLocalSvg} from 'react-native-svg';
+
 // API
 import {authInstance} from '../api/axios';
 import {requests} from '../api/requests';
+
+// Styled component
+const MoimContainer = styled.View`
+  flex-direction: column;
+  flex: 1;
+`;
+
+const BannerContainer = styled.View`
+  flex-direction: column;
+  flex: 1;
+  background-color: #f8f9ff;
+  border-radius: 20px;
+`;
+
+const HeaderContainer = styled.View`
+  flex-direction: column;
+  padding: 12px 16px 12px 16px;
+`;
+
+const TitleContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+`;
+
+const Title = styled.Text`
+  font-size: 24px;
+  color: #5968f2;
+`;
+
+const Date = styled.Text`
+  font-size: 16px;
+`;
+
+const IconConatiner = styled.View`
+  height: 24px;
+  width: 24px;
+  margin-right: 12px;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ListBinder = styled.View`
+  flex-direction: row;
+  align-items: center;
+  margin: 12px 24px 12px 24px;
+`;
+
+const ViewBinder = styled.View`
+  flex-direction: row;
+  align-items: center;
+  width: 80px;
+  margin-right: 10;
+`;
+
+const MembersContainer = styled.View`
+  flex-direction: column;
+  flex: 0.4;
+`;
+
+const OptionText = styled.Text`
+  color: #5968f2;
+`;
+
+const MemberContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  width: 110px;
+  height: 50px;
+  border-radius: 15px;
+  background-color: #f8f9ff;
+  padding: 12px;
+`;
+
+const MemberThumbnail = styled.Image`
+  width: 26px;
+  height: 26px;
+  border-radius: 25px;
+  margin-right: 12px;
+`;
+
+// Icons
+const peopleIcon = require('../assets/icons/people.svg');
+const timeIcon = require('../assets/icons/moim_time.svg');
+const locationIcon = require('../assets/icons/moim_location.svg');
+const feeIcon = require('../assets/icons/moim_fee.svg');
 
 // types
 interface MoimProps {
@@ -46,8 +136,20 @@ function Moim({navigation, route}: MoimProps) {
   });
 
   const eachMember = useCallback(({item}: {item: MemberInfo}) => {
-    return <Text>{item.nickname}</Text>;
+    return (
+      <MemberContainer>
+        <MemberThumbnail source={{uri: item.profileImage}} />
+        <Text>{item.nickname}</Text>
+      </MemberContainer>
+    );
   }, []);
+
+  const dateSplit = (dateStr: string) => {
+    const year = dateStr.slice(0, 4);
+    const month = dateStr.slice(5, 7);
+    const day = dateStr.slice(8, 10);
+    return `${year}년 ${month}월 ${day}일`;
+  };
 
   useEffect(() => {
     if (moimId === undefined) {
@@ -74,20 +176,65 @@ function Moim({navigation, route}: MoimProps) {
   }
 
   return (
-    <View>
-      <Text>{moimInfo.moimId}번 모임입니다.</Text>
-      <Text>"{moimInfo.name}"</Text>
-      <Text>{moimInfo.placeName}로</Text>
-      <Text>
-        {moimInfo.date} {moimInfo.time}까지 오세요
-      </Text>
-      <Text>지각비 : {moimInfo.lateFee}원</Text>
-      <FlatList
-        data={moimInfo.members}
-        keyExtractor={member => member.kakaoId}
-        renderItem={eachMember}
-      />
-    </View>
+    <MoimContainer>
+      <ScrollView>
+        <BannerContainer>
+          <HeaderContainer>
+            <TitleContainer>
+              <Title>{moimInfo.name}</Title>
+            </TitleContainer>
+            <Date>{dateSplit(moimInfo.date)}</Date>
+          </HeaderContainer>
+          <ListBinder>
+            <ViewBinder>
+              <IconConatiner>
+                <WithLocalSvg asset={timeIcon} height={20} />
+              </IconConatiner>
+              <OptionText>시간</OptionText>
+            </ViewBinder>
+            <Text>{moimInfo.time}</Text>
+          </ListBinder>
+          <ListBinder>
+            <ViewBinder>
+              <IconConatiner>
+                <WithLocalSvg asset={peopleIcon} height={20} />
+              </IconConatiner>
+              <OptionText>인원</OptionText>
+            </ViewBinder>
+            <Text>{moimInfo.members.length}명</Text>
+          </ListBinder>
+          <ListBinder>
+            <ViewBinder>
+              <IconConatiner>
+                <WithLocalSvg asset={locationIcon} height={20} />
+              </IconConatiner>
+              <OptionText>장소</OptionText>
+            </ViewBinder>
+            <Text>{moimInfo.placeName}</Text>
+          </ListBinder>
+          <ListBinder>
+            <ViewBinder>
+              <IconConatiner>
+                <WithLocalSvg asset={feeIcon} height={20} />
+              </IconConatiner>
+              <OptionText>지각비</OptionText>
+            </ViewBinder>
+            <Text>{moimInfo.lateFee}원</Text>
+          </ListBinder>
+        </BannerContainer>
+        <MembersContainer>
+          <ViewBinder>
+            <Text>참여자</Text>
+            <Text>{moimInfo.members.length}명</Text>
+          </ViewBinder>
+          <FlatList
+            data={moimInfo.members}
+            keyExtractor={member => member.kakaoId}
+            renderItem={eachMember}
+          />
+        </MembersContainer>
+      </ScrollView>
+    </MoimContainer>
   );
 }
 
