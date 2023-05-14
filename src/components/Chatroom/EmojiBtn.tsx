@@ -21,9 +21,14 @@ const EmojiText = styled.Text`
   font-size: 16px;
 `;
 
-const EmojiBtn = ({}) => {
+// Types
+type EmojiBtnProps = {
+  onPress: () => void;
+};
+
+const EmojiBtn = ({onPress}: EmojiBtnProps) => {
   return (
-    <Container activeOpacity={0.8}>
+    <Container activeOpacity={0.8} onPress={onPress}>
       <WithLocalSvg asset={emoji_default} />
       {/* <EmojiText>😊</EmojiText> */}
     </Container>

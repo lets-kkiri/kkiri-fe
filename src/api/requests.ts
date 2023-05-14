@@ -7,13 +7,13 @@ export const requests = {
   CONNECT: '/stomp',
 
   // 채팅
-  CHAT(roomId) {
+  CHAT(roomId: number) {
     return `/pub/chat.enter.${roomId}`;
     // return `/pub/chat`;
   },
 
   // 실시간 위치
-  LOCATION(roomId) {
+  LOCATION(roomId: number) {
     return `/gps/location/${roomId}`;
   },
 
@@ -55,5 +55,28 @@ export const requests = {
   // 사용자 FCM 토큰 저장
   POST_FCM_TOKEN() {
     return `${this.base_url}/api/members/devices`;
+  },
+
+  // 이전 채팅 내용 불러오기
+  GET_CHAT(moimId: number, size: number, lastMessageId?: string) {
+    if (lastMessageId) {
+      return `api/chat?moimId=${moimId}&size=${size}&lastMessageId=${lastMessageId}`;
+    }
+    return `api/chat?moimId=${moimId}&size=${size}&`;
+  },
+
+  // 모임 생성
+  POST_CREATE_MOIM() {
+    return '/api/moims';
+  },
+
+  // 모임 링크 연결
+  POST_CREATE_LINK() {
+    return '/api/moims/links';
+  },
+
+  // 모임 상세 정보 조회
+  GET_MOIM_INFO(moimId: number) {
+    return `/api/moims/${moimId}`;
   },
 };

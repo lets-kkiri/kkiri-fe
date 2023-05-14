@@ -16,8 +16,8 @@ const Inner = styled.View`
   width: 300px;
   justify-content: center;
   padding: 0 27px;
-  border-top-left-radius: 15;
-  border-bottom-left-radius: 15;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
   background-color: #dde2fc;
 `;
 
@@ -26,8 +26,8 @@ const Button = styled.TouchableOpacity`
   height: 85px;
   justify-content: center;
   align-items: center;
-  border-top-right-radius: 15;
-  border-bottom-right-radius: 15;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
   background-color: #fff;
 `;
 

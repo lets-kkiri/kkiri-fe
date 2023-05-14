@@ -1,8 +1,7 @@
-import {PayloadAction, createSlice} from '@reduxjs/toolkit';
+import {createSlice} from '@reduxjs/toolkit';
 
 export type MoimType = {
   name: string;
-  link: string;
   date: string;
   time: string;
   placeName: string;
@@ -13,7 +12,6 @@ export type MoimType = {
 
 const initialState: MoimType = {
   name: '',
-  link: '',
   date: '',
   time: '',
   placeName: '',
@@ -30,9 +28,9 @@ const moimSlice = createSlice({
     setName(state, action) {
       state.name = action.payload;
     },
-    setLink(state, action) {
-      state.link = action.payload;
-    },
+    // setLink(state, action) {
+    //   state.link = action.payload;
+    // },
     setDate(state, action) {
       state.date = action.payload;
     },

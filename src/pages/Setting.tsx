@@ -9,7 +9,7 @@ function Setting() {
     <View>
       <Button
         title="채팅방 입장"
-        onPress={() => navigation.navigate('Chatroom', {roomId: 1})}
+        onPress={() => navigation.navigate('Chatroom', {moimId: 9})}
       />
       <Button title="지도" onPress={() => navigation.navigate('Map')} />
     </View>

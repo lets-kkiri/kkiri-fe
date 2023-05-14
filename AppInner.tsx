@@ -22,7 +22,7 @@ import CreateMoim from './src/pages/CreateMoim';
 // import userSlice from './src/slices/user';
 import notiSlice from './src/slices/noti';
 import {useAppDispatch} from './src/store';
-import {createSocket, socketConnect} from './src/slices/socket';
+import {socketConnect} from './src/slices/socket';
 
 // FCM 및 푸쉬 알림
 import messaging from '@react-native-firebase/messaging';
@@ -41,6 +41,7 @@ import SplashScreen from 'react-native-splash-screen';
 import {Socket, io} from 'socket.io-client';
 import Moim from './src/pages/Moim';
 import {Text} from 'react-native';
+import CompleteCreate from './src/components/CreateMoim/CompleteCreate';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -91,6 +92,9 @@ function AppInner() {
   });
 
   // FCM을 위한 기기 토큰 설정
+  // const moimId = 1;
+  // dispatch(socketConnect(moimId));
+
   useEffect(() => {
     async function getToken() {
       console.log('========= getToken 함수 시작 =========');
@@ -109,8 +113,8 @@ function AppInner() {
           {deviceToken: token},
           {headers: {authorization: `Bearer ${accessToken}`}},
         );
-        console.log('쏠 디바이스 토큰', token);
-        console.log('getTokenRes : ', response);
+        // console.log('쏠 디바이스 토큰', token);
+        // console.log('getTokenRes : ', response);
       } catch (error) {
         console.error(error);
       }
@@ -312,6 +316,11 @@ function AppInner() {
             name="CreateMoim"
             component={CreateMoim}
             options={{title: '모임 생성'}}
+          />
+          <Stack.Screen
+            name="CompleteCreate"
+            component={CompleteCreate}
+            options={{title: '모임 생성 완료'}}
           />
           <Stack.Screen
             name="Map"

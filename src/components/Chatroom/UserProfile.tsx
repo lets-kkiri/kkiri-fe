@@ -13,14 +13,26 @@ type UserProfileProp = {
 };
 
 function UserProfile({userImg, width}: UserProfileProp) {
+  // console.log('useImg :', userImg);
   return (
     <View>
-      <ProfileImg
-        source={{
-          uri: userImg,
-        }}
-        style={{width: width, height: width}}
-      />
+      {userImg && (
+        <ProfileImg
+          source={{
+            uri: userImg,
+          }}
+          style={{width: width, height: width}}
+        />
+      )}
+      {userImg === undefined && (
+        <View
+          style={{
+            backgroundColor: '#FFE8E1',
+            width: 50,
+            height: 50,
+            borderRadius: 99,
+          }}></View>
+      )}
     </View>
   );
 }
