@@ -80,6 +80,11 @@ export const requests = {
     return `/api/moims/${moimId}`;
   },
 
+  // 모임 참여
+  POST_JOIN_MOIM() {
+    return '/api/moims/groups';
+  },
+
   // 모임 카드 목록 조회
   GET_MOIM_LIST(date?: string) {
     if (date) {

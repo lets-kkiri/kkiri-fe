@@ -9,7 +9,7 @@ interface ButtonProps {
   onPress: () => void;
 }
 
-type StatusType = 'active' | 'disabled' | 'blur';
+type StatusType = 'active' | 'disabled' | 'blur' | 'kakao';
 type WidthType = 'tiny' | 'short' | 'long';
 type BtnStatusType = {
   [index: string]: object;
@@ -19,6 +19,7 @@ type BtnStatusType = {
   active: object;
   disabled: object;
   blur: object;
+  kakao: object;
 };
 
 const btnStatus: BtnStatusType = {
@@ -39,6 +40,9 @@ const btnStatus: BtnStatusType = {
   },
   blur: {
     backgroundColor: '#B0BDFF',
+  },
+  kakao: {
+    backgroundColor: '#DCF861',
   },
 };
 
