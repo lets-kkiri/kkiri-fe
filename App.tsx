@@ -17,11 +17,15 @@ import TabNavigator from './src/components/TabNavigator';
 import {RootStackParamList} from './src/types';
 import Chatroom from './src/pages/Chatroom';
 import CreateMoim from './src/pages/CreateMoim';
+import * as React from 'react';
 
 // hooks
 import usePermissions from './src/hooks/usePermissions';
-import RealtimeLocation from './src/pages/RealtimeLocation';
 
+// redux
+import store, {persistor} from './src/store';
+import {Provider} from 'react-redux';
+import AppInner from './AppInner';
 // Theme
 import {lightTheme, darkTheme} from './src/styles/theme';
 import {ThemeProvider} from 'styled-components';
@@ -34,7 +38,8 @@ export type LoggedInParamList = {
   Complete: {orderId: string};
 };
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+// FCM 및 푸쉬 알림
+import {PersistGate} from 'redux-persist/integration/react';
 
 function App() {
   // const [isLoggedIn, setLoggedIn] = useState(false);
@@ -42,50 +47,13 @@ function App() {
   const currentTheme = isDark ? darkTheme : lightTheme;
 
   usePermissions();
+
   return (
-    <ThemeProvider theme={currentTheme}>
-      <View style={{flex: 1, backgroundColor: currentTheme.color.background}}>
-        <NavigationContainer>
-          <Stack.Navigator>
-            <Stack.Screen
-              name="Tab"
-              component={TabNavigator}
-              options={{header: () => <Header />}}
-            />
-            <Stack.Screen
-              name="Setting"
-              component={Setting}
-              options={{title: '세팅'}}
-            />
-            <Stack.Screen
-              name="Notification"
-              component={Notification}
-              options={{title: '알림센터'}}
-            />
-            <Stack.Screen
-              name="Chatroom"
-              component={Chatroom}
-              options={{title: '채팅방'}}
-            />
-            <Stack.Screen
-              name="CreateMoim"
-              component={CreateMoim}
-              options={{title: '모임 생성'}}
-            />
-            <Stack.Screen
-              name="Map"
-              component={Map}
-              options={{title: '실시간 위치'}}
-            />
-            <Stack.Screen
-              name="RealtimeLocation"
-              component={RealtimeLocation}
-              options={{title: '모임원 실시간 위치'}}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </View>
-    </ThemeProvider>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <AppInner />
+      </PersistGate>
+    </Provider>
   );
 }
 

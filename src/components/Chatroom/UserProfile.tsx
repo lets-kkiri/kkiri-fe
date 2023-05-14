@@ -1,24 +1,38 @@
 import React from 'react';
-import {Image, StyleSheet, View} from 'react-native';
+import {View} from 'react-native';
+import styled from 'styled-components/native';
 
-const styles = StyleSheet.create({
-  container: {
-    width: 40,
-    height: 40,
-    borderRadius: 99,
-    backgroundColor: 'black',
-  },
-});
+// Styled components
+const ProfileImg = styled.Image`
+  border-radius: 99px;
+`;
 
 type UserProfileProp = {
   userImg: string;
+  width: number;
 };
 
-function UserProfile({userImg}: UserProfileProp) {
+function UserProfile({userImg, width}: UserProfileProp) {
+  // console.log('useImg :', userImg);
   return (
     <View>
-      {/* <Image source={{uri: userImg}} style={styles.container} /> */}
-      <View style={styles.container} />
+      {userImg && (
+        <ProfileImg
+          source={{
+            uri: userImg,
+          }}
+          style={{width: width, height: width}}
+        />
+      )}
+      {userImg === undefined && (
+        <View
+          style={{
+            backgroundColor: '#FFE8E1',
+            width: 50,
+            height: 50,
+            borderRadius: 99,
+          }}></View>
+      )}
     </View>
   );
 }
