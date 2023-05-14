@@ -38,9 +38,13 @@ function MyTimePicker({moim, setMoim}: CreateMoimProps) {
               ? hours.toString()
               : '0' + hours.toString();
           const minutes = newDate.getMinutes();
+          const minuteString =
+            minutes.toString().length === 2
+              ? minutes.toString()
+              : '0' + minutes.toString();
           setMoim(prevMoim => ({
             ...prevMoim,
-            time: `${hourString}:${minutes}`,
+            time: `${hourString}:${minuteString}`,
           }));
         }}
         locale="kr"

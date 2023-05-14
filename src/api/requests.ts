@@ -79,4 +79,9 @@ export const requests = {
   GET_MOIM_INFO(moimId: number) {
     return `/api/moims/${moimId}`;
   },
+
+  // 모임 참여
+  POST_JOIN_MOIM() {
+    return '/api/moims/groups';
+  },
 };
