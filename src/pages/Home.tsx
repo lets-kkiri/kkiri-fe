@@ -1,15 +1,23 @@
 import React, {useEffect, useState} from 'react';
 import moment from 'moment-timezone';
 import {WeekCalendar, CalendarProvider} from 'react-native-calendars';
-import {Text, useColorScheme} from 'react-native';
-import styled, {ThemeProvider} from 'styled-components/native';
+import {Dimensions, ScrollView, Text, useColorScheme} from 'react-native';
+import styled from 'styled-components/native';
 import MoimCard from '../components/Common/MoimCard';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../store';
 import CustomTheme from 'styled-components/native';
 
+// Redux
+// import {getMoimList} from '../slices/moimlistSlice';
+import {authInstance} from '../api/axios';
+import {requests} from '../api/requests';
+import {FlatList} from 'react-native-gesture-handler';
+import {Moim} from '../types';
+import Carousel from '../components/Carousel';
+
 // Styled component
-const HomeContainer = styled.View<{theme: CustomTheme}>`
+const HomeContainer = styled.View<{theme}>`
   flex-direction: column;
   flex: 1;
   background-color: ${({theme}) => theme.color.background};
@@ -31,14 +39,26 @@ const CardsContainer = styled.View`
 export default function Home() {
   const today = moment().tz('Asia/Seoul').format('YYYY-MM-DD');
   const [selectedDay, setSelectedDay] = useState('');
+  const [moimList, setMoimList] = useState<Moim[]>([]);
 
   const colorScheme = useColorScheme();
   const theme = useSelector((state: RootState) => state.persisted.theme.theme);
+  const dispatch = useDispatch();
+
+  const windowWidth = Dimensions.get('window').width;
 
   useEffect(() => {
     setSelectedDay(today);
+
+    const get_moim_list = async () => {
+      const {data} = await authInstance.get(requests.GET_MOIM_LIST());
+      setMoimList(data.moimCardList);
+      console.log('모임 리스트 get :', data);
+    };
+
+    get_moim_list();
   }, [today]);
-  // console.log(new Date());
+
   if (!selectedDay) {
     return null;
   }
@@ -75,8 +95,13 @@ export default function Home() {
         </CalendarProvider>
       </CalendarContainer>
       <CardsContainer>
-        <MoimCard />
-        {/* <Text>카드 들어갈 곳</Text> */}
+        {/* {moimList} */}
+        <Carousel
+          gap={windowWidth * 0.02}
+          offset={windowWidth * 0.1}
+          pages={moimList}
+          pageWidth={windowWidth * 0.78}
+        />
       </CardsContainer>
     </HomeContainer>
   );

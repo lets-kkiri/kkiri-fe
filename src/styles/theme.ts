@@ -41,8 +41,13 @@ const darkColors = {
   black: '#FFFFFF',
 };
 
+const fonts = {
+  thin: 'Pretendard-Thin',
+};
+
 export const lightTheme: DefaultTheme = {
   color: lightColors,
+  font: fonts,
 };
 
 export const darkTheme: DefaultTheme = {
