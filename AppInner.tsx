@@ -6,11 +6,16 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import locationUpdater from './src/hooks/useLocationUpdater';
 // import BackgroundTimer from 'react-native-background-timer';
 // import {AppRegistry} from 'react-native';
+import {Text, View, useColorScheme} from 'react-native';
+import {ThemeProvider} from 'styled-components/native';
+import {lightTheme, darkTheme} from './src/styles/theme';
 
 // Page
 import Setting from './src/pages/Setting';
 import Notification from './src/pages/Notification';
 import Map from './src/pages/Map';
+import Moim from './src/pages/Moim';
+import SignIn from './src/pages/SignIn';
 
 // Components
 import Header from './src/components/Header';
@@ -37,15 +42,12 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 import {requests} from './src/api/requests';
 import {useSelector} from 'react-redux';
 import {RootState} from './src/store/index';
-import SignIn from './src/pages/SignIn';
 
 // Splash Screen
 import SplashScreen from 'react-native-splash-screen';
-import {Socket, io} from 'socket.io-client';
-import Moim from './src/pages/Moim';
-import {Text} from 'react-native';
 import CompleteCreate from './src/components/CreateMoim/CompleteCreate';
 import BackgroundFetch, {setBackgroundFetchTask} from 'react-native-background-fetch';
+import GlobalStyle from './src/styles/globalStyle';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -66,6 +68,12 @@ function AppInner() {
   const accessToken: string = useSelector(
     (state: RootState) => state.persisted.user.accessToken,
   );
+  const darkMode = useSelector(
+    (state: RootState) => state.persisted.theme.darkmode,
+  );
+  // 사용자 다크 모드
+  const colorScheme = useColorScheme();
+  console.log('다크모드', colorScheme);
 
   const [newSocket, SetNewSocket] = useState<WebSocket>();
 
@@ -297,61 +305,70 @@ function AppInner() {
     },
   };
 
+  const theme = useSelector((state: RootState) => state.persisted.theme.theme);
+
   return (
-    <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
-      {isLoggedIn ? (
-        <Stack.Navigator>
-          <Stack.Screen
-            name="Tab"
-            component={TabNavigator}
-            options={{header: () => <Header />}}
-          />
-          <Stack.Screen
-            name="Setting"
-            component={Setting}
-            options={{title: '세팅'}}
-          />
-          <Stack.Screen
-            name="Moim"
-            component={Moim}
-            options={{title: '모임 상세'}}
-          />
-          <Stack.Screen
-            name="Notification"
-            component={Notification}
-            options={{title: '알림센터'}}
-          />
-          <Stack.Screen
-            name="Chatroom"
-            component={Chatroom}
-            options={{title: '채팅방'}}
-          />
-          <Stack.Screen
-            name="CreateMoim"
-            component={CreateMoim}
-            options={{title: '모임 생성'}}
-          />
-          <Stack.Screen
-            name="CompleteCreate"
-            component={CompleteCreate}
-            options={{title: '모임 생성 완료'}}
-          />
-          <Stack.Screen
-            name="Map"
-            component={Map}
-            options={{title: '실시간 위치'}}
-          />
-        </Stack.Navigator>
-      ) : (
-        <Stack.Navigator>
-          <Stack.Screen
-            name="SignIn"
-            component={SignIn}
-            options={{title: '로그인'}}
-          />
-        </Stack.Navigator>
-      )}
-    </NavigationContainer>
+    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+      <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
+        {isLoggedIn ? (
+          <Stack.Navigator>
+            <Stack.Group
+              screenOptions={{
+                headerStyle: {backgroundColor: theme.color.background},
+              }}>
+              <Stack.Screen
+                name="Tab"
+                component={TabNavigator}
+                options={{header: () => <Header />}}
+              />
+              <Stack.Screen
+                name="Setting"
+                component={Setting}
+                options={{title: '세팅'}}
+              />
+              <Stack.Screen
+                name="Moim"
+                component={Moim}
+                options={{title: '모임 상세'}}
+              />
+              <Stack.Screen
+                name="Notification"
+                component={Notification}
+                options={{title: '알림센터'}}
+              />
+              <Stack.Screen
+                name="Chatroom"
+                component={Chatroom}
+                options={{title: '채팅방'}}
+              />
+              <Stack.Screen
+                name="CreateMoim"
+                component={CreateMoim}
+                options={{title: '모임 생성'}}
+              />
+              <Stack.Screen
+                name="CompleteCreate"
+                component={CompleteCreate}
+                options={{title: '모임 생성 완료'}}
+              />
+              <Stack.Screen
+                name="Map"
+                component={Map}
+                options={{title: '실시간 위치'}}
+              />
+            </Stack.Group>
+          </Stack.Navigator>
+        ) : (
+          <Stack.Navigator>
+            <Stack.Screen
+              name="SignIn"
+              component={SignIn}
+              options={{title: '로그인'}}
+            />
+          </Stack.Navigator>
+        )}
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
 

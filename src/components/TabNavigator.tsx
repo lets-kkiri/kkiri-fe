@@ -8,6 +8,8 @@ import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
 import {TouchableOpacity} from 'react-native';
 import CompleteCreate from './CreateMoim/CompleteCreate';
+import {useSelector} from 'react-redux';
+import {RootState} from '../store';
 
 // Tab Icons
 const home_active = require('../assets/tabIcons/home_active.svg');
@@ -18,6 +20,8 @@ const mypage_inactive = require('../assets/tabIcons/mypage_inactive.svg');
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
+  const theme = useSelector((state: RootState) => state.persisted.theme.theme);
+
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
@@ -42,6 +46,9 @@ const TabNavigator = () => {
           alignItems: 'center',
           paddingTop: 8,
           paddingBottom: 8,
+          elevation: 0,
+          borderTopWidth: 0,
+          backgroundColor: theme.color.background,
         },
         tabBarLabelStyle: {
           fontSize: 8,

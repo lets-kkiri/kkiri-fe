@@ -22,3 +22,21 @@ export type MessageData = {
   message: string;
   time: string | null;
 };
+
+// 멤버 정보
+export interface Member {
+  kakaoId: string;
+  profileImage: string;
+  nickname: string;
+}
+
+// 모임 정보
+export interface Moim {
+  moimId: number;
+  name: string;
+  placeName: string;
+  date: string;
+  time: string;
+  lateFee: number;
+  members: Member[];
+}
