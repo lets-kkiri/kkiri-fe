@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {Text, View} from 'react-native';
+import React, {useEffect, useState, useCallback} from 'react';
+import {Text, View, FlatList} from 'react-native';
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../types';
@@ -45,6 +45,10 @@ function Moim({navigation, route}: MoimProps) {
     members: [],
   });
 
+  const eachMember = useCallback(({item}: {item: MemberInfo}) => {
+    return <Text>{item.nickname}</Text>;
+  }, []);
+
   useEffect(() => {
     if (moimId === undefined) {
       return;
@@ -60,9 +64,10 @@ function Moim({navigation, route}: MoimProps) {
     getData();
   }, [moimId]);
 
-  useEffect(() => {
-    console.log(moimInfo);
-  }, [moimInfo]);
+  // useEffect(() => {
+  //   console.log(moimInfo);
+  //   console.log('members:', moimInfo.members);
+  // }, [moimInfo]);
 
   if (moimInfo === undefined || moimInfo.moimId === 0) {
     return null;
@@ -77,9 +82,11 @@ function Moim({navigation, route}: MoimProps) {
         {moimInfo.date} {moimInfo.time}까지 오세요
       </Text>
       <Text>지각비 : {moimInfo.lateFee}원</Text>
-      {moimInfo.members?.map(member => {
-        <Text>{member.nickname}</Text>;
-      })}
+      <FlatList
+        data={moimInfo.members}
+        keyExtractor={member => member.kakaoId}
+        renderItem={eachMember}
+      />
     </View>
   );
 }
