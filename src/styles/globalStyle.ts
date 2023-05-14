@@ -1,9 +1,11 @@
-import {createGlobalStyle} from 'styled-components';
+import {createGlobalStyle} from 'styled-components/native';
 
 const GlobalStyle = createGlobalStyle`
   body {
-    color: ${props => props.theme.color.text};
-    background-color: ${props => props.theme.color.background};
+    /* color: ${theme => theme.text}; */
+    /* background-color: ${theme => theme.background}; */
+    font-family: 'Pretendard';
+    transition: all 0.50s linear;
   }
 `;
 

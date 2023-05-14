@@ -1,18 +1,18 @@
 import React, {useEffect, useState} from 'react';
 import moment from 'moment-timezone';
 import {WeekCalendar, CalendarProvider} from 'react-native-calendars';
-import {Text} from 'react-native';
-import styled from 'styled-components/native';
-<<<<<<< HEAD
+import {Text, useColorScheme} from 'react-native';
+import styled, {ThemeProvider} from 'styled-components/native';
 import MoimCard from '../components/Common/MoimCard';
-=======
-// import MoimCard from '../components/Moim/MoimCard';
->>>>>>> 0540c6b0de9722efa8935d8a0667376dc366569e
+import {useSelector} from 'react-redux';
+import {RootState} from '../store';
+import CustomTheme from 'styled-components/native';
 
 // Styled component
-const HomeContainer = styled.View`
+const HomeContainer = styled.View<{theme: CustomTheme}>`
   flex-direction: column;
   flex: 1;
+  background-color: ${({theme}) => theme.color.background};
 `;
 const HeaderContainer = styled.View`
   flex-direction: column;
@@ -32,6 +32,9 @@ export default function Home() {
   const today = moment().tz('Asia/Seoul').format('YYYY-MM-DD');
   const [selectedDay, setSelectedDay] = useState('');
 
+  const colorScheme = useColorScheme();
+  const theme = useSelector((state: RootState) => state.persisted.theme.theme);
+
   useEffect(() => {
     setSelectedDay(today);
   }, [today]);
@@ -41,7 +44,7 @@ export default function Home() {
   }
 
   return (
-    <HomeContainer>
+    <HomeContainer theme={theme}>
       <HeaderContainer>
         <Text>내용</Text>
       </HeaderContainer>
