@@ -14,6 +14,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import userSlice from '../slices/user';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {RootState} from '../store/index';
+import {authInstance, setTokenHeader} from '../api/axios';
 
 function SignIn() {
   const [result, setResult] = useState('');
@@ -57,6 +58,10 @@ function SignIn() {
         'refreshToken',
         response.data.refreshToken,
       );
+      // 토큰 문제 해결하고 난 뒤에 풀어줄 놈
+      // authInstance.interceptors.request.use(config =>
+      //   setTokenHeader(config, userInfo.accessToken),
+      // );
       // console.log('리스폰스 데이타 : ', response.data);
     } catch (error: any) {
       console.error(error.message);
@@ -64,20 +69,28 @@ function SignIn() {
   };
 
   const signOutWithKakao = async (): Promise<void> => {
-    const message = await logout();
-    // setResult(message);
-    const userInfo = {
-      id: '',
-      email: '',
-      nickname: '',
-      profileImageUrl: '',
-      accessToken: '',
-      isLoggedIn: false,
-      deviceTokens: [],
-    };
-    dispatch(userSlice.actions.setUser({...userInfo}));
-    EncryptedStorage.removeItem('refreshToken');
-    // setIsLoggedin(false);
+    if (isLoggedIn) {
+      // 사용자가 로그인한 상태인지 확인
+      try {
+        const message = await logout();
+        // setResult(message);
+        const userInfo = {
+          id: '',
+          email: '',
+          nickname: '',
+          profileImageUrl: '',
+          accessToken: '',
+          isLoggedIn: false,
+          deviceTokens: [],
+        };
+        dispatch(userSlice.actions.setUser({...userInfo}));
+        EncryptedStorage.removeItem('refreshToken');
+      } catch (error) {
+        console.error(error.message);
+      }
+    } else {
+      console.log('User is not logged in');
+    }
   };
 
   const unlinkKakao = async (): Promise<void> => {
