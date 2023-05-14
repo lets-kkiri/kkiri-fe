@@ -8,6 +8,8 @@ import helpSlice from '../slices/helpSlice';
 import userSlice from '../slices/user';
 import notiSlice from '../slices/noti';
 import socketsSlice from '../slices/socket';
+import themeSlice from '../slices/themeSlice';
+import moimListSlice from '../slices/moimListSlice';
 
 const rootReducer = combineReducers({
   guides: guidesSlice.reducer,
@@ -18,6 +20,8 @@ const rootReducer = combineReducers({
   user: userSlice.reducer,
   noti: notiSlice.reducer,
   sockets: socketsSlice.reducer,
+  theme: themeSlice.reducer,
+  moimList: moimListSlice.reducer,
 });
 
 export type PersistedRootState = ReturnType<typeof rootReducer>;

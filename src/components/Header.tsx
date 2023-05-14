@@ -4,6 +4,8 @@ import {WithLocalSvg} from 'react-native-svg';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import styled from 'styled-components/native';
+import {useSelector} from 'react-redux';
+import {RootState} from '../store';
 
 // Icons
 const Notifi = require('../assets/icons/notification.svg');
@@ -11,13 +13,14 @@ const Setting_icon = require('../assets/icons/setting.svg');
 const logo = require('../assets/logo.svg');
 
 // Styled component
-const HeaderContainer = styled.View`
+const HeaderContainer = styled.View<{theme: any}>`
   flex-direction: row;
   height: 48px;
   align-items: center;
   justify-content: space-between;
   padding-left: 16px;
   padding-right: 8px;
+  background-color: ${({theme}) => theme.color.background};
 `;
 
 const IconContainer = styled.View`
@@ -38,8 +41,10 @@ const LogoArea = styled(IconArea)`
 const Header = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
 
+  const theme = useSelector((state: RootState) => state.persisted.theme.theme);
+
   return (
-    <HeaderContainer>
+    <HeaderContainer theme={theme}>
       <LogoArea onPress={() => navigation.navigate('Home')}>
         <WithLocalSvg asset={logo} height={24} />
       </LogoArea>
