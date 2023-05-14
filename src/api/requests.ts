@@ -79,4 +79,12 @@ export const requests = {
   GET_MOIM_INFO(moimId: number) {
     return `/api/moims/${moimId}`;
   },
+
+  // 모임 카드 목록 조회
+  GET_MOIM_LIST(date?: string) {
+    if (date) {
+      return `/api/moims${date ? `?date=${date}` : ''}`;
+    }
+    return '/api/moims';
+  },
 };
