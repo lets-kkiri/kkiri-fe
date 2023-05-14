@@ -6,21 +6,8 @@ import MyPage from '../pages/MyPage';
 import SignIn from '../pages/SignIn';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
-import {
-  KeyboardAvoidingView,
-  SafeAreaView,
-  StyleSheet,
-  TouchableHighlight,
-  TouchableOpacity,
-  View,
-  Platform,
-  ScrollView,
-} from 'react-native';
-
-// Styled component
-const CreateIcon = styled.TouchableOpacity`
-  padding-top: 0;
-`;
+import {TouchableOpacity} from 'react-native';
+import CompleteCreate from './CreateMoim/CompleteCreate';
 
 // Tab Icons
 const home_active = require('../assets/tabIcons/home_active.svg');
@@ -78,7 +65,7 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="Mypage"
-        component={SignIn}
+        component={MyPage}
         options={{tabBarLabel: '마이페이지'}}
       />
     </Tab.Navigator>

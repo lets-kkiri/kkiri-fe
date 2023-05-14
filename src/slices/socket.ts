@@ -36,11 +36,14 @@ const socketsSlice = createSlice({
       console.log('fulfilled');
       console.log('웹소켓 연결되어라 제발');
       state.socket = action.payload;
+      console.log('origin socket:', action.payload);
     });
     builder.addCase(socketConnect.rejected, (state, action) => {
       console.log('reject', action.error);
     });
   },
 });
+
+export const {addSocket, removeSocket} = socketsSlice.actions;
 
 export default socketsSlice;

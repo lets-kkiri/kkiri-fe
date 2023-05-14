@@ -3,7 +3,11 @@ import moment from 'moment-timezone';
 import {WeekCalendar, CalendarProvider} from 'react-native-calendars';
 import {Text} from 'react-native';
 import styled from 'styled-components/native';
+<<<<<<< HEAD
 import MoimCard from '../components/Common/MoimCard';
+=======
+// import MoimCard from '../components/Moim/MoimCard';
+>>>>>>> 0540c6b0de9722efa8935d8a0667376dc366569e
 
 // Styled component
 const HomeContainer = styled.View`
