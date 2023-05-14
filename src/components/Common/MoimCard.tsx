@@ -1,5 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, Dimensions} from 'react-native';
+import {
+  View,
+  Text,
+  Dimensions,
+  TouchableWithoutFeedback,
+  TouchableHighlight,
+} from 'react-native';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
 
@@ -15,6 +21,8 @@ import {RootState} from '../../store';
 
 // Hooks
 import useGetDday from '../../hooks/useGetDday';
+import {useNavigation} from '@react-navigation/core';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 // Styled components
 const Container = styled.View<{
@@ -24,7 +32,7 @@ const Container = styled.View<{
 }>`
   position: relative;
   width: ${({width}) => width}px;
-  height: ${({width}) => width * 1.2}px;
+  height: ${({width}) => width}px;
   background-color: ${({theme}) => theme.color.blue};
   border-radius: 15px;
   padding: 20px;
@@ -71,11 +79,12 @@ const MidFont = styled.Text`
   font-size: 20px;
   font-weight: 700;
   color: #f4f4f4;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0px 0px 5px #111111;
 `;
 
 const SubFont = styled.Text`
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
   color: #e9e9e9;
   margin-left: 10px;
@@ -85,15 +94,27 @@ const Location = styled.View`
   display: flex;
   flex-direction: row;
   margin: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 `;
 
 const Bottom = styled.View`
-  position: relative;
-  bottom: 0px;
+  position: absolute;
+  left: 20px;
+  bottom: 28px;
   display: flex;
   justify-content: center;
   align-items: center;
+`;
+
+const TimeAndPeople = styled.View`
+  display: flex;
+  flex-direction: row;
+`;
+
+const ImageContainer = styled.View`
+  width: 100%;
+  position: absolute;
+  top: 40px;
 `;
 
 // export interface Moim {
@@ -138,6 +159,8 @@ const MoimCard = ({item, width, marginHorizontal}: MoimCardProp) => {
 
   const cnt = useGetDday(date);
 
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
+
   useEffect(() => {
     // setMonth(date.slice(5, 7));
     // setDay(date.slice(8, 10));
@@ -148,46 +171,66 @@ const MoimCard = ({item, width, marginHorizontal}: MoimCardProp) => {
         ? Number(time?.slice(0, 2)) - 12
         : Number(time?.slice(0, 2));
     const minute = Number(time?.slice(3, 5));
-    setFormattedTime(`${zone} ${hour === 0 ? 12 : hour}시 ${minute}`);
+    setFormattedTime(`${zone} ${hour === 0 ? 12 : hour}시 ${minute}분`);
     setDday(cnt);
   }, []);
 
   return (
-    <Container width={width} theme={theme} marginHorizontal={marginHorizontal}>
-      <Head>
-        <DDay>
-          <DayFont>D-{dday}</DayFont>
-        </DDay>
-        {/* 모임 날짜 */}
-        <MainFont>
-          <Text style={{color: theme.color.green}}>
-            {month}월 {day}일
-          </Text>
-        </MainFont>
-        <WithLocalSvg asset={Cash} />
-      </Head>
-      {/* <WithLocalSvg asset={Day} style={{left: -10, marginTop: 27}} /> */}
-      <Bottom>
-        <MidFont>{name}</MidFont>
-        <Location>
-          <WithLocalSvg asset={Mark} />
-          {/* 모임 장소 */}
-          <SubFont>서울특별시 용산구 청파동 스타벅스</SubFont>
-        </Location>
-        <View style={{justifyContent: 'space-evenly', paddingHorizontal: 30}}>
-          <View style={{flexDirection: 'row'}}>
-            <WithLocalSvg asset={Time} />
-            {/* 모임 시간 */}
-            <SubFont>{formattedTime}</SubFont>
-          </View>
-          <View style={{flexDirection: 'row'}}>
-            <WithLocalSvg asset={People} />
-            {/* 모임원 수 */}
-            <SubFont>4명</SubFont>
-          </View>
-        </View>
-      </Bottom>
-    </Container>
+    <TouchableHighlight
+      activeOpacity={0.9}
+      underlayColor={theme.color.white}
+      onPress={() => {
+        navigation.navigate('Moim', {moimId: moimId});
+      }}>
+      <Container
+        width={width}
+        theme={theme}
+        marginHorizontal={marginHorizontal}>
+        <Head>
+          <DDay>
+            <DayFont>
+              {dday > 0 ? `D-${dday}` : dday === 0 ? 'D-day' : '지남'}
+            </DayFont>
+          </DDay>
+          {/* 모임 날짜 */}
+          <MainFont>
+            <Text style={{color: theme.color.green}}>
+              {month}월 {day}일
+            </Text>
+          </MainFont>
+          <WithLocalSvg asset={Cash} />
+        </Head>
+        <ImageContainer>
+          <WithLocalSvg asset={Day} style={{left: -10, marginTop: 27}} />
+        </ImageContainer>
+        <Bottom>
+          <MidFont>{name}</MidFont>
+          <Location>
+            <WithLocalSvg asset={Mark} />
+            {/* 모임 장소 */}
+            <SubFont>서울특별시 용산구 청파동 스타벅스</SubFont>
+          </Location>
+          <TimeAndPeople
+            style={{justifyContent: 'space-evenly', paddingHorizontal: 30}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                marginRight: 24,
+                alignItems: 'center',
+              }}>
+              <WithLocalSvg asset={Time} />
+              {/* 모임 시간 */}
+              <SubFont>{formattedTime}</SubFont>
+            </View>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <WithLocalSvg asset={People} />
+              {/* 모임원 수 */}
+              <SubFont>4명</SubFont>
+            </View>
+          </TimeAndPeople>
+        </Bottom>
+      </Container>
+    </TouchableHighlight>
   );
 };
 

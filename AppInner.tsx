@@ -291,13 +291,17 @@ function AppInner() {
     },
   };
 
+  const theme = useSelector((state: RootState) => state.persisted.theme.theme);
+
   return (
     <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
       <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
         {isLoggedIn ? (
           <Stack.Navigator>
             <Stack.Group
-              screenOptions={{headerStyle: {backgroundColor: 'black'}}}>
+              screenOptions={{
+                headerStyle: {backgroundColor: theme.color.background},
+              }}>
               <Stack.Screen
                 name="Tab"
                 component={TabNavigator}
