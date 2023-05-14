@@ -130,6 +130,7 @@ function CreateMoim() {
   const [canPost, setCanPost] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
   const [step, setStep] = useState(0);
+  const [isPicked, setIsPicked] = useState(false);
 
   const formOpenHandler = useCallback(
     idx => {
@@ -283,6 +284,8 @@ function CreateMoim() {
                 moim={moim}
                 setMoim={setMoim}
                 setFormOpen={setFormOpen}
+                isPicked={isPicked}
+                setIsPicked={setIsPicked}
               />
             </Modal>
           </View>
