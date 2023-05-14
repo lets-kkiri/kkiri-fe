@@ -1,43 +1,50 @@
-import {DefaultTheme} from 'styled-components';
+import {DefaultTheme} from 'styled-components/native';
+
+// colors
+const lightColors = {
+  // 기본적으로 필요한 속성
+  primary: 'rgb(255, 45, 85)',
+  card: 'rgb(255, 255, 255)',
+  border: 'rgb(199, 199, 204)',
+  notification: 'rgb(255, 69, 58)',
+  // 커스텀
+  green: '#DCF861',
+  green2: '#F7FFD2',
+  blue: '#5968F2',
+  blue2: '#B0BDFF',
+  blue3: '#DDE2FC',
+  backBlue: '#F8F9FF',
+  orange: '#FF9270',
+  orange2: '#FFD8CC',
+  orange3: '#FFF5F2',
+  background: '#FFFFFF',
+  text: '#3A3A3A',
+  white: '#FFFFFF',
+  grey20: '#F4F4F4',
+  grey40: '#E2E2E2',
+  grey60: '#D0D0D0',
+  grey80: '#AEAEAE',
+  grey90: '#5E5E5E',
+  black: '#3A3A3A',
+};
+
+const darkColors = {
+  ...lightColors,
+  background: '#3A3A3A',
+  text: '#FFFFFF',
+  white: '#3A3A3A',
+  grey20: '#5E5E5E',
+  grey40: '#AEAEAE',
+  grey60: '#D0D0D0',
+  grey80: '#E2E2E2',
+  grey90: '#F4F4F4',
+  black: '#FFFFFF',
+};
 
 export const lightTheme: DefaultTheme = {
-  color: {
-    main: '#5968F2',
-    main2: '#B0BDFF',
-    main3: '#DDE2FC',
-    sub: '#FF9270',
-    background: '#FFFFFF',
-    text: '#3A3A3A',
-    grey00: '#F3F3F3',
-    grey10: '#E9E9E9',
-    grey20: '#DCDCDC',
-    grey30: '#D0D0D0',
-    grey40: '#C5C5C5',
-    grey50: '#AEAEAE',
-    grey60: '#999999',
-    grey70: '#868686',
-    grey80: '#6C6C6C',
-    grey90: '#5E5E5E',
-    grey100: '#494949',
-  },
+  color: lightColors,
 };
 
 export const darkTheme: DefaultTheme = {
-  ...lightTheme,
-  color: {
-    ...lightTheme.color,
-    background: '#3A3A3A',
-    text: '#FFFFFF',
-    grey100: '#F3F3F3',
-    grey90: '#E9E9E9',
-    grey80: '#DCDCDC',
-    grey70: '#D0D0D0',
-    grey60: '#C5C5C5',
-    grey50: '#AEAEAE',
-    grey40: '#999999',
-    grey30: '#868686',
-    grey20: '#6C6C6C',
-    grey10: '#5E5E5E',
-    grey00: '#494949',
-  },
+  color: darkColors,
 };

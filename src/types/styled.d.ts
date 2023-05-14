@@ -1,25 +1,26 @@
-import 'styled-components';
+import 'styled-components/native';
 
-declare module 'styled-components' {
-  export interface DefulatTheme {
-
+declare module 'styled-components/native' {
+  export interface CustomTheme {
     color: {
-      main: string;
-      sub: string;
+      green: string;
+      green2: string;
+      blue: string;
+      blue2: string;
+      blue3: string;
+      backBlue: string;
+      orange: string;
+      orange2: string;
+      orange3: string;
       background: string;
       text: string;
-      grey00: string;
-      grey10: string;
+      white: string;
       grey20: string;
-      grey30: string;
       grey40: string;
-      grey50: string;
       grey60: string;
-      grey70: string;
       grey80: string;
       grey90: string;
-      grey100: string;
       black: string;
-      white: string;
-    }
+    };
+  }
 }
