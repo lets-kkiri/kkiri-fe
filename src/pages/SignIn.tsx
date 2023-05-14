@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Button, View, StyleSheet} from 'react-native';
+import {View, StyleSheet, Dimensions} from 'react-native';
 import {
   KakaoOAuthToken,
   KakaoProfile,
@@ -14,9 +14,36 @@ import {useDispatch, useSelector} from 'react-redux';
 import userSlice from '../slices/user';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {RootState} from '../store/index';
-import {authInstance, setTokenHeader} from '../api/axios';
+// import {authInstance, setTokenHeader} from '../api/axios';
+import CustomButton from '../components/Common/Button';
+import styled from 'styled-components/native';
+import {WithLocalSvg} from 'react-native-svg';
+
+// Styled component
+const CreateMoimConatiner = styled.View`
+  flex-direction: column;
+  flex: 1;
+`;
+
+const ContentsContainer = styled.View`
+  flex: 0.85;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const ButtonContainer = styled.View`
+  flex: 0.15;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 20px;
+  align-items: center;
+`;
+
+// Icons
+const loginKkiri = require('../assets/icons/login_kkiri.svg');
 
 function SignIn() {
+  const {width, height} = Dimensions.get('window');
   const [result, setResult] = useState('');
   const isLoggedIn = useSelector(
     (state: RootState) => state.persisted.user.isLoggedIn,
@@ -104,54 +131,33 @@ function SignIn() {
   }, [isLoggedIn, user]);
 
   return (
-    <View style={styles.container}>
-      {isLoggedIn === true ? (
-        <View>
-          <Button
-            title="카카오 로그아웃"
+    <CreateMoimConatiner>
+      <ContentsContainer>
+        <WithLocalSvg asset={loginKkiri} height={width * 1.5} width={width} />
+      </ContentsContainer>
+      <ButtonContainer>
+        {isLoggedIn === true ? (
+          <CustomButton
+            text="카카오 로그아웃"
+            status="active"
+            width="long"
             onPress={() => {
               signOutWithKakao();
             }}
           />
-          <Button
-            title="카카오 링크 해제"
+        ) : (
+          <CustomButton
+            text="카카오 로그인"
+            status="active"
+            width="long"
             onPress={() => {
-              unlinkKakao();
+              signInWithKakao();
             }}
           />
-        </View>
-      ) : (
-        <Button
-          title="카카오 로그인"
-          onPress={() => {
-            signInWithKakao();
-          }}
-        />
-      )}
-    </View>
+        )}
+      </ButtonContainer>
+    </CreateMoimConatiner>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    height: '100%',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingBottom: 100,
-  },
-  button: {
-    backgroundColor: '#FEE500',
-    borderRadius: 40,
-    borderWidth: 1,
-    width: 250,
-    height: 40,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    marginTop: 10,
-  },
-  text: {
-    textAlign: 'center',
-  },
-});
 
 export default SignIn;
