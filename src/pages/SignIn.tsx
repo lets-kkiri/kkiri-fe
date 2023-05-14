@@ -139,7 +139,7 @@ function SignIn() {
         {isLoggedIn === true ? (
           <CustomButton
             text="카카오 로그아웃"
-            status="active"
+            status="kakao"
             width="long"
             onPress={() => {
               signOutWithKakao();
@@ -148,7 +148,7 @@ function SignIn() {
         ) : (
           <CustomButton
             text="카카오 로그인"
-            status="active"
+            status="kakao"
             width="long"
             onPress={() => {
               signInWithKakao();
