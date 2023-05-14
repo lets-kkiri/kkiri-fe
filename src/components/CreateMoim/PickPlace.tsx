@@ -33,10 +33,18 @@ const BottomContainer = styled.View`
 interface PickPlaceProps {
   moim: MoimType;
   setMoim: SetMoimType;
-  setFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setFormOpen: React.Dispatch<React.SetStateAction<boolean[]>>;
+  isPicked: boolean;
+  setIsPicked: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function PickPlace({moim, setMoim, setFormOpen}: PickPlaceProps) {
+function PickPlace({
+  moim,
+  setMoim,
+  setFormOpen,
+  isPicked,
+  setIsPicked,
+}: PickPlaceProps) {
   const destination = {latitude: 37.501303, longitude: 127.039603};
   const [lon, setLon] = useState(0);
   const [lat, setLat] = useState(0);
@@ -68,7 +76,7 @@ function PickPlace({moim, setMoim, setFormOpen}: PickPlaceProps) {
         <NaverMapView
           style={{width: '100%', height: '100%'}}
           onMapClick={event => {
-            console.log('click');
+            setIsPicked(true);
             getLocate(event);
           }}
           center={{
@@ -86,17 +94,26 @@ function PickPlace({moim, setMoim, setFormOpen}: PickPlaceProps) {
       </MapContainer>
       <BottomContainer>
         <BottomTextContainer>
-          <Text>
-            {addr.area1Name} {addr.area2Name} {addr.landName} {addr.landNumber}
-          </Text>
-          {addr.landValue ? <Text>{addr.landValue}</Text> : null}
+          {isPicked === true ? (
+            <>
+              <Text>
+                {addr.area1Name} {addr.area2Name} {addr.landName}{' '}
+                {addr.landNumber}
+              </Text>
+              {addr.landValue ? <Text>{addr.landValue}</Text> : null}
+            </>
+          ) : (
+            <Text>지도를 클릭해 약속 장소를 알려주세요!</Text>
+          )}
         </BottomTextContainer>
         <CustomButton
           text="이 장소가 맞아요"
-          status="active"
+          status={isPicked === true ? 'active' : 'disabled'}
           width="long"
           onPress={() => {
-            console.log('이 장소가 맞아요');
+            if (isPicked !== true) {
+              return;
+            }
             setMoim(prevMoim => ({
               ...prevMoim,
               placeName: `${addr.area2Name} ${addr.landName} ${addr.landNumber} ${addr.landValue}`,
