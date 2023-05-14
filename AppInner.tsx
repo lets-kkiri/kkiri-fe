@@ -3,6 +3,9 @@ import axios from 'axios';
 import {useState, useEffect, useRef, Linking} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import locationUpdater from './src/hooks/useLocationUpdater';
+// import BackgroundTimer from 'react-native-background-timer';
+// import {AppRegistry} from 'react-native';
 
 // Page
 import Setting from './src/pages/Setting';
@@ -42,6 +45,7 @@ import {Socket, io} from 'socket.io-client';
 import Moim from './src/pages/Moim';
 import {Text} from 'react-native';
 import CompleteCreate from './src/components/CreateMoim/CompleteCreate';
+import BackgroundFetch, {setBackgroundFetchTask} from 'react-native-background-fetch';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -64,6 +68,16 @@ function AppInner() {
   );
 
   const [newSocket, SetNewSocket] = useState<WebSocket>();
+
+  // useEffect(() => {
+  //   const task = BackgroundTimer.setTimeout(() => {
+  //     locationUpdater();
+  //   }, 10000); // 10초
+
+  //   return () => {
+  //     BackgroundTimer.clearTimeout(task);
+  //   };
+  // }, []);
 
   // 푸쉬 알람을 위한 설정
   const dispatch = useAppDispatch();

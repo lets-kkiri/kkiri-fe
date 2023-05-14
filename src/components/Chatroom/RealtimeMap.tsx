@@ -113,8 +113,10 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
           // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
           if (distance <= 50) {
             console.log('목적지 도착');
-            const arrivalTime = date.toISOString();
-            dispatch(arrivePost({moimId: moimId, arrivalTime: arrivalTime}));
+            const destinationTime = date.toISOString();
+            dispatch(
+              arrivePost({moimId: moimId, destinationTime: destinationTime}),
+            );
             setModalVisible(true);
             setModalType('arrive');
           }
@@ -154,10 +156,7 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
 
     const a =
       Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
-      Math.cos(cal1) *
-        Math.cos(cal2) *
-        Math.sin(cal4 / 2) *
-        Math.sin(cal4 / 2);
+      Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     const distance = R * c; // 두 지점 사이의 거리 (m)
