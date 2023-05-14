@@ -1,3 +1,4 @@
+apply plugin: "com.google.gms.google-services"
 apply plugin: "com.android.application"
 
 import com.android.build.OutputFile
@@ -184,6 +185,9 @@ dependencies {
 
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
+    // splash screen
+    implementation project(':react-native-splash-screen')
+
     // Add these lines
     implementation project(':gvr_common')
     implementation project(':arcore_client')
@@ -202,6 +206,10 @@ dependencies {
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'
     }
+    
+    // Import the Firebase BoM
+    implementation platform('com.google.firebase:firebase-bom:31.4.0') // 여기 내용을 추가해줍니다.
+    implementation 'com.google.firebase:firebase-messaging' // 여기 내용을 추가해줍니다.
 
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
         exclude group:'com.facebook.flipper'
