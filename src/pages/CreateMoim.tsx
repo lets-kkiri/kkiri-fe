@@ -158,6 +158,7 @@ function CreateMoim() {
   const postMoim = async () => {
     if (canPost === false) {
       console.log('아직 POST 못하지롱');
+      return;
     }
     console.log(moim);
     try {
