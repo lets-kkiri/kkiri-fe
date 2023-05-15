@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Image, Text} from 'react-native';
 import CustomButton from '../Common/Button';
-import { WithLocalSvg } from 'react-native-svg';
+import {WithLocalSvg} from 'react-native-svg';
 import Bear from '../../assets/icons/bear.svg';
 import styled from 'styled-components/native';
 
@@ -30,12 +30,12 @@ const Hr = styled.View`
 
 const Margin = styled.View`
   width: 300;
-  margin-left: 10;
-  margin-right: 10;
-  margin-top: 5;
-  margin-bottom: 5;
-  padding-left: 10;
-  padding-right: 10;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
 `;
 
 const MainFont = styled.Text`

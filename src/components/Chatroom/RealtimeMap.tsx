@@ -48,7 +48,7 @@ interface UserType {
   type: string;
   content: {
     moimId: number;
-    kakaoId: number;
+    kakaoId: string;
     longitude: number;
     latitude: number;
     pubTime: string;
@@ -172,7 +172,7 @@ function RealtimeMap({
   };
 
   // 재촉 보내는 함수
-  const sendPress = (kakaoId: number) => {
+  const sendPress = (kakaoId: string) => {
     if (!startDraw) {
       Alert.alert('재촉했어요!');
       setCount(count + 1);
