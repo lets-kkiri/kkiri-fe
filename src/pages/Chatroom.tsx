@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View} from 'react-native';
+import {View, Vibration} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import styled from 'styled-components/native';
 import {useSelector} from 'react-redux';
@@ -21,8 +21,6 @@ import {MessageData, RootStackParamList} from '../types/index';
 
 // Redux
 import {RootState} from '../store';
-
-import {emojis} from '../assets/emoji/emojis';
 
 interface ChatroomProp {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Chatroom'>;
@@ -138,6 +136,10 @@ function Chatroom({route}: ChatroomProp) {
   }, [moimId, userInfo]);
 
   const sendEmoji = () => {
+    if (theTimerId) {
+      clearTimeout(theTimerId);
+    }
+
     if (client.current) {
       console.log('send emoji :', selectedEmoji);
       client.current?.send(
@@ -151,24 +153,30 @@ function Chatroom({route}: ChatroomProp) {
           },
         }),
       );
+      Vibration.vibrate();
     }
   };
-  // console.log('showEmoji', showEmoji);
 
   const onSelect = (emoji: any) => {
+    // 선택
     setIsEmojiSelected(true);
     setSelectedEmoji(emoji);
 
+    // 그 전 타이머 지우기
     if (theTimerId) {
       clearTimeout(theTimerId);
     }
 
+    // 새로운 타이머 생성
     const timerId = setTimeout(() => {
       setIsEmojiSelected(false);
       setSelectedEmoji('');
       setTheTimerId(null);
+      // 3초 동안 상호작용이 없다면 타이머 지우기
       clearTimeout(timerId);
     }, 3000);
+
+    // 새로운 타이머 저장
     setTheTimerId(timerId);
   };
 
@@ -204,6 +212,8 @@ function Chatroom({route}: ChatroomProp) {
               ? () => sendEmoji()
               : () => setShowEmoji(prev => !prev)
           }
+          isEmojiSelected={isEmojiSelected}
+          selectedEmoji={selectedEmoji}
         />
       ) : (
         !startDraw && (
@@ -218,7 +228,10 @@ function Chatroom({route}: ChatroomProp) {
             <EmojiBtn
               onPress={
                 isEmojiSelected
-                  ? () => sendEmoji()
+                  ? () => {
+                      sendEmoji();
+                      onSelect(selectedEmoji);
+                    }
                   : () => setShowEmoji(prev => !prev)
               }
               isEmojiSelected={isEmojiSelected}
