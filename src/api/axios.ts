@@ -36,7 +36,8 @@ const naverAPI = (url: string, options?: any) => {
 // };
 
 export const setTokenHeader = (config: any, token: string) => {
-  config.headers.Authorization = `Bearer ${token}`;
+  console.log('setTokenHeader:', token);
+  config.headers.common.Authorization = `Bearer ${token}`;
   return config;
 };
 
@@ -53,7 +54,7 @@ export const naverInstance = naverAPI(NAVER_URL);
 
 authInstance.interceptors.response.use(
   response => {
-    console.log('리스폰스입니다', response);
+    // console.log('리스폰스입니다', response);
     return response;
   },
   async error => {
@@ -69,7 +70,7 @@ authInstance.interceptors.response.use(
       const accessToken = await TokenRefreshService.refreshAccessToken();
       console.log('새로 받은 엑세스 토큰', accessToken);
       authInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-      console.log('디폴트 헤더:', axios.defaults.headers.common);
+      // console.log('디폴트 헤더:', axios.defaults.headers);
       return authInstance(originalRequest);
     }
 

@@ -1,12 +1,12 @@
-import axios from 'axios';
 import {requests} from './requests';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import {baseInstance} from './axios';
 
 // 토큰 갱신 서비스
 const TokenRefreshService = {
   async refreshAccessToken() {
     const refreshToken = await EncryptedStorage.getItem('refreshToken');
-    const response = await axios.post(
+    const response = await baseInstance.post(
       `${requests.base_url}/api/auth/reissue`,
       {},
       {

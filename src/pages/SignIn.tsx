@@ -9,16 +9,14 @@ import {
   unlink,
 } from '@react-native-seoul/kakao-login';
 import {requests} from '../api/requests';
-import axios from 'axios';
 import {useDispatch, useSelector} from 'react-redux';
 import userSlice from '../slices/user';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {RootState} from '../store/index';
-// import {authInstance, setTokenHeader} from '../api/axios';
 import CustomButton from '../components/Common/Button';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
-import {authInstance, setTokenHeader} from '../api/axios';
+import {authInstance, baseInstance, setTokenHeader} from '../api/axios';
 
 // Styled component
 const CreateMoimConatiner = styled.View`
@@ -71,7 +69,7 @@ function SignIn() {
       // console.log(requests.SIGNIN());
 
       // 로그인 요청
-      const response = await axios.post(requests.SIGNIN(), requestBody);
+      const response = await baseInstance.post(requests.SIGNIN(), requestBody);
       const userInfo = {
         ...requestBody,
         accessToken: response.data.accessToken,
@@ -80,7 +78,7 @@ function SignIn() {
       };
       // console.log(userInfo);
       // user slice에 저장
-      dispatch(userSlice.actions.setUser({...userInfo}));
+      await dispatch(userSlice.actions.setUser({...userInfo}));
       // refreshToken 저장
       await EncryptedStorage.setItem(
         'refreshToken',
