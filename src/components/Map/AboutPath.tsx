@@ -36,8 +36,8 @@ const DrawNoti = styled.View`
   border-color: #5968f2;
   border-width: 1;
   border-radius: 15;
-  margin-top: 15;
-  padding-left: 20;
+  margin-top: 15px;
+  padding-left: 20px;
 `;
 
 const AboutPath = ({

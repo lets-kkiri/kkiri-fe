@@ -20,7 +20,6 @@ import {MessageData, RootStackParamList} from '../types/index';
 
 // Redux
 import {RootState} from '../store';
-import locationUpdater from '../hooks/useLocationUpdater';
 
 interface ChatroomProp {
   // navigation: NativeStackNavigationProp<RootStackParamList, 'Chatroom'>;
@@ -32,7 +31,7 @@ interface UserType {
   type: string;
   content: {
     moimId: number;
-    kakaoId: number;
+    kakaoId: string;
     longitude: number;
     latitude: number;
     pubTime: string;
@@ -129,11 +128,10 @@ function Chatroom({route, client}: ChatroomProp) {
 
         // 모임원들의 실시간 위치일 경우
         if (data.type === 'GPS') {
-          setUser(data.content);
-        }
-
-        if (user) {
-          setUsers([...users, user]);
+          setUser(data);
+          if (user) {
+            setUsers([...users, user]);
+          }
         }
       };
 
