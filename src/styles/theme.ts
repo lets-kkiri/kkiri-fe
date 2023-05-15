@@ -47,7 +47,6 @@ const fonts = {
 
 export const lightTheme: DefaultTheme = {
   color: lightColors,
-  font: fonts,
 };
 
 export const darkTheme: DefaultTheme = {
