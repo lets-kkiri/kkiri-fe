@@ -1,8 +1,8 @@
 import Geolocation from '@react-native-community/geolocation';
 
-export default async function locationUpdater() {
+export default async function locationUpdater({moimId}) {
   // Create WebSocket connection to the server
-  const moimId = 9; // moimId store에서 꺼내오기
+  // const moimId = 9; // moimId store에서 꺼내오기
   const socket = new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`);
 
   const date = new Date();
