@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {View, Alert} from 'react-native';
 
 // Naver Map
@@ -58,11 +58,18 @@ interface UserType {
 interface MapProps {
   startDraw: boolean;
   setStartDraw: React.Dispatch<React.SetStateAction<boolean>>;
-  client: any;
   moimId: number;
+  users: UserType[];
+  socket: any;
 }
 
-function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
+function RealtimeMap({
+  startDraw,
+  setStartDraw,
+  moimId,
+  users,
+  socket,
+}: MapProps) {
   const [myPosition, setMyPosition] = useState<UserState | null>(null);
   // const [startDraw, setStartDraw] = useState<boolean>(false);
   const [drawpoint, setDrawpoint] = useState<PathState | null>(null);
@@ -72,8 +79,6 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [sideModal, setSideModal] = useState<boolean>(false);
   const [count, setCount] = useState<number>(0);
-  const [user, setUser] = useState<UserType | null>(null);
-  const [users, setUsers] = useState<UserType[]>([]);
   const date = new Date();
 
   const dispatch = useAppDispatch();
@@ -81,92 +86,45 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
   // 임시 목적지: 역삼 멀티캠퍼스
   const destination = {latitude: 37.501303, longitude: 127.039603};
 
-  setTimeout(() => {
-    Geolocation.getCurrentPosition(
-      position => {
-        setMyPosition({
-          type: 'GPS',
-          content: {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            regDate: date.toISOString(),
-          },
-        });
+  // useEffect(() => {
+  //   if (socket.current) {
+  //     Geolocation.getCurrentPosition(
+  //       position => {
+  //         // 현재 위치와 목적지 위치의 거리 계산
+  //         if (myPosition) {
+  //           const distance = calculateDistance({
+  //             lat1: position.coords.latitude,
+  //             lon1: position.coords.longitude,
+  //             lat2: 37.501303,
+  //             lon2: 127.039603,
+  //           });
 
-        // 현재 위치와 목적지 위치의 거리 계산
-        if (myPosition) {
-          // 내 위치 서버로 보내기 -> websocket 로직으로 변경하기
-          if (client) {
-            client.send(JSON.stringify(myPosition));
-            console.log('내 위치 보낸다');
-            console.log(myPosition);
-            // socket.send(JSON.stringify(myPosition));
-          }
-
-          const distance = calculateDistance({
-            lat1: myPosition.content.latitude,
-            lon1: myPosition.content.longitude,
-            lat2: 37.501303,
-            lon2: 127.039603,
-          });
-
-          // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-          if (distance <= 50) {
-            console.log('목적지 도착');
-            const destinationTime = date.toISOString();
-            dispatch(
-              arrivePost({moimId: moimId, destinationTime: destinationTime}),
-            );
-            setModalVisible(true);
-            setModalType('arrive');
-          }
-        }
-      },
-      error => console.log(error),
-      {
-        enableHighAccuracy: true,
-        timeout: 20000,
-      },
-    );
-
-    // 서버로부터 모임원들 위치 받아오기
-    if (client) {
-      client.onmessage = function (event: any) {
-        console.log('구성원들 위치 받아온다');
-        const data = JSON.parse(event.data);
-        console.log(data);
-        if (data.type === 'GPS') {
-          setUser(data.content);
-        }
-
-        if (user) {
-          setUsers([...users, user]);
-        }
-      };
-    }
-  }, 10000);
+  //           // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
+  //           if (distance <= 50) {
+  //             console.log('목적지 도착');
+  //             const destinationTime = date.toISOString();
+  //             dispatch(
+  //               arrivePost({
+  //                 moimId: moimId,
+  //                 destinationTime: destinationTime,
+  //               }),
+  //             );
+  //             setModalVisible(true);
+  //             setModalType('arrive');
+  //           }
+  //         }
+  //       },
+  //       error => console.log(error),
+  //       {
+  //         enableHighAccuracy: true,
+  //         timeout: 20000,
+  //       },
+  //     );
+  //   }
+  // }, []);
 
   // 두 위치의 거리 계산 함수
-  const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
-    const R = 6371e3; // 지구 반경 (m)
-    const cal1 = toRadians(lat1);
-    const cal2 = toRadians(lat2);
-    const cal3 = toRadians(lat2 - lat1);
-    const cal4 = toRadians(lon2 - lon1);
-
-    const a =
-      Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
-      Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    const distance = R * c; // 두 지점 사이의 거리 (m)
-
-    return distance;
-  };
-
-  const toRadians = (degrees: any) => {
-    return (degrees * Math.PI) / 180;
-  };
+  // const calculateDisr
 
   const userGrades = useSelector(
     (state: RootState) => state.persisted.arrives.userGrade,
