@@ -39,6 +39,11 @@ function Setting() {
         title={darkMode ? '테마 : 다크' : '테마 : 라이트'}
         onPress={() => dispatch(toggleTheme())}
       />
+      <Button
+        title="카드 등록"
+        onPress={() => navigation.navigate('AddCard')}
+      />
+      <Button title="로그아웃" onPress={() => navigation.navigate('SignIn')} />
     </SettingPageContainer>
   );
 }

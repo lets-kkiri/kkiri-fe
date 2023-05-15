@@ -51,6 +51,7 @@ import BackgroundFetch, {
 import GlobalStyle from './src/styles/globalStyle';
 import BackgroundTimer from 'react-native-background-timer';
 import {authInstance} from './src/api/axios';
+import AddCard from './src/components/MyPage/AddCard';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -417,6 +418,16 @@ function AppInner() {
                 name="Map"
                 component={Map}
                 options={{title: '실시간 위치'}}
+              />
+              <Stack.Screen
+                name="AddCard"
+                component={AddCard}
+                options={{title: '카드 추가'}}
+              />
+              <Stack.Screen
+                name="SignIn"
+                component={SignIn}
+                options={{title: '로그인'}}
               />
             </Stack.Group>
           </Stack.Navigator>
