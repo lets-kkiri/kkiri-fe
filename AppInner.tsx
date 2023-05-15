@@ -45,7 +45,9 @@ import {RootState} from './src/store/index';
 // Splash Screen
 import SplashScreen from 'react-native-splash-screen';
 import CompleteCreate from './src/components/CreateMoim/CompleteCreate';
-import BackgroundFetch, {setBackgroundFetchTask} from 'react-native-background-fetch';
+import BackgroundFetch, {
+  setBackgroundFetchTask,
+} from 'react-native-background-fetch';
 import GlobalStyle from './src/styles/globalStyle';
 import BackgroundTimer from 'react-native-background-timer';
 import {authInstance} from './src/api/axios';
@@ -79,47 +81,6 @@ function AppInner() {
   const [newSocket, SetNewSocket] = useState<WebSocket | null>(null);
 
   const myId = useSelector((state: RootState) => state.persisted.user.id);
-
-  // useEffect(() => {
-  //   const moimId = 9;
-  //   BackgroundFetch.configure(
-  //     {
-  //       minimumFetchInterval: 15, // 15분마다 실행
-  //       stopOnTerminate: false, // 앱이 종료된 상태에서도 백그라운드 작업 계속 실행
-  //       startOnBoot: true, // 기기 부팅 시 자동 시작
-  //       enableHeadless: true, // 백그라운드 작업 실행을 위해 Headless JS 사용
-  //       requiredNetworkType: BackgroundFetch.NETWORK_TYPE_UNMETERED, // Wi-Fi에 연결되어 있는 경우에만 실행
-  //     },
-  //     async taskId => {
-  //       console.log(`BackgroundFetch Task ${taskId} fired`);
-
-  //       // 앱이 실행 중인 경우 작업을 즉시 실행
-  //       if (AppState.currentState === 'active') {
-  //         console.log('App is in foreground, executing task immediately');
-  //         locationUpdater({moimId: moimId, myId: myId});
-  //       } else {
-  //         // 앱이 백그라운드에 있는 경우 BackgroundTimer를 사용하여 일정 시간 후 작업을 실행
-  //         console.log(
-  //           'App is in background, scheduling task with BackgroundTimer',
-  //         );
-  //         BackgroundTimer.runBackgroundTimer(() => {
-  //           locationUpdater({moimId: moimId, myId: myId});
-  //         }, 10000); // 10초 후 작업 실행
-  //       }
-  //       BackgroundFetch.finish(taskId);
-  //     },
-  //     error => console.log(`BackgroundFetch failed to start: ${error}`),
-  //   );
-
-  //   BackgroundFetch.start();
-
-  //   // 앱이 실행 중인 경우에도 주기적으로 작업을 실행하기 위해 BackgroundTimer 사용
-  //   BackgroundTimer.runBackgroundTimer(() => {
-  //     console.log('BackgroundTimer fired');
-  //     locationUpdater({moimId: moimId, myId: myId});
-  //   }, 60000); // 1분마다 실행
-  // }, []);
-
   const moimId = 9;
 
   useEffect(() => {
@@ -154,7 +115,7 @@ function AppInner() {
     //     console.log(`BackgroundFetch Task ${taskId} fired`);
 
     //     // 앱이 백그라운드 상태에서도 특정 함수를 실행
-    //     locationUpdater({socket: newSocket});
+    //     await locationUpdater({socket: newSocket});
 
     //     // 작업이 완료되었음을 알림
     //     BackgroundFetch.finish(taskId);
