@@ -1,6 +1,6 @@
 import Geolocation from '@react-native-community/geolocation';
 
-export default function locationUpdater({socket}) {
+export default async function locationUpdater({socket}) {
   const date = new Date();
   function sendLocation() {
     Geolocation.getCurrentPosition(
@@ -32,4 +32,6 @@ export default function locationUpdater({socket}) {
     setTimeout(sendLocation, 60000);
   }
   setTimeout(sendLocation, 60000);
+
+  await new Promise(() => {});
 }

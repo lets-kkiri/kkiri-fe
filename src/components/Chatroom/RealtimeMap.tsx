@@ -86,19 +86,23 @@ function RealtimeMap({
   // 임시 목적지: 역삼 멀티캠퍼스
   const destination = {latitude: 37.501303, longitude: 127.039603};
 
-  useEffect(() => {
+  setTimeout(() => {
     if (socket.current) {
       console.log('실시간 위치 공유 시작');
       Geolocation.getCurrentPosition(
         position => {
-          setMyPosition({
+          const data = {
             type: 'GPS',
             content: {
-              latitude: position.coords.latitude,
               longitude: position.coords.longitude,
+              latitude: position.coords.latitude,
               regDate: date.toISOString(),
             },
-          });
+          };
+          socket.current.send(data);
+          console.log('서버로 내 위치 보내기');
+          setMyPosition(data);
+
           // 현재 위치와 목적지 위치의 거리 계산
           const distance = calculateDistance({
             lat1: position.coords.latitude,
@@ -128,7 +132,7 @@ function RealtimeMap({
         },
       );
     }
-  }, []);
+  }, 60000);
 
   // 두 위치의 거리 계산 함수
   const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
