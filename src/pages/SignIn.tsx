@@ -18,6 +18,7 @@ import {RootState} from '../store/index';
 import CustomButton from '../components/Common/Button';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
+import {authInstance, setTokenHeader} from '../api/axios';
 
 // Styled component
 const CreateMoimConatiner = styled.View`
@@ -86,10 +87,10 @@ function SignIn() {
         response.data.refreshToken,
       );
       // 토큰 문제 해결하고 난 뒤에 풀어줄 놈
-      // authInstance.interceptors.request.use(config =>
-      //   setTokenHeader(config, userInfo.accessToken),
-      // );
-      // console.log('리스폰스 데이타 : ', response.data);
+      authInstance.interceptors.request.use(config =>
+        setTokenHeader(config, userInfo.accessToken),
+      );
+      console.log('리스폰스 데이타 : ', response.data);
     } catch (error: any) {
       console.error(error.message);
     }
