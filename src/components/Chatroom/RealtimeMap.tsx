@@ -86,45 +86,71 @@ function RealtimeMap({
   // 임시 목적지: 역삼 멀티캠퍼스
   const destination = {latitude: 37.501303, longitude: 127.039603};
 
-  // useEffect(() => {
-  //   if (socket.current) {
-  //     Geolocation.getCurrentPosition(
-  //       position => {
-  //         // 현재 위치와 목적지 위치의 거리 계산
-  //         if (myPosition) {
-  //           const distance = calculateDistance({
-  //             lat1: position.coords.latitude,
-  //             lon1: position.coords.longitude,
-  //             lat2: 37.501303,
-  //             lon2: 127.039603,
-  //           });
+  useEffect(() => {
+    if (socket.current) {
+      console.log('실시간 위치 공유 시작');
+      Geolocation.getCurrentPosition(
+        position => {
+          setMyPosition({
+            type: 'GPS',
+            content: {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              regDate: date.toISOString(),
+            },
+          });
+          // 현재 위치와 목적지 위치의 거리 계산
+          const distance = calculateDistance({
+            lat1: position.coords.latitude,
+            lon1: position.coords.longitude,
+            lat2: 37.501303,
+            lon2: 127.039603,
+          });
 
-  //           // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-  //           if (distance <= 50) {
-  //             console.log('목적지 도착');
-  //             const destinationTime = date.toISOString();
-  //             dispatch(
-  //               arrivePost({
-  //                 moimId: moimId,
-  //                 destinationTime: destinationTime,
-  //               }),
-  //             );
-  //             setModalVisible(true);
-  //             setModalType('arrive');
-  //           }
-  //         }
-  //       },
-  //       error => console.log(error),
-  //       {
-  //         enableHighAccuracy: true,
-  //         timeout: 20000,
-  //       },
-  //     );
-  //   }
-  // }, []);
+          // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
+          if (distance <= 50) {
+            console.log('목적지 도착');
+            const destinationTime = date.toISOString();
+            dispatch(
+              arrivePost({
+                moimId: moimId,
+                destinationTime: destinationTime,
+              }),
+            );
+            setModalVisible(true);
+            setModalType('arrive');
+          }
+        },
+        error => console.log(error),
+        {
+          enableHighAccuracy: true,
+          timeout: 20000,
+        },
+      );
+    }
+  }, []);
 
   // 두 위치의 거리 계산 함수
-  // const calculateDisr
+  const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
+    const R = 6371e3; // 지구 반경 (m)
+    const cal1 = toRadians(lat1);
+    const cal2 = toRadians(lat2);
+    const cal3 = toRadians(lat2 - lat1);
+    const cal4 = toRadians(lon2 - lon1);
+
+    const a =
+      Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
+      Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const distance = R * c; // 두 지점 사이의 거리 (m)
+
+    return distance;
+  };
+
+  const toRadians = (degrees: any) => {
+    return (degrees * Math.PI) / 180;
+  };
 
   const userGrades = useSelector(
     (state: RootState) => state.persisted.arrives.userGrade,

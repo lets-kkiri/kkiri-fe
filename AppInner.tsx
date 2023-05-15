@@ -142,25 +142,25 @@ function AppInner() {
       SetNewSocket(socket);
     }
 
-    BackgroundFetch.configure(
-      {
-        minimumFetchInterval: 15, // 15분마다 실행
-        stopOnTerminate: false, // 앱이 종료된 상태에서도 백그라운드 작업 계속 실행
-        startOnBoot: true, // 기기 부팅 시 자동 시작
-        enableHeadless: true, // 백그라운드 작업 실행을 위해 Headless JS 사용
-        requiredNetworkType: BackgroundFetch.NETWORK_TYPE_UNMETERED, // Wi-Fi에 연결되어 있는 경우에만 실행
-      },
-      async taskId => {
-        console.log(`BackgroundFetch Task ${taskId} fired`);
+    // BackgroundFetch.configure(
+    //   {
+    //     minimumFetchInterval: 15, // 15분마다 실행
+    //     stopOnTerminate: false, // 앱이 종료된 상태에서도 백그라운드 작업 계속 실행
+    //     startOnBoot: true, // 기기 부팅 시 자동 시작
+    //     enableHeadless: true, // 백그라운드 작업 실행을 위해 Headless JS 사용
+    //     requiredNetworkType: BackgroundFetch.NETWORK_TYPE_UNMETERED, // Wi-Fi에 연결되어 있는 경우에만 실행
+    //   },
+    //   async taskId => {
+    //     console.log(`BackgroundFetch Task ${taskId} fired`);
 
-        // 앱이 백그라운드 상태에서도 특정 함수를 실행
-        locationUpdater({socket: newSocket});
+    //     // 앱이 백그라운드 상태에서도 특정 함수를 실행
+    //     locationUpdater({socket: newSocket});
 
-        // 작업이 완료되었음을 알림
-        BackgroundFetch.finish(taskId);
-      },
-      error => console.log(`BackgroundFetch failed to start: ${error}`),
-    );
+    //     // 작업이 완료되었음을 알림
+    //     BackgroundFetch.finish(taskId);
+    //   },
+    //   error => console.log(`BackgroundFetch failed to start: ${error}`),
+    // );
   }, []);
 
   // 푸쉬 알람을 위한 설정
