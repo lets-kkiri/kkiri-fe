@@ -1,5 +1,4 @@
 import * as React from 'react';
-import axios from 'axios';
 import {useState, useEffect, useRef, Linking} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -49,6 +48,7 @@ import CompleteCreate from './src/components/CreateMoim/CompleteCreate';
 import BackgroundFetch, {setBackgroundFetchTask} from 'react-native-background-fetch';
 import GlobalStyle from './src/styles/globalStyle';
 import BackgroundTimer from 'react-native-background-timer';
+import {authInstance} from './src/api/axios';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -201,18 +201,20 @@ function AppInner() {
           await messaging().registerDeviceForRemoteMessages();
         }
         const token = await messaging().getToken();
-        if (!deviceTokens || deviceTokens.includes(token)) {
+        // 디바이스 토큰 중복이 일어나는 이유
+        if (deviceTokens && deviceTokens.includes(token)) {
           console.log('deviceTokens 없음 이슈', deviceTokens);
           console.log('내 디바이스 토큰', token);
           return;
         }
-        const response = await axios.post(
+        console.log('토큰입니다.', token);
+        const response = await authInstance.post(
           requests.POST_FCM_TOKEN(),
           {deviceToken: token},
           {headers: {authorization: `Bearer ${accessToken}`}},
         );
         // console.log('쏠 디바이스 토큰', token);
-        // console.log('getTokenRes : ', response);
+        console.log('getTokenRes : ', response.data);
       } catch (error) {
         console.error(error);
       }
@@ -305,6 +307,32 @@ function AppInner() {
 
   PushNotification.createChannel(
     {
+      channelId: 'comming', // (required)
+      channelName: '모임 알림', // (required)
+      channelDescription: '모임 1시간 전 알림', // (optional) default: undefined.
+      soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+      importance: 4, // (optional) default: 4. Int value of the Android notification importance
+      vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+    },
+    (created: boolean) =>
+      console.log(`createChannel comming returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
+  );
+
+  PushNotification.createChannel(
+    {
+      channelId: 'chat', // (required)
+      channelName: '채팅 알림', // (required)
+      channelDescription: '채팅 시작 알림', // (optional) default: undefined.
+      soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+      importance: 4, // (optional) default: 4. Int value of the Android notification importance
+      vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+    },
+    (created: boolean) =>
+      console.log(`createChannel comming returned '${created}'`), // (optional) callback returns whether the channel was created, false means it already existed.
+  );
+
+  PushNotification.createChannel(
+    {
       channelId: 'open',
       channelName: '모임 한 시간 전 알림',
       channelDescription: '모임 한 시간 전에 울리는 알림', // (optional) default: undefined.
@@ -329,7 +357,7 @@ function AppInner() {
           SplashScreen.hide();
           return;
         }
-        const response = await axios.post(
+        const response = await authInstance.post(
           requests.REFRESH_TOKEN(),
           {},
           {headers: {authorization: `Bearer ${token}`}},
@@ -368,10 +396,10 @@ function AppInner() {
   // deep link를 위한 settings
   // lets.kkiri://moim/1
   const linking = {
-    prefixes: ['lets.kkiri://', 'http://끼리.kr'],
+    prefixes: ['KAKAO_SCHEME://'],
     config: {
       screens: {
-        Moim: 'moim/:moimId',
+        Moim: 'kakaolink?moimId=:moimId',
       },
     },
   };
