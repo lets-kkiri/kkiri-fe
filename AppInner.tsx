@@ -6,7 +6,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import locationUpdater from './src/hooks/useLocationUpdater';
 // import BackgroundTimer from 'react-native-background-timer';
 // import {AppRegistry} from 'react-native';
-import {Text, View, useColorScheme} from 'react-native';
+import {Text, View, useColorScheme, AppState} from 'react-native';
 import {ThemeProvider} from 'styled-components/native';
 import {lightTheme, darkTheme} from './src/styles/theme';
 
@@ -48,6 +48,7 @@ import SplashScreen from 'react-native-splash-screen';
 import CompleteCreate from './src/components/CreateMoim/CompleteCreate';
 import BackgroundFetch, {setBackgroundFetchTask} from 'react-native-background-fetch';
 import GlobalStyle from './src/styles/globalStyle';
+import BackgroundTimer from 'react-native-background-timer';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -75,7 +76,92 @@ function AppInner() {
   const colorScheme = useColorScheme();
   console.log('다크모드', colorScheme);
 
-  const [newSocket, SetNewSocket] = useState<WebSocket>();
+  const [newSocket, SetNewSocket] = useState<WebSocket | null>(null);
+
+  const myId = useSelector((state: RootState) => state.persisted.user.id);
+
+  // useEffect(() => {
+  //   const moimId = 9;
+  //   BackgroundFetch.configure(
+  //     {
+  //       minimumFetchInterval: 15, // 15분마다 실행
+  //       stopOnTerminate: false, // 앱이 종료된 상태에서도 백그라운드 작업 계속 실행
+  //       startOnBoot: true, // 기기 부팅 시 자동 시작
+  //       enableHeadless: true, // 백그라운드 작업 실행을 위해 Headless JS 사용
+  //       requiredNetworkType: BackgroundFetch.NETWORK_TYPE_UNMETERED, // Wi-Fi에 연결되어 있는 경우에만 실행
+  //     },
+  //     async taskId => {
+  //       console.log(`BackgroundFetch Task ${taskId} fired`);
+
+  //       // 앱이 실행 중인 경우 작업을 즉시 실행
+  //       if (AppState.currentState === 'active') {
+  //         console.log('App is in foreground, executing task immediately');
+  //         locationUpdater({moimId: moimId, myId: myId});
+  //       } else {
+  //         // 앱이 백그라운드에 있는 경우 BackgroundTimer를 사용하여 일정 시간 후 작업을 실행
+  //         console.log(
+  //           'App is in background, scheduling task with BackgroundTimer',
+  //         );
+  //         BackgroundTimer.runBackgroundTimer(() => {
+  //           locationUpdater({moimId: moimId, myId: myId});
+  //         }, 10000); // 10초 후 작업 실행
+  //       }
+  //       BackgroundFetch.finish(taskId);
+  //     },
+  //     error => console.log(`BackgroundFetch failed to start: ${error}`),
+  //   );
+
+  //   BackgroundFetch.start();
+
+  //   // 앱이 실행 중인 경우에도 주기적으로 작업을 실행하기 위해 BackgroundTimer 사용
+  //   BackgroundTimer.runBackgroundTimer(() => {
+  //     console.log('BackgroundTimer fired');
+  //     locationUpdater({moimId: moimId, myId: myId});
+  //   }, 60000); // 1분마다 실행
+  // }, []);
+
+  const moimId = 9;
+
+  useEffect(() => {
+    const socket = new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`);
+    console.log('socket');
+    console.log('socket open');
+    socket.onopen = () => {
+      console.log('연결!');
+      // 소켓 열고 유저 정보 보내기
+      socket?.send(
+        JSON.stringify({
+          type: 'JOIN',
+          content: {
+            kakaoId: myId,
+          },
+        }),
+      );
+    };
+    if (socket) {
+      SetNewSocket(socket);
+    }
+
+    BackgroundFetch.configure(
+      {
+        minimumFetchInterval: 15, // 15분마다 실행
+        stopOnTerminate: false, // 앱이 종료된 상태에서도 백그라운드 작업 계속 실행
+        startOnBoot: true, // 기기 부팅 시 자동 시작
+        enableHeadless: true, // 백그라운드 작업 실행을 위해 Headless JS 사용
+        requiredNetworkType: BackgroundFetch.NETWORK_TYPE_UNMETERED, // Wi-Fi에 연결되어 있는 경우에만 실행
+      },
+      async taskId => {
+        console.log(`BackgroundFetch Task ${taskId} fired`);
+
+        // 앱이 백그라운드 상태에서도 특정 함수를 실행
+        locationUpdater({socket: newSocket});
+
+        // 작업이 완료되었음을 알림
+        BackgroundFetch.finish(taskId);
+      },
+      error => console.log(`BackgroundFetch failed to start: ${error}`),
+    );
+  }, []);
 
   // 푸쉬 알람을 위한 설정
   const dispatch = useAppDispatch();
@@ -163,27 +249,6 @@ function AppInner() {
       // 모임 한 시간 전 알림 감지
       if (notification.channelId === 'open') {
         // 임시 모임 아이디 (알림 메시지에서 추출할 것)
-        const moimId = 9;
-        BackgroundFetch.configure(
-          {
-            minimumFetchInterval: 1, // 최소 호출 간격(분)
-            stopOnTerminate: true, // 앱이 종료되었을 때도 백그라운드 작업 계속 실행할지 여부
-          },
-          async taskId => {
-            console.log('Background Fetch event received. TaskId:', taskId);
-
-            await locationUpdater({moimId});
-
-            // 작업이 성공적으로 완료되면 백그라운드 작업을 다시 등록한다.
-            BackgroundFetch.finish(taskId);
-          },
-          error => {
-            console.log('Background Fetch configure error:', error);
-          },
-        );
-
-        // 백그라운드 작업 등록 시작
-        BackgroundFetch.start();
       }
       // process the notification
 
@@ -312,7 +377,6 @@ function AppInner() {
   };
 
   const theme = useSelector((state: RootState) => state.persisted.theme.theme);
-
   return (
     <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
       <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
@@ -342,11 +406,14 @@ function AppInner() {
                 component={Notification}
                 options={{title: '알림센터'}}
               />
-              <Stack.Screen
+              {/* <Stack.Screen
                 name="Chatroom"
                 component={Chatroom}
                 options={{title: '채팅방'}}
-              />
+              /> */}
+              <Stack.Screen name="Chatroom" options={{title: '채팅방'}}>
+                {({route}) => <Chatroom route={route} client={newSocket} />}
+              </Stack.Screen>
               <Stack.Screen
                 name="CreateMoim"
                 component={CreateMoim}
