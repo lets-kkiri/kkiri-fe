@@ -77,17 +77,19 @@ function SignIn() {
         isLoggedIn: true,
       };
       // console.log(userInfo);
-      // user slice에 저장
-      await dispatch(userSlice.actions.setUser({...userInfo}));
       // refreshToken 저장
       await EncryptedStorage.setItem(
         'refreshToken',
         response.data.refreshToken,
       );
       // 토큰 문제 해결하고 난 뒤에 풀어줄 놈
-      authInstance.interceptors.request.use(config =>
-        setTokenHeader(config, userInfo.accessToken),
-      );
+      // authInstance.interceptors.request.use(config => {
+      //   console.log('config:', config);
+      //   setTokenHeader(config, userInfo.accessToken);
+      // });
+      authInstance.defaults.headers.common.Authorization = `Bearer ${response.data.accessToken}`;
+      // user slice에 저장
+      dispatch(userSlice.actions.setUser({...userInfo}));
       console.log('리스폰스 데이타 : ', response.data);
     } catch (error: any) {
       console.error(error.message);
