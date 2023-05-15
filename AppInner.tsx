@@ -77,16 +77,6 @@ function AppInner() {
 
   const [newSocket, SetNewSocket] = useState<WebSocket>();
 
-  // useEffect(() => {
-  //   const task = BackgroundTimer.setTimeout(() => {
-  //     locationUpdater();
-  //   }, 10000); // 10초
-
-  //   return () => {
-  //     BackgroundTimer.clearTimeout(task);
-  //   };
-  // }, []);
-
   // 푸쉬 알람을 위한 설정
   const dispatch = useAppDispatch();
 
@@ -173,11 +163,27 @@ function AppInner() {
       // 모임 한 시간 전 알림 감지
       if (notification.channelId === 'open') {
         // 임시 모임 아이디 (알림 메시지에서 추출할 것)
-        const moimId = 1;
-        const socket = new WebSocket(
-          `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
+        const moimId = 9;
+        BackgroundFetch.configure(
+          {
+            minimumFetchInterval: 1, // 최소 호출 간격(분)
+            stopOnTerminate: true, // 앱이 종료되었을 때도 백그라운드 작업 계속 실행할지 여부
+          },
+          async taskId => {
+            console.log('Background Fetch event received. TaskId:', taskId);
+
+            await locationUpdater({moimId});
+
+            // 작업이 성공적으로 완료되면 백그라운드 작업을 다시 등록한다.
+            BackgroundFetch.finish(taskId);
+          },
+          error => {
+            console.log('Background Fetch configure error:', error);
+          },
         );
-        SetNewSocket(socket);
+
+        // 백그라운드 작업 등록 시작
+        BackgroundFetch.start();
       }
       // process the notification
 
