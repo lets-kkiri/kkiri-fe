@@ -6,10 +6,14 @@ import EncryptedStorage from 'react-native-encrypted-storage';
 const TokenRefreshService = {
   async refreshAccessToken() {
     const refreshToken = await EncryptedStorage.getItem('refreshToken');
-    const response = await axios.post(`${requests.base_url}/api/auth/reissue`, {
-      refreshToken,
-    });
-
+    const response = await axios.post(
+      `${requests.base_url}/api/auth/reissue`,
+      {},
+      {
+        headers: {authorization: `Bearer ${refreshToken}`},
+      },
+    );
+    console.log('refresh token: ', refreshToken);
     const {accessToken, refreshToken: newRefreshToken} = response.data;
     await EncryptedStorage.setItem('refreshToken', newRefreshToken);
 
