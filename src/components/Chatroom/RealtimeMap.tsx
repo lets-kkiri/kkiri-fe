@@ -129,9 +129,9 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
     // 서버로부터 모임원들 위치 받아오기
     if (client) {
       client.onmessage = function (event: any) {
-        console.log('구성원들 위치 받아온다');
         const data = JSON.parse(event.data);
         if (data.type === 'GPS') {
+          console.log('구성원들 위치 받았다.', data);
           setUser(data.content);
         }
 
@@ -152,10 +152,7 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
 
     const a =
       Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
-      Math.cos(cal1) *
-        Math.cos(cal2) *
-        Math.sin(cal4 / 2) *
-        Math.sin(cal4 / 2);
+      Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     const distance = R * c; // 두 지점 사이의 거리 (m)

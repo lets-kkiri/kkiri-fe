@@ -14,12 +14,15 @@ import {baseInstance} from '../api/axios';
 import ChatArea from '../components/Chatroom/ChatArea';
 import RealtimeMap from '../components/Chatroom/RealtimeMap';
 import MessagePreview from '../components/Chatroom/MessagePreview';
+import EmojiPicker from '../components/EmojiPicker/EmojiPicker';
 
 // types
 import {MessageData, RootStackParamList} from '../types/index';
 
 // Redux
 import {RootState} from '../store';
+
+import {emojis} from '../assets/emoji/emojis';
 
 interface ChatroomProp {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Chatroom'>;
@@ -49,9 +52,10 @@ function Chatroom({route}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
   const [startDraw, setStartDraw] = useState<boolean>(false);
-  const [emojiSelected, setEmojiSelected] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
+  const [isEmojiSelected, setIsEmojiSelected] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('');
+  const [theTimerId, setTheTimerId] = useState<null | number>(null);
 
   // socket 저장하는 변수
   const client = useRef<WebSocket | null>(null);
@@ -59,7 +63,7 @@ function Chatroom({route}: ChatroomProp) {
   // 채팅방 id
   const moimId = route.params.moimId;
   // 나 자신
-  const myId = useSelector((state: RootState) => state.persisted.user.id);
+  const userInfo = useSelector((state: RootState) => state.persisted.user);
 
   interface Data {
     meta: {
@@ -95,7 +99,7 @@ function Chatroom({route}: ChatroomProp) {
           JSON.stringify({
             type: 'JOIN',
             content: {
-              kakaoId: myId,
+              kakaoId: userInfo.id,
             },
           }),
         );
@@ -106,6 +110,7 @@ function Chatroom({route}: ChatroomProp) {
       // 메시지 수신 이벤트
       client.current.onmessage = event => {
         const data = JSON.parse(event.data);
+        console.log('onmessage :', data);
         // 채팅 메시지, 재촉 메시지인 경우
         if (data.messageType === 'MESSAGE' || data.messageType === 'URGENT') {
           let newMessages = [data];
@@ -130,12 +135,53 @@ function Chatroom({route}: ChatroomProp) {
       console.log('=======================채팅방 나감========================');
       client.current?.close();
     };
-  }, [moimId, myId]);
+  }, [moimId, userInfo]);
 
-  const sendEmoji = () => {};
+  const sendEmoji = () => {
+    if (client.current) {
+      console.log('send emoji :', selectedEmoji);
+      client.current?.send(
+        JSON.stringify({
+          type: 'EMOJI',
+          content: {
+            moimId: moimId,
+            kakaoId: userInfo.id,
+            nickname: userInfo.nickname,
+            message: selectedEmoji,
+          },
+        }),
+      );
+    }
+  };
+  // console.log('showEmoji', showEmoji);
+
+  const onSelect = (emoji: any) => {
+    setIsEmojiSelected(true);
+    setSelectedEmoji(emoji);
+
+    if (theTimerId) {
+      clearTimeout(theTimerId);
+    }
+
+    const timerId = setTimeout(() => {
+      setIsEmojiSelected(false);
+      setSelectedEmoji('');
+      setTheTimerId(null);
+      clearTimeout(timerId);
+    }, 3000);
+    setTheTimerId(timerId);
+  };
+
+  const closeEmojiPicker = () => {
+    setShowEmoji(false);
+  };
 
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
+      {/* 이모지 */}
+      {showEmoji && (
+        <EmojiPicker onSelect={onSelect} onClose={() => closeEmojiPicker()} />
+      )}
       {/* 지도 */}
       <RealtimeMap
         startDraw={startDraw}
@@ -149,18 +195,34 @@ function Chatroom({route}: ChatroomProp) {
           messages={messages}
           client={client}
           moimId={moimId}
-          closeHandler={() => setShowChatArea(false)}
-          onPress={emojiSelected ? sendEmoji : () => setShowEmoji(true)}
+          closeHandler={() => {
+            setShowChatArea(false);
+            setShowEmoji(false);
+          }}
+          onPress={
+            isEmojiSelected
+              ? () => sendEmoji()
+              : () => setShowEmoji(prev => !prev)
+          }
         />
       ) : (
         !startDraw && (
           <MessagePreviewContainer>
             <MessagePreview
               message={messages[0]}
-              onPress={() => setShowChatArea(true)}
+              onPress={() => {
+                setShowChatArea(true);
+                setShowEmoji(false);
+              }}
             />
             <EmojiBtn
-              onPress={emojiSelected ? sendEmoji : () => setShowEmoji(true)}
+              onPress={
+                isEmojiSelected
+                  ? () => sendEmoji()
+                  : () => setShowEmoji(prev => !prev)
+              }
+              isEmojiSelected={isEmojiSelected}
+              selectedEmoji={selectedEmoji}
             />
           </MessagePreviewContainer>
         )
