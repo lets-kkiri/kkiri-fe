@@ -99,7 +99,7 @@ function RealtimeMap({
               regDate: date.toISOString(),
             },
           };
-          socket.current.send(data);
+          socket.current.send(JSON.stringify(data));
           console.log('서버로 내 위치 보내기');
           setMyPosition(data);
 
@@ -132,7 +132,7 @@ function RealtimeMap({
         },
       );
     }
-  }, 60000);
+  }, 30000);
 
   // 두 위치의 거리 계산 함수
   const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
