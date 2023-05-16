@@ -37,18 +37,18 @@ const Font = styled.Text`
 `;
 
 interface NotiProps {
-  kakaoId: number;
+  nickname: string;
   mainTitle: string;
   subTitle: string;
   onPress: () => void;
 }
 
-const NotiBox = ({kakaoId, mainTitle, subTitle, onPress}: NotiProps) => {
+const NotiBox = ({nickname, mainTitle, subTitle, onPress}: NotiProps) => {
   return (
     <Container>
       <Inner>
         <Font>
-          {kakaoId}
+          {nickname}
           {mainTitle}
         </Font>
         <Text style={{fontSize: 12}}>{subTitle}</Text>
