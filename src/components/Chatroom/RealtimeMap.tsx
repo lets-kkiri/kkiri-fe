@@ -258,6 +258,13 @@ function RealtimeMap({
               strokeWidth={5}
             />
           ) : null}
+          {notices && notices[0].channelId === 'path' ? (
+            <Polyline
+              coordinates={drawpath}
+              strokeColor="#B0BDFF"
+              strokeWidth={5}
+            />
+          ) : null}
         </NaverMapView>
       ) : null}
       {notices && notices[0].channelId === 'sos' ? (
@@ -272,6 +279,7 @@ function RealtimeMap({
           setDrawpoint={setDrawpoint}
           drawpath={drawpath}
           setDrawpath={setDrawpath}
+          kakaoId={notices[0].data.kakaoId}
         />
       ) : null}
       <SideButton
