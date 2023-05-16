@@ -47,18 +47,18 @@ const btnStatus: BtnStatusType = {
 };
 
 const Button = styled.View`
-  height: 50;
+  height: 50px;
   justify-content: center;
   align-items: center;
   padding-left: 34px;
   padding-right: 34px;
-  border-radius: 15;
+  border-radius: 15px;
   background-color: #5968f2;
 `;
 
 const Font = styled.Text`
   color: #fff;
-  font-size: 14;
+  font-size: 14px;
 `;
 
 const CustomButton = ({text, status, width, onPress}: ButtonProps) => {

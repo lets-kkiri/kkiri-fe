@@ -17,6 +17,7 @@ import CustomButton from '../components/Common/Button';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
 import {authInstance, baseInstance, setTokenHeader} from '../api/axios';
+import {useNavigation} from '@react-navigation/native';
 
 // Styled component
 const CreateMoimConatiner = styled.View`
@@ -42,6 +43,7 @@ const ButtonContainer = styled.View`
 const loginKkiri = require('../assets/icons/login_kkiri.svg');
 
 function SignIn() {
+  const navigator = useNavigation();
   const {width, height} = Dimensions.get('window');
   const [result, setResult] = useState('');
   const isLoggedIn = useSelector(
@@ -76,22 +78,16 @@ function SignIn() {
         deviceTokens: [...response.data.deviceTokens],
         isLoggedIn: true,
       };
-      // console.log(userInfo);
-      // user slice에 저장
-      await dispatch(userSlice.actions.setUser({...userInfo}));
+      console.log('userInfo :', userInfo);
       // refreshToken 저장
       await EncryptedStorage.setItem(
         'refreshToken',
         response.data.refreshToken,
       );
-      // 토큰 문제 해결하고 난 뒤에 풀어줄 놈
-      // authInstance.interceptors.request.use(config => {
-      //   console.log('config:', config);
-      //   setTokenHeader(config, userInfo.accessToken);
-      // });
       authInstance.defaults.headers.common.Authorization = `Bearer ${response.data.accessToken}`;
       // user slice에 저장
       dispatch(userSlice.actions.setUser({...userInfo}));
+      // dispatch(userSlice.actions.setIsLoggedIn(true));
       console.log('리스폰스 데이타 : ', response.data);
     } catch (error: any) {
       console.error(error.message);
@@ -101,20 +97,26 @@ function SignIn() {
   const signOutWithKakao = async (): Promise<void> => {
     if (isLoggedIn) {
       // 사용자가 로그인한 상태인지 확인
+      console.log('로그아웃');
       try {
         const message = await logout();
-        // setResult(message);
-        const userInfo = {
-          id: '',
-          email: '',
-          nickname: '',
-          profileImageUrl: '',
-          accessToken: '',
-          isLoggedIn: false,
-          deviceTokens: [],
-        };
-        dispatch(userSlice.actions.setUser({...userInfo}));
-        EncryptedStorage.removeItem('refreshToken');
+        setResult(message);
+        const res = await authInstance.post(requests.SIGNOUT());
+        if (res.status === 200) {
+          const userInfo = {
+            id: '',
+            email: '',
+            nickname: '',
+            profileImageUrl: '',
+            accessToken: '',
+            isLoggedIn: false,
+            deviceTokens: [],
+          };
+          dispatch(userSlice.actions.setUser({...userInfo}));
+          dispatch(userSlice.actions.setIsLoggedIn(false));
+          EncryptedStorage.removeItem('refreshToken');
+          console.log('로그아웃');
+        }
       } catch (error) {
         console.error(error.message);
       }
@@ -123,15 +125,15 @@ function SignIn() {
     }
   };
 
-  const unlinkKakao = async (): Promise<void> => {
-    const message = await unlink();
-    // setResult(message);
-  };
+  // const unlinkKakao = async (): Promise<void> => {
+  //   const message = await unlink();
+  //   // setResult(message);
+  // };
 
-  useEffect(() => {
-    console.log('isLoggedIn changed: ', isLoggedIn);
-    console.log('login info: ', user);
-  }, [isLoggedIn, user]);
+  // useEffect(() => {
+  //   console.log('isLoggedIn changed: ', isLoggedIn);
+  //   console.log('login info: ', user);
+  // }, [isLoggedIn, user]);
 
   return (
     <CreateMoimConatiner>

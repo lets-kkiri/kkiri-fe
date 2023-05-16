@@ -51,6 +51,9 @@ import BackgroundFetch, {
 import GlobalStyle from './src/styles/globalStyle';
 import BackgroundTimer from 'react-native-background-timer';
 import {authInstance} from './src/api/axios';
+import AddCard from './src/components/MyPage/AddCard';
+import userSlice from './src/slices/user';
+import {logout} from '@react-native-seoul/kakao-login';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -162,10 +165,8 @@ function AppInner() {
           await messaging().registerDeviceForRemoteMessages();
         }
         const token = await messaging().getToken();
-        // 디바이스 토큰 중복이 일어나는 이유
-        if (deviceTokens && deviceTokens.includes(token)) {
-          console.log('deviceTokens 없음 이슈', deviceTokens);
-          console.log('내 디바이스 토큰', token);
+        if ((deviceTokens && deviceTokens.includes(token)) || !deviceTokens) {
+          // console.log('여기서 처리해줘야 함');
           return;
         }
         console.log('토큰입니다.', token);
@@ -174,7 +175,7 @@ function AppInner() {
           {deviceToken: token},
           {headers: {authorization: `Bearer ${accessToken}`}},
         );
-        // console.log('쏠 디바이스 토큰', token);
+        dispatch(userSlice.actions.setDeviceTokens(token));
         console.log('getTokenRes : ', response.data);
       } catch (error) {
         console.error(error);
@@ -324,28 +325,31 @@ function AppInner() {
           {headers: {authorization: `Bearer ${token}`}},
         );
         console.log('Refresh 토큰 살아있음', response.data);
-        // 로그인 처리 및 accessToken 갱신
-        // await batch(() => {
-        //   dispatch(
-        //     userSlice.actions.setAccessToken({
-        //       accessToken: response.data.accessToken,
-        //     }),
-        //   );
-        //   dispatch(
-        //     userSlice.actions.setIsLoggedIn({
-        //       isLoggedIn: true,
-        //     }),
-        //   );
-        // });
-        // refreshToken 갱신
-        // await EncryptedStorage.setItem(
-        //   'refreshToken',
-        //   response.data.refreshToken,
-        // );
       } catch (error) {
         console.error(error.message);
         // 만약 response가 error를 들고왔을 때, refreshToken이 만료된 경우
-        // 로그아웃 처리 해줘야함
+        if (error.status === 409) {
+          const signOutWithKakao = async (): Promise<void> => {
+            const message = await logout();
+            console.log(message);
+            const res = await authInstance.post(requests.SIGNOUT());
+            if (res.status === 200) {
+              const userInfo = {
+                id: '',
+                email: '',
+                nickname: '',
+                profileImageUrl: '',
+                accessToken: '',
+                isLoggedIn: false,
+                deviceTokens: [],
+              };
+              dispatch(userSlice.actions.setUser({...userInfo}));
+              EncryptedStorage.removeItem('refreshToken');
+              console.log('로그아웃');
+            }
+          };
+          signOutWithKakao();
+        }
       } finally {
         // splash screen off
         SplashScreen.hide();
@@ -369,7 +373,7 @@ function AppInner() {
   return (
     <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
       <NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
-        {isLoggedIn ? (
+        {isLoggedIn === true ? (
           <Stack.Navigator>
             <Stack.Group
               screenOptions={{
@@ -380,6 +384,11 @@ function AppInner() {
                 component={TabNavigator}
                 options={{header: () => <Header />}}
               />
+              {/* <Stack.Screen
+                name="SignIn"
+                component={SignIn}
+                options={{title: '로그아웃'}}
+              /> */}
               <Stack.Screen
                 name="Setting"
                 component={Setting}
@@ -417,6 +426,11 @@ function AppInner() {
                 name="Map"
                 component={Map}
                 options={{title: '실시간 위치'}}
+              />
+              <Stack.Screen
+                name="AddCard"
+                component={AddCard}
+                options={{title: '카드 추가'}}
               />
             </Stack.Group>
           </Stack.Navigator>
