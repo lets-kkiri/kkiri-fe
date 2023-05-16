@@ -11,6 +11,7 @@ export type RootStackParamList = {
   Moim: {moimId: number};
   CompleteCreate: {moimId: number};
   AddCard: undefined;
+  CommingNoti: undefined;
 };
 
 // 단일 메시지

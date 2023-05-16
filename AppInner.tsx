@@ -55,7 +55,8 @@ import AddCard from './src/components/MyPage/AddCard';
 import userSlice from './src/slices/user';
 import {logout} from '@react-native-seoul/kakao-login';
 import NotiBox from './src/components/Common/NotiBox';
-import { StackNavigationProp } from '@react-navigation/stack';
+import {StackNavigationProp} from '@react-navigation/stack';
+import CommingNoti from './src/components/Common/CommingNoti';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -64,13 +65,9 @@ export type LoggedInParamList = {
   Complete: {orderId: string};
 };
 
-interface ChatProps {
-  navigateChat: StackNavigationProp<RootStackParamList, 'Chatroom'>;
-}
-
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-function AppInner({navigateChat}: ChatProps) {
+function AppInner() {
   const isLoggedIn: boolean = useSelector(
     (state: RootState) => state.persisted.user.isLoggedIn,
   );
@@ -89,50 +86,50 @@ function AppInner({navigateChat}: ChatProps) {
 
   const [newSocket, setNewSocket] = useState<WebSocket | null>(null);
 
-  const myId = useSelector((state: RootState) => state.persisted.user.id);
-  // const notices = useSelector((state: RootState) => state.persisted.noti);
-  const moimId = 101;
+  // const myId = useSelector((state: RootState) => state.persisted.user.id);
+  const notices = useSelector((state: RootState) => state.persisted.noti);
+  // const moimId = 101;
 
-  useEffect(() => {
-    const socket = new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`);
-    console.log('socket');
-    console.log('socket open');
-    socket.onopen = () => {
-      console.log('연결!');
-      // 소켓 열고 유저 정보 보내기
-      socket?.send(
-        JSON.stringify({
-          type: 'JOIN',
-          content: {
-            kakaoId: myId,
-          },
-        }),
-      );
-    };
-    if (socket) {
-      setNewSocket(socket);
-    }
+  // useEffect(() => {
+  //   const socket = new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`);
+  //   console.log('socket');
+  //   console.log('socket open');
+  //   socket.onopen = () => {
+  //     console.log('연결!');
+  //     // 소켓 열고 유저 정보 보내기
+  //     socket?.send(
+  //       JSON.stringify({
+  //         type: 'JOIN',
+  //         content: {
+  //           kakaoId: myId,
+  //         },
+  //       }),
+  //     );
+  //   };
+  //   if (socket) {
+  //     setNewSocket(socket);
+  //   }
 
-    // BackgroundFetch.configure(
-    //   {
-    //     minimumFetchInterval: 15, // 15분마다 실행
-    //     stopOnTerminate: false, // 앱이 종료된 상태에서도 백그라운드 작업 계속 실행
-    //     startOnBoot: true, // 기기 부팅 시 자동 시작
-    //     enableHeadless: true, // 백그라운드 작업 실행을 위해 Headless JS 사용
-    //     requiredNetworkType: BackgroundFetch.NETWORK_TYPE_UNMETERED, // Wi-Fi에 연결되어 있는 경우에만 실행
-    //   },
-    //   async taskId => {
-    //     console.log(`BackgroundFetch Task ${taskId} fired`);
+  //   // BackgroundFetch.configure(
+  //   //   {
+  //   //     minimumFetchInterval: 15, // 15분마다 실행
+  //   //     stopOnTerminate: false, // 앱이 종료된 상태에서도 백그라운드 작업 계속 실행
+  //   //     startOnBoot: true, // 기기 부팅 시 자동 시작
+  //   //     enableHeadless: true, // 백그라운드 작업 실행을 위해 Headless JS 사용
+  //   //     requiredNetworkType: BackgroundFetch.NETWORK_TYPE_UNMETERED, // Wi-Fi에 연결되어 있는 경우에만 실행
+  //   //   },
+  //   //   async taskId => {
+  //   //     console.log(`BackgroundFetch Task ${taskId} fired`);
 
-    //     // 앱이 백그라운드 상태에서도 특정 함수를 실행
-    //     await locationUpdater({socket: newSocket});
+  //   //     // 앱이 백그라운드 상태에서도 특정 함수를 실행
+  //   //     await locationUpdater({socket: newSocket});
 
-    //     // 작업이 완료되었음을 알림
-    //     BackgroundFetch.finish(taskId);
-    //   },
-    //   error => console.log(`BackgroundFetch failed to start: ${error}`),
-    // );
-  }, []);
+  //   //     // 작업이 완료되었음을 알림
+  //   //     BackgroundFetch.finish(taskId);
+  //   //   },
+  //   //   error => console.log(`BackgroundFetch failed to start: ${error}`),
+  //   // );
+  // }, []);
 
   // 푸쉬 알람을 위한 설정
   const dispatch = useAppDispatch();
@@ -422,11 +419,6 @@ function AppInner({navigateChat}: ChatProps) {
                 component={Notification}
                 options={{title: '알림센터'}}
               />
-              {/* <Stack.Screen
-                name="Chatroom"
-                component={Chatroom}
-                options={{title: '채팅방'}}
-              /> */}
               <Stack.Screen name="Chatroom" options={{title: '채팅방'}}>
                 {({route}) => <Chatroom route={route} client={newSocket} />}
               </Stack.Screen>
@@ -450,18 +442,6 @@ function AppInner({navigateChat}: ChatProps) {
                 component={AddCard}
                 options={{title: '카드 추가'}}
               />
-              {/* {notices.length > 0 && notices[0].channelId === 'open' ? (
-                <NotiBox
-                  nickname=""
-                  mainTitle="모임이 1시간 남았어요."
-                  subTitle="실시간으로 친구들의 위치를 확인해 보세요!"
-                  onPress={() =>
-                    navigateChat.navigate('Chatroom', {
-                      moimId: notices[0].data.moimId,
-                    })
-                  }
-                />
-              ) : null} */}
             </Stack.Group>
           </Stack.Navigator>
         ) : (
