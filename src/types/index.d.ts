@@ -10,6 +10,7 @@ export type RootStackParamList = {
   SignIn: undefined;
   Moim: {moimId: number};
   CompleteCreate: {moimId: number};
+  AddCard: undefined;
 };
 
 // 단일 메시지

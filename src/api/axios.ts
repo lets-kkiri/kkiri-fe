@@ -47,29 +47,29 @@ export const naverInstance = naverAPI(NAVER_URL);
 
 authInstance.interceptors.request.use(setTokenHeader);
 
-// authInstance.interceptors.response.use(
-//   response => {
-//     // console.log('리스폰스입니다', response);
-//     return response;
-//   },
-//   async error => {
-//     const originalRequest = error.config;
-//     console.error('에러입니다', error);
-//     if (
-//       (error.response.status === 400 ||
-//         error.response.status === 401 ||
-//         error.response.status === 403) &&
-//       !originalRequest._retry
-//     ) {
-//       console.log('아시오스 에러!', error.response.status);
-//       originalRequest._retry = true;
-//       const accessToken = await TokenRefreshService.refreshAccessToken();
-//       console.log('새로 받은 엑세스 토큰', accessToken);
-//       authInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-//       // console.log('디폴트 헤더:', axios.defaults.headers);
-//       return authInstance(originalRequest);
-//     }
+authInstance.interceptors.response.use(
+  response => {
+    // console.log('리스폰스입니다', response);
+    return response;
+  },
+  async error => {
+    const originalRequest = error.config;
+    console.error('에러입니다', error.config);
+    if (
+      (error.response.status === 400 ||
+        error.response.status === 401 ||
+        error.response.status === 403) &&
+      !originalRequest._retry
+    ) {
+      console.log('아시오스 에러!', error.response.status);
+      originalRequest._retry = true;
+      const accessToken = await TokenRefreshService.refreshAccessToken();
+      console.log('새로 받은 엑세스 토큰', accessToken);
+      authInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+      // console.log('디폴트 헤더:', axios.defaults.headers);
+      return authInstance(originalRequest);
+    }
 
-//     return Promise.reject(error);
-//   },
-// );
+    return Promise.reject(error);
+  },
+);

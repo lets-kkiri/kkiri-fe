@@ -9,6 +9,9 @@ import {WithLocalSvg} from 'react-native-svg';
 // API
 import {authInstance} from '../api/axios';
 import {requests} from '../api/requests';
+import {getMoimInfo} from '../slices/moimInfo';
+import {RootState, useAppDispatch} from '../store';
+import {useSelector} from 'react-redux';
 
 // Styled component
 const MoimContainer = styled.View`
@@ -123,17 +126,29 @@ interface MoimInfo {
 
 function Moim({navigation, route}: MoimProps) {
   const moimId = route.params.moimId;
-  const [moimInfo, setMoimInfo] = useState<MoimInfo>({
-    moimId: 0,
-    name: '',
-    placeName: '',
-    latitude: '',
-    longitude: '',
-    date: '',
-    time: '',
-    lateFee: 0,
-    members: [],
-  });
+  const dispatch = useAppDispatch();
+  const moimInfo = useSelector((state: RootState) => state.volatile.moimInfo);
+
+  const fetchData = async (id: number) => {
+    try {
+      const res = dispatch(getMoimInfo(id));
+      console.log('moimDetailFetch:', res);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // const [moimInfo, setMoimInfo] = useState<MoimInfo>({
+  //   moimId: 0,
+  //   name: '',
+  //   placeName: '',
+  //   latitude: '',
+  //   longitude: '',
+  //   date: '',
+  //   time: '',
+  //   lateFee: 0,
+  //   members: [],
+  // });
 
   const eachMember = useCallback(({item}: {item: MemberInfo}) => {
     return (
@@ -151,25 +166,27 @@ function Moim({navigation, route}: MoimProps) {
     return `${year}년 ${month}월 ${day}일`;
   };
 
+  // useEffect(() => {
+  //   if (moimId === undefined) {
+  //     return;
+  //   }
+  //   const getData = async () => {
+  //     try {
+  //       const response = await authInstance.get(requests.GET_MOIM_INFO(moimId));
+  //       setMoimInfo({...response.data});
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   };
+  //   getData();
+  // }, [moimId]);
+
   useEffect(() => {
-    if (moimId === undefined) {
+    if (!moimId) {
       return;
     }
-    const getData = async () => {
-      try {
-        const response = await authInstance.get(requests.GET_MOIM_INFO(moimId));
-        setMoimInfo({...response.data});
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    getData();
+    fetchData(moimId);
   }, [moimId]);
-
-  // useEffect(() => {
-  //   console.log(moimInfo);
-  //   console.log('members:', moimInfo.members);
-  // }, [moimInfo]);
 
   if (moimInfo === undefined || moimInfo.moimId === 0) {
     return null;

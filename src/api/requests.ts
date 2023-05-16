@@ -44,17 +44,23 @@ export const requests = {
 
   // 로그인
   SIGNIN() {
-    return `${this.base_url}/api/auth/login`;
+    return '/api/auth/login';
   },
 
+  // 로그아웃
+  SIGNOUT() {
+    return '/api/auth/logout';
+  },
+
+  // 수정해야됨
   // Refresh Token 검증
   REFRESH_TOKEN() {
-    return `${this.base_url}/api/auth/verify`;
+    return '/api/auth/verify';
   },
 
   // 사용자 FCM 토큰 저장
   POST_FCM_TOKEN() {
-    return `${this.base_url}/api/members/devices`;
+    return '/api/members/devices';
   },
 
   // 이전 채팅 내용 불러오기
@@ -91,5 +97,10 @@ export const requests = {
       return `/api/moims${date ? `?date=${date}` : ''}`;
     }
     return '/api/moims';
+  },
+
+  // refreshToken reissue
+  GET_REISSUE() {
+    return '/api/auth/reissue';
   },
 };
