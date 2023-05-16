@@ -238,7 +238,7 @@ function Chatroom({route, client}: ChatroomProp) {
         !startDraw && (
           <MessagePreviewContainer>
             <MessagePreview
-              message={messages[0]}
+              message={messages ? messages[0] : null}
               onPress={() => {
                 setShowChatArea(true);
                 setShowEmoji(false);

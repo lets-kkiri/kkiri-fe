@@ -7,6 +7,7 @@ import {useAppDispatch} from '../../store';
 import {guidesPost} from '../../slices/guidesSlice';
 import Pencil from '../../assets/icons/pencil.svg';
 import CustomButton from '../Common/Button';
+import notiSlice from '../../slices/noti';
 
 interface PathProps {
   startDraw: boolean;
@@ -20,6 +21,7 @@ interface PathProps {
   drawpath: PathState[];
   setDrawpath: React.Dispatch<React.SetStateAction<PathState[]>>;
   nickname: string;
+  id: number;
 }
 
 interface PathState {
@@ -53,6 +55,7 @@ const AboutPath = ({
   drawpath,
   setDrawpath,
   nickname,
+  id,
 }: PathProps) => {
   const dispatch = useAppDispatch();
 
@@ -123,6 +126,7 @@ const AboutPath = ({
                 setDrawpoint(null);
                 setDrawpath([]);
                 sendPath();
+                dispatch(notiSlice.actions.clickNoti(id));
                 console.log(drawpath);
               }}
             />

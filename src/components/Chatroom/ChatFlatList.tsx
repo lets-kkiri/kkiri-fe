@@ -30,7 +30,7 @@ function ChatFlatList({messages}: ChatFlatListProp) {
 
   return (
     <ChatListContainer>
-      {data.length > 0 && (
+      {data?.length > 0 && (
         <FlatList
           inverted={true}
           data={data}

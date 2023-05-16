@@ -84,7 +84,7 @@ function AppInner() {
   const [newSocket, SetNewSocket] = useState<WebSocket | null>(null);
 
   const myId = useSelector((state: RootState) => state.persisted.user.id);
-  const moimId = 94;
+  const moimId = 101;
 
   useEffect(() => {
     const socket = new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`);
