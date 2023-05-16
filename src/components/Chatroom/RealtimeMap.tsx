@@ -198,6 +198,7 @@ function RealtimeMap({
   };
 
   const notices = useSelector((state: RootState) => state.persisted.noti);
+  console.log('노티노티 : ', notices);
 
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
@@ -258,29 +259,31 @@ function RealtimeMap({
               strokeWidth={5}
             />
           ) : null}
-          {notices && notices[0].channelId === 'path' ? (
+          {/* {notices && notices[0].channelId === 'path' ? (
             <Polyline
               coordinates={drawpath}
               strokeColor="#B0BDFF"
               strokeWidth={5}
             />
-          ) : null}
+          ) : null} */}
         </NaverMapView>
       ) : null}
-      {notices && notices[0].channelId === 'sos' ? (
-        <AboutPath
-          startDraw={startDraw}
-          setStartDraw={setStartDraw}
-          sendpath={sendpath}
-          setModalVisible={setModalVisible}
-          setModalType={setModalType}
-          setSendpath={setSendpath}
-          drawpoint={drawpoint}
-          setDrawpoint={setDrawpoint}
-          drawpath={drawpath}
-          setDrawpath={setDrawpath}
-          kakaoId={notices[0].data.kakaoId}
-        />
+      {notices ? (
+        notices[0].channelId === 'sos' ? (
+          <AboutPath
+            startDraw={startDraw}
+            setStartDraw={setStartDraw}
+            sendpath={sendpath}
+            setModalVisible={setModalVisible}
+            setModalType={setModalType}
+            setSendpath={setSendpath}
+            drawpoint={drawpoint}
+            setDrawpoint={setDrawpoint}
+            drawpath={drawpath}
+            setDrawpath={setDrawpath}
+            nickname={notices[0].data.senderNickname}
+          />
+        ) : null
       ) : null}
       <SideButton
         setSideModal={setSideModal}
