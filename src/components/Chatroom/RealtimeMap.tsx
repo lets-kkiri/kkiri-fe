@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Alert} from 'react-native';
 
 // Naver Map
@@ -22,6 +22,7 @@ import CustomModal from '../Common/Modal';
 // svg
 import AboutPath from '../Map/AboutPath';
 import SideButton from '../Map/SideButton';
+import NotiBox from '../Common/NotiBox';
 
 interface UserState {
   type: string;
@@ -79,6 +80,7 @@ function RealtimeMap({
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [sideModal, setSideModal] = useState<boolean>(false);
   const [count, setCount] = useState<number>(0);
+  const [startInfo, setStartInfo] = useState<boolean>(false);
   const date = new Date();
 
   const dispatch = useAppDispatch();
@@ -90,7 +92,7 @@ function RealtimeMap({
   function sendLocation() {
     if (socket.current) {
       console.log('실시간 위치 공유 시작');
-      Geolocation.getCurrentPosition(
+      Geolocation.watchPosition(
         position => {
           const data = {
             type: 'GPS',
@@ -126,7 +128,7 @@ function RealtimeMap({
             setModalType('arrive');
           }
           // 재귀적으로 자기 자신을 호출하여 일정 시간 후에 함수를 다시 실행
-          timerId = setTimeout(sendLocation, 30000);
+          timerId = setTimeout(sendLocation, 3000);
         },
         error => console.log(error),
         {
@@ -198,7 +200,7 @@ function RealtimeMap({
   };
 
   const notices = useSelector((state: RootState) => state.persisted.noti);
-  console.log('노티노티 : ', notices);
+  // console.log('노티노티 : ', notices);
 
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
@@ -259,17 +261,26 @@ function RealtimeMap({
               strokeWidth={5}
             />
           ) : null}
-          {/* {notices && notices[0].channelId === 'path' ? (
-            <Polyline
-              coordinates={drawpath}
-              strokeColor="#B0BDFF"
-              strokeWidth={5}
-            />
-          ) : null} */}
+          {notices.length > 0 && notices[0].channelId === 'path' ? (
+            !startInfo ? (
+              <NotiBox
+                nickname={notices[0].data.senderNickname}
+                mainTitle="님이 도움을 요청했어요"
+                subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
+                onPress={() => setStartInfo(true)}
+              />
+            ) : (
+              <Polyline
+                coordinates={notices[0].data.path}
+                strokeColor="#B0BDFF"
+                strokeWidth={5}
+              />
+            )
+          ) : null}
         </NaverMapView>
       ) : null}
-      {notices ? (
-        notices[0].channelId === 'sos' ? (
+      {notices.length > 0 ? (
+        notices[0].channelId === 'sos' && !notices[0].checked ? (
           <AboutPath
             startDraw={startDraw}
             setStartDraw={setStartDraw}
@@ -282,6 +293,7 @@ function RealtimeMap({
             drawpath={drawpath}
             setDrawpath={setDrawpath}
             nickname={notices[0].data.senderNickname}
+            id={notices[0].data.id}
           />
         ) : null
       ) : null}

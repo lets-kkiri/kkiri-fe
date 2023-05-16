@@ -134,7 +134,7 @@ function Moim({navigation, route}: MoimProps) {
       const res = dispatch(getMoimInfo(id));
       console.log('moimDetailFetch:', res);
     } catch (err) {
-      console.error('moim error :', err);
+      console.error(err);
     }
   };
 
