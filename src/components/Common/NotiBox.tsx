@@ -37,16 +37,20 @@ const Font = styled.Text`
 `;
 
 interface NotiProps {
+  nickname: string;
   mainTitle: string;
   subTitle: string;
   onPress: () => void;
 }
 
-const NotiBox = ({mainTitle, subTitle, onPress}: NotiProps) => {
+const NotiBox = ({nickname, mainTitle, subTitle, onPress}: NotiProps) => {
   return (
     <Container>
       <Inner>
-        <Font>{mainTitle}</Font>
+        <Font>
+          {nickname}
+          {mainTitle}
+        </Font>
         <Text style={{fontSize: 12}}>{subTitle}</Text>
       </Inner>
       <Button activeOpacity={0.8} onPress={onPress}>

@@ -19,7 +19,7 @@ function AddCard() {
       });
       navigation.navigate('Moim', {moimId: response.data.moimId});
     } catch (err) {
-      console.error(err);
+      console.error('add card 에러:', err);
     }
   };
 
@@ -28,10 +28,10 @@ function AddCard() {
       <Text>모임 참여를 위한 임시 컴포넌트입니다.</Text>
       <TextInput
         placeholder="참여할 모임의 모임 번호를 입력해주세요"
-        keyboardType="numberic"
-        value={moimId}
+        keyboardType="numeric"
+        value={moimId !== 0 ? moimId.toString() : null}
         onChangeText={text => {
-          setMoimId(text);
+          setMoimId(parseInt(text));
         }}
       />
       <CustomButton

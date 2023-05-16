@@ -84,7 +84,7 @@ function AppInner() {
   const [newSocket, SetNewSocket] = useState<WebSocket | null>(null);
 
   const myId = useSelector((state: RootState) => state.persisted.user.id);
-  const moimId = 9;
+  const moimId = 101;
 
   useEffect(() => {
     const socket = new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`);
@@ -178,7 +178,7 @@ function AppInner() {
         dispatch(userSlice.actions.setDeviceTokens(token));
         console.log('getTokenRes : ', response.data);
       } catch (error) {
-        console.error(error);
+        console.error('FCM 토큰 설정할 때 나는 에러 : ', error);
       }
     }
     if (isLoggedIn === true) {
@@ -195,19 +195,17 @@ function AppInner() {
     // (required) 리모트 노티를 수신하거나, 열었거나 로컬 노티를 열었을 때 실행
     onNotification: function (notification: any) {
       console.log('NOTIFICATION:', notification);
-      if (notification.channelId === 'hurry') {
-        if (notification.message || notification.data.message) {
-          dispatch(
-            notiSlice.actions.pushNoti({
-              channelId: notification.channelId,
-              id: notification.id,
-              title: notification.title,
-              message: notification.message,
-              data: notification.data,
-              checked: false,
-            }),
-          );
-        }
+      if (notification.message || notification.data.message) {
+        dispatch(
+          notiSlice.actions.pushNoti({
+            channelId: notification.channelId,
+            id: notification.id,
+            title: notification.title,
+            message: notification.message,
+            data: notification.data,
+            checked: false,
+          }),
+        );
       }
 
       // 모임 한 시간 전 알림 감지
@@ -229,7 +227,7 @@ function AppInner() {
 
     // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
     onRegistrationError: function (err: Error) {
-      console.error(err.message, err);
+      console.error('fails to register:', err.message, err);
     },
 
     // IOS ONLY (optional): default: all - Permissions to register.
@@ -306,6 +304,19 @@ function AppInner() {
       console.log(`createChannel socket returned ${created}`),
   );
 
+  PushNotification.createChannel(
+    {
+      channelId: 'sos',
+      channelName: '도움 요청 알림',
+      channelDescription: '누군가 도움을 요청했을 때 울리는 알림', // (optional) default: undefined.
+      soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+      importance: 4, // (optional) default: 4. Int value of the Android notification importance
+      vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+    },
+    (created: boolean) =>
+      console.log(`createChannel socket returned ${created}`),
+  );
+
   // 로그인 관리를 위한 Token 확인
   useEffect(() => {
     const getTokenAndRefresh = async () => {
@@ -324,9 +335,9 @@ function AppInner() {
           {},
           {headers: {authorization: `Bearer ${token}`}},
         );
-        console.log('Refresh 토큰 살아있음', response.data);
+        console.log('Refresh 토큰 살아있음', response.config);
       } catch (error) {
-        console.error(error.message);
+        console.error('refresh 토큰 관리 :', error.message);
         // 만약 response가 error를 들고왔을 때, refreshToken이 만료된 경우
         if (error.status === 409) {
           const signOutWithKakao = async (): Promise<void> => {

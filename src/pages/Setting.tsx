@@ -54,7 +54,7 @@ function Setting() {
           console.log('로그아웃');
         }
       } catch (error) {
-        console.error(error.message);
+        console.error('setting 에러 :', error.message);
       }
     } else {
       console.log('User is not logged in');
@@ -74,10 +74,10 @@ function Setting() {
         <Text>계좌정보</Text>
       </View>
       <DivideLine />
-      <Button
+      {/* <Button
         title="채팅방 입장"
         onPress={() => navigation.navigate('Chatroom', {moimId: 49})}
-      />
+      /> */}
       {/* <Button title="지도" onPress={() => navigation.navigate('Map')} /> */}
       <Button
         title={darkMode ? '테마 : 다크' : '테마 : 라이트'}

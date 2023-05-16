@@ -7,6 +7,7 @@ import {useAppDispatch} from '../../store';
 import {guidesPost} from '../../slices/guidesSlice';
 import Pencil from '../../assets/icons/pencil.svg';
 import CustomButton from '../Common/Button';
+import notiSlice from '../../slices/noti';
 
 interface PathProps {
   startDraw: boolean;
@@ -19,6 +20,8 @@ interface PathProps {
   setDrawpoint: React.Dispatch<React.SetStateAction<PathState | null>>;
   drawpath: PathState[];
   setDrawpath: React.Dispatch<React.SetStateAction<PathState[]>>;
+  nickname: string;
+  id: number;
 }
 
 interface PathState {
@@ -51,6 +54,8 @@ const AboutPath = ({
   setDrawpoint,
   drawpath,
   setDrawpath,
+  nickname,
+  id,
 }: PathProps) => {
   const dispatch = useAppDispatch();
 
@@ -64,7 +69,7 @@ const AboutPath = ({
   function sendPath() {
     // 임시 데이터
     const postData = {
-      receiverKakaoId: 2783374648,
+      receiverKakaoId: '2783374648',
       path: drawpath,
     };
     dispatch(guidesPost(postData));
@@ -78,7 +83,8 @@ const AboutPath = ({
     <>
       {startDraw === false ? (
         <NotiBox
-          mainTitle="@친구가 도움을 요청했어요"
+          nickname={nickname}
+          mainTitle="님이 도움을 요청했어요"
           subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
           onPress={() => setStartDraw(true)}
         />
@@ -120,6 +126,7 @@ const AboutPath = ({
                 setDrawpoint(null);
                 setDrawpath([]);
                 sendPath();
+                dispatch(notiSlice.actions.clickNoti(id));
                 console.log(drawpath);
               }}
             />
