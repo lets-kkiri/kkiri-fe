@@ -77,6 +77,8 @@ function SignIn() {
         isLoggedIn: true,
       };
       // console.log(userInfo);
+      // user slice에 저장
+      await dispatch(userSlice.actions.setUser({...userInfo}));
       // refreshToken 저장
       await EncryptedStorage.setItem(
         'refreshToken',

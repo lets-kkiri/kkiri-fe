@@ -145,6 +145,7 @@ function RealtimeMap({
     const a =
       Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
       Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
+    Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     const distance = R * c; // 두 지점 사이의 거리 (m)
