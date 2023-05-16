@@ -54,6 +54,8 @@ import {authInstance} from './src/api/axios';
 import AddCard from './src/components/MyPage/AddCard';
 import userSlice from './src/slices/user';
 import {logout} from '@react-native-seoul/kakao-login';
+import NotiBox from './src/components/Common/NotiBox';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -62,9 +64,13 @@ export type LoggedInParamList = {
   Complete: {orderId: string};
 };
 
+interface ChatProps {
+  navigateChat: StackNavigationProp<RootStackParamList, 'Chatroom'>;
+}
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-function AppInner() {
+function AppInner({navigateChat}: ChatProps) {
   const isLoggedIn: boolean = useSelector(
     (state: RootState) => state.persisted.user.isLoggedIn,
   );
@@ -81,9 +87,10 @@ function AppInner() {
   // const colorScheme = useColorScheme();
   // console.log('다크모드', colorScheme);
 
-  const [newSocket, SetNewSocket] = useState<WebSocket | null>(null);
+  const [newSocket, setNewSocket] = useState<WebSocket | null>(null);
 
   const myId = useSelector((state: RootState) => state.persisted.user.id);
+  // const notices = useSelector((state: RootState) => state.persisted.noti);
   const moimId = 101;
 
   useEffect(() => {
@@ -103,7 +110,7 @@ function AppInner() {
       );
     };
     if (socket) {
-      SetNewSocket(socket);
+      setNewSocket(socket);
     }
 
     // BackgroundFetch.configure(
@@ -443,6 +450,18 @@ function AppInner() {
                 component={AddCard}
                 options={{title: '카드 추가'}}
               />
+              {/* {notices.length > 0 && notices[0].channelId === 'open' ? (
+                <NotiBox
+                  nickname=""
+                  mainTitle="모임이 1시간 남았어요."
+                  subTitle="실시간으로 친구들의 위치를 확인해 보세요!"
+                  onPress={() =>
+                    navigateChat.navigate('Chatroom', {
+                      moimId: notices[0].data.moimId,
+                    })
+                  }
+                />
+              ) : null} */}
             </Stack.Group>
           </Stack.Navigator>
         ) : (
