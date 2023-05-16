@@ -134,6 +134,7 @@ function RealtimeMap({
         {
           enableHighAccuracy: true,
           timeout: 20000,
+          distanceFilter: 5,
         },
       );
     }
