@@ -28,12 +28,12 @@ const naverAPI = (url: string, options?: any) => {
 //   config.headers.Authorization =
 //     'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyNzgzMzc0NjQ4IiwiaXNzIjoiS0tJUkkiLCJleHAiOjE2OTYwMDU0NjMsImlhdCI6MTY4MzkwOTQ2M30.E6hPIi_78WVgRdbKsD5uIlVS8YQpj0eZC-QFzEkDFxv4MYJmHhOni9KdS77TGZNsQC5fJ8w_uEjCJNGVfLovSA';
 //   // console.log(config);
-export const setTokenHeader = (config: any) => {
-  config.headers.Authorization =
-    'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyNzgzMzc0NjQ4IiwiaXNzIjoiS0tJUkkiLCJleHAiOjE2OTYzMDkwMjAsImlhdCI6MTY4NDIxMzAyMH0.ZO-1NQ8J9KPRlwigpGlbFqXanRuZDOtBy4h-Ktg030w6QmQwgXhA58biECk9NCFSnnRH7aEqR9ZF4wknM40aOQ';
-  // console.log(config);
-  return config;
-};
+// export const setTokenHeader = (config: any) => {
+//   config.headers.Authorization =
+//     'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyNzgzMzc0NjQ4IiwiaXNzIjoiS0tJUkkiLCJleHAiOjE2OTYzMDkwMjAsImlhdCI6MTY4NDIxMzAyMH0.ZO-1NQ8J9KPRlwigpGlbFqXanRuZDOtBy4h-Ktg030w6QmQwgXhA58biECk9NCFSnnRH7aEqR9ZF4wknM40aOQ';
+//   // console.log(config);
+//   return config;
+// };
 
 // export const setTokenHeader = (config: any, token: string) => {
 //   console.log('setTokenHeader:', token);
@@ -45,7 +45,7 @@ export const baseInstance = baseAPI(BASE_URL);
 export const authInstance = authAPI(BASE_URL);
 export const naverInstance = naverAPI(NAVER_URL);
 
-authInstance.interceptors.request.use(setTokenHeader);
+// authInstance.interceptors.request.use(setTokenHeader);
 
 // authInstance.interceptors.response.use(
 //   response => {
