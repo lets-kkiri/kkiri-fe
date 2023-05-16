@@ -23,17 +23,20 @@ import {MessageData, RootStackParamList} from '../types/index';
 import {RootState} from '../store';
 
 interface ChatroomProp {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Chatroom'>;
+  // navigation: NativeStackNavigationProp<RootStackParamList, 'Chatroom'>;
   route: RouteProp<RootStackParamList, 'Chatroom'>;
+  client: WebSocket | null;
 }
 
-interface UserProps {
-  id: number;
-  roomId: number;
-  memberId: number;
-  latitude: number;
-  longitude: number;
-  regDate: string;
+interface UserType {
+  type: string;
+  content: {
+    moimId: number;
+    kakaoId: string;
+    longitude: number;
+    latitude: number;
+    pubTime: string;
+  };
 }
 
 // Style components
@@ -46,13 +49,16 @@ const MessagePreviewContainer = styled.View`
   padding: 16px;
 `;
 
-function Chatroom({route}: ChatroomProp) {
+function Chatroom({route, client}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
   const [startDraw, setStartDraw] = useState<boolean>(false);
   const [showEmoji, setShowEmoji] = useState(false);
   const [isEmojiSelected, setIsEmojiSelected] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('');
+  const [user, setUser] = useState<UserType | null>(null);
+  const [users, setUsers] = useState<UserType[]>([]);
+  // const [socket, SetSocket] = useState<WebSocket | null>(null);
   const [theTimerId, setTheTimerId] = useState<null | number>(null);
 
   // socket 저장하는 변수
@@ -62,6 +68,14 @@ function Chatroom({route}: ChatroomProp) {
   const moimId = route.params.moimId;
   // 나 자신
   const userInfo = useSelector((state: RootState) => state.persisted.user);
+
+  // socket 저장하는 변수
+  // const socket = locationUpdater({moimId: 9, myId: myId});
+  const socket = useRef<WebSocket | null>(client);
+
+  // socket 저장하는 변수
+  // const socket = locationUpdater({moimId: 9, myId: myId});
+  const socket = useRef<WebSocket | null>(client);
 
   interface Data {
     meta: {
@@ -85,28 +99,30 @@ function Chatroom({route}: ChatroomProp) {
     get_previous_chat(moimId);
 
     // WebSocket;
-    if (!client.current) {
-      client.current = new WebSocket(
-        `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
-      );
+    // if (!socket.current) {
+    //   socket.current = new WebSocket(
+    //     `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
+    //   );
 
-      client.current.onopen = () => {
-        console.log('연결!');
-        // 소켓 열고 유저 정보 보내기
-        client.current?.send(
-          JSON.stringify({
-            type: 'JOIN',
-            content: {
-              kakaoId: userInfo.id,
-            },
-          }),
-        );
-      };
-    }
+    //   socket.current.onopen = () => {
+    //     console.log('연결!');
+    //     // 소켓 열고 유저 정보 보내기
+    //     socket.current?.send(
+    //       JSON.stringify({
+    //         type: 'JOIN',
+    //         content: {
+    //           kakaoId: myId,
+    //         },
+    //       }),
+    //     );
+    //   };
+    // }
 
-    if (client.current) {
+    if (socket.current) {
+      console.log('연결연결');
       // 메시지 수신 이벤트
-      client.current.onmessage = event => {
+      socket.current.onmessage = event => {
+        console.log(event.data);
         const data = JSON.parse(event.data);
         console.log('onmessage :', data);
         // 채팅 메시지, 재촉 메시지인 경우
@@ -119,19 +135,27 @@ function Chatroom({route}: ChatroomProp) {
         if (event.data.messageType === 'EMOJI') {
           // setMessages(prev => [...prev, event.data]);
         }
+
+        // 모임원들의 실시간 위치일 경우
+        if (data.type === 'GPS') {
+          setUser(data);
+          if (user) {
+            setUsers([...users, user]);
+          }
+        }
       };
 
-      client.current.onerror = e => {
+      socket.current.onerror = e => {
         console.log('socket error :', e);
       };
 
-      client.current.onclose = e => {
+      socket.current.onclose = e => {
         console.log('socket close :', e.code, e.reason);
       };
     }
     return () => {
       console.log('=======================채팅방 나감========================');
-      client.current?.close();
+      // socket?.close();
     };
   }, [moimId, userInfo]);
 
@@ -194,14 +218,15 @@ function Chatroom({route}: ChatroomProp) {
       <RealtimeMap
         startDraw={startDraw}
         setStartDraw={setStartDraw}
-        client={client.current}
         moimId={moimId}
+        users={users}
+        socket={socket}
       />
       {/* 채팅 */}
       {showChatArea ? (
         <ChatArea
           messages={messages}
-          client={client}
+          client={socket}
           moimId={moimId}
           closeHandler={() => {
             setShowChatArea(false);

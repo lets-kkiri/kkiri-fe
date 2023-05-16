@@ -50,8 +50,8 @@ const Button = styled.View`
   height: 50;
   justify-content: center;
   align-items: center;
-  padding-left: 34;
-  padding-right: 34;
+  padding-left: 34px;
+  padding-right: 34px;
   border-radius: 15;
   background-color: #5968f2;
 `;

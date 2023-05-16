@@ -4,14 +4,14 @@ import {requests} from '../api/requests';
 
 interface ArriveProps {
   moimId: number;
-  arrivalTime: string;
+  destinationTime: string;
 }
 
 const initialState = {
   userGrade: {
     moimId: 0,
     kakaoId: 0,
-    arrivalTime: '',
+    destinationTime: '',
     ranking: {
       rank: 0,
       overall: 0,

@@ -19,10 +19,10 @@ const ModalView = styled.View`
   border-color: #5968f2;
   border-style: solid;
   border-width: 2;
-  padding-right: 10;
-  padding-left: 10;
-  padding-top: 20;
-  padding-bottom: 10;
+  padding-right: 10px;
+  padding-left: 10px;
+  padding-top: 20px;
+  padding-bottom: 10px;
 `;
 
 const CustomModal = ({modalVisible, content}: ModalProps) => {
