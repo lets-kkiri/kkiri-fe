@@ -1,5 +1,5 @@
-import React from 'react';
-import {View, Text} from 'react-native';
+import React, {Suspense} from 'react';
+import {View, Text, ImageSourcePropType} from 'react-native';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
 
@@ -17,20 +17,23 @@ const Container = styled.TouchableOpacity`
   background-color: #ff9270;
 `;
 
-const EmojiText = styled.Text`
-  font-size: 16px;
-`;
-
 // Types
 type EmojiBtnProps = {
   onPress: () => void;
+  isEmojiSelected: boolean;
+  selectedEmoji: string;
 };
 
-const EmojiBtn = ({onPress}: EmojiBtnProps) => {
+const EmojiBtn = ({onPress, isEmojiSelected, selectedEmoji}: EmojiBtnProps) => {
   return (
     <Container activeOpacity={0.8} onPress={onPress}>
-      <WithLocalSvg asset={emoji_default} />
-      {/* <EmojiText>😊</EmojiText> */}
+      <Suspense fallback={<Text>...</Text>}>
+        {!isEmojiSelected ? (
+          <WithLocalSvg asset={emoji_default} width={32} height={32} />
+        ) : (
+          <WithLocalSvg asset={selectedEmoji} width={32} height={32} />
+        )}
+      </Suspense>
     </Container>
   );
 };

@@ -86,7 +86,8 @@ function RealtimeMap({
   // 임시 목적지: 역삼 멀티캠퍼스
   const destination = {latitude: 37.501303, longitude: 127.039603};
 
-  setTimeout(() => {
+  let timerId: NodeJS.Timeout;
+  function sendLocation() {
     if (socket.current) {
       console.log('실시간 위치 공유 시작');
       Geolocation.getCurrentPosition(
@@ -124,6 +125,8 @@ function RealtimeMap({
             setModalVisible(true);
             setModalType('arrive');
           }
+          // 재귀적으로 자기 자신을 호출하여 일정 시간 후에 함수를 다시 실행
+          timerId = setTimeout(sendLocation, 30000);
         },
         error => console.log(error),
         {
@@ -132,7 +135,15 @@ function RealtimeMap({
         },
       );
     }
-  }, 30000);
+  }
+
+  // 컴포넌트가 마운트되었을 때 최초로 함수를 실행
+  useEffect(() => {
+    sendLocation();
+
+    // 컴포넌트가 언마운트될 때 clearTimeout을 사용하여 타이머를 정리해주는 것이 좋습니다.
+    return () => clearTimeout(timerId);
+  }, []);
 
   // 두 위치의 거리 계산 함수
   const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
@@ -145,6 +156,7 @@ function RealtimeMap({
     const a =
       Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
       Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
+    Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     const distance = R * c; // 두 지점 사이의 거리 (m)

@@ -4,6 +4,7 @@ import {
   TouchableHighlight,
   Dimensions,
   KeyboardAvoidingView,
+  Vibration,
 } from 'react-native';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
@@ -76,6 +77,8 @@ type ChatAreaProps = {
   moimId: number;
   closeHandler: () => void;
   onPress: () => void;
+  isEmojiSelected: boolean;
+  selectedEmoji: string;
 };
 
 const ChatArea = ({
@@ -84,6 +87,8 @@ const ChatArea = ({
   moimId,
   closeHandler,
   onPress,
+  isEmojiSelected,
+  selectedEmoji,
 }: ChatAreaProps) => {
   const [inputValue, setInputValue] = useState<string>('');
 
@@ -104,6 +109,7 @@ const ChatArea = ({
       },
     });
     client.current.send(msg);
+    Vibration.vibrate();
     client.current.onerror = e => {
       console.log('socket error :', e);
     };
@@ -132,7 +138,11 @@ const ChatArea = ({
               <WithLocalSvg asset={send_btn} />
             </TextSendBtn>
           </TextInputContainer>
-          <EmojiBtn onPress={onPress} />
+          <EmojiBtn
+            onPress={onPress}
+            isEmojiSelected={isEmojiSelected}
+            selectedEmoji={selectedEmoji}
+          />
         </InputContainer>
       </ChatAreaContainer>
     </KeyboardAvoidingView>
