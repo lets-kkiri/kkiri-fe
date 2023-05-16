@@ -33,7 +33,7 @@ interface UserType {
     kakaoId: string;
     longitude: number;
     latitude: number;
-    pubTime: string;
+    regDate: string;
   };
 }
 
@@ -54,7 +54,7 @@ function Chatroom({route, client}: ChatroomProp) {
   const [showEmoji, setShowEmoji] = useState(false);
   const [isEmojiSelected, setIsEmojiSelected] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('');
-  const [user, setUser] = useState<UserType | null>(null);
+  // const [user, setUser] = useState<UserType | null>();
   const [users, setUsers] = useState<UserType[]>([]);
   // const [socket, SetSocket] = useState<WebSocket | null>(null);
   const [theTimerId, setTheTimerId] = useState<null | number>(null);
@@ -129,9 +129,12 @@ function Chatroom({route, client}: ChatroomProp) {
 
         // 모임원들의 실시간 위치일 경우
         if (data.type === 'GPS') {
-          setUser(data);
+          console.log('GPSGPSGPSGPS');
+          const user = data;
           if (user) {
+            console.log(user);
             setUsers([...users, user]);
+            console.log(users);
           }
         }
       };
