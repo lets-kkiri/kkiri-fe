@@ -198,6 +198,7 @@ function RealtimeMap({
   };
 
   const notices = useSelector((state: RootState) => state.persisted.noti);
+  console.log('노티노티 : ', notices);
 
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
@@ -258,7 +259,7 @@ function RealtimeMap({
               strokeWidth={5}
             />
           ) : null}
-          {/* {notices ? (
+          {/* {notices && notices[0].channelId === 'path' ? (
             <Polyline
               coordinates={drawpath}
               strokeColor="#B0BDFF"
@@ -268,7 +269,7 @@ function RealtimeMap({
         </NaverMapView>
       ) : null}
       {notices ? (
-        notices.length > 1 && notices[0].channelId === 'sos' ? (
+        notices[0].channelId === 'sos' ? (
           <AboutPath
             startDraw={startDraw}
             setStartDraw={setStartDraw}
@@ -280,7 +281,7 @@ function RealtimeMap({
             setDrawpoint={setDrawpoint}
             drawpath={drawpath}
             setDrawpath={setDrawpath}
-            kakaoId={notices[0].data.kakaoId}
+            nickname={notices[0].data.senderNickname}
           />
         ) : null
       ) : null}
