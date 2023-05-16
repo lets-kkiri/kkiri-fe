@@ -81,7 +81,6 @@ function RealtimeMap({
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [sideModal, setSideModal] = useState<boolean>(false);
   const [count, setCount] = useState<number>(0);
-  const [startInfo, setStartInfo] = useState<boolean>(false);
   const date = new Date();
 
   const dispatch = useAppDispatch();
@@ -89,56 +88,53 @@ function RealtimeMap({
   // 임시 목적지: 역삼 멀티캠퍼스
   const destination = {latitude: 37.501303, longitude: 127.039603};
 
-  let timerId: NodeJS.Timeout;
   function sendLocation() {
-    if (socket.current) {
-      console.log('실시간 위치 공유 시작');
-      Geolocation.watchPosition(
-        position => {
-          const data = {
-            type: 'GPS',
-            content: {
-              longitude: position.coords.longitude,
-              latitude: position.coords.latitude,
-              regDate: date.toISOString(),
-            },
-          };
-          socket.current.send(JSON.stringify(data));
-          console.log('서버로 내 위치 보내기');
-          setMyPosition(data);
+    console.log('실시간 위치 공유 시작');
+    Geolocation.watchPosition(
+      position => {
+        const data = {
+          type: 'GPS',
+          content: {
+            longitude: position.coords.longitude,
+            latitude: position.coords.latitude,
+            regDate: date.toISOString(),
+          },
+        };
+        socket.current.send(JSON.stringify(data));
+        console.log('서버로 내 위치 보내기');
+        setMyPosition(data);
 
-          // 현재 위치와 목적지 위치의 거리 계산
-          const distance = calculateDistance({
-            lat1: position.coords.latitude,
-            lon1: position.coords.longitude,
-            lat2: 37.501303,
-            lon2: 127.039603,
-          });
+        // 현재 위치와 목적지 위치의 거리 계산
+        const distance = calculateDistance({
+          lat1: position.coords.latitude,
+          lon1: position.coords.longitude,
+          lat2: 37.501303,
+          lon2: 127.039603,
+        });
 
-          // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-          if (distance <= 50) {
-            console.log('목적지 도착');
-            const destinationTime = date.toISOString();
-            dispatch(
-              arrivePost({
-                moimId: moimId,
-                destinationTime: destinationTime,
-              }),
-            );
-            setModalVisible(true);
-            setModalType('arrive');
-          }
-          // 재귀적으로 자기 자신을 호출하여 일정 시간 후에 함수를 다시 실행
-          // timerId = setTimeout(sendLocation, 30000);
-        },
-        error => console.log(error),
-        {
-          enableHighAccuracy: true,
-          timeout: 20000,
-          distanceFilter: 1,
-        },
-      );
-    }
+        // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
+        if (distance <= 50) {
+          console.log('목적지 도착');
+          const destinationTime = date.toISOString();
+          dispatch(
+            arrivePost({
+              moimId: moimId,
+              destinationTime: destinationTime,
+            }),
+          );
+          setModalVisible(true);
+          setModalType('arrive');
+        }
+        // 재귀적으로 자기 자신을 호출하여 일정 시간 후에 함수를 다시 실행
+        // timerId = setTimeout(sendLocation, 30000);
+      },
+      error => console.log(error),
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        distanceFilter: 5,
+      },
+    );
   }
 
   // 컴포넌트가 마운트되었을 때 최초로 함수를 실행
@@ -146,7 +142,7 @@ function RealtimeMap({
     sendLocation();
 
     // 컴포넌트가 언마운트될 때 clearTimeout을 사용하여 타이머를 정리해주는 것이 좋습니다.
-    return () => clearTimeout(timerId);
+    return () => {};
   }, []);
 
   // 두 위치의 거리 계산 함수

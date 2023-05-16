@@ -24,7 +24,6 @@ import {RootState} from '../store';
 
 interface ChatroomProp {
   route: RouteProp<RootStackParamList, 'Chatroom'>;
-  client: WebSocket | null;
 }
 
 interface UserType {
@@ -48,7 +47,7 @@ const MessagePreviewContainer = styled.View`
   padding: 16px;
 `;
 
-function Chatroom({route, client}: ChatroomProp) {
+function Chatroom({route}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
   const [startDraw, setStartDraw] = useState<boolean>(false);
@@ -67,7 +66,8 @@ function Chatroom({route, client}: ChatroomProp) {
 
   // socket 저장하는 변수
   // const socket = locationUpdater({moimId: 9, myId: myId});
-  const socket = useRef<WebSocket | null>(client);
+  // const socket = new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`);
+  const socket = useRef<WebSocket | null>(null);
 
   interface Data {
     meta: {
@@ -90,25 +90,29 @@ function Chatroom({route, client}: ChatroomProp) {
     };
     get_previous_chat(moimId);
 
-    // WebSocket;
-    // if (!socket.current) {
-    //   socket.current = new WebSocket(
-    //     `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
-    //   );
+    // const socket = new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`);
+    console.log('socket');
+    console.log('socket open');
 
-    //   socket.current.onopen = () => {
-    //     console.log('연결!');
-    //     // 소켓 열고 유저 정보 보내기
-    //     socket.current?.send(
-    //       JSON.stringify({
-    //         type: 'JOIN',
-    //         content: {
-    //           kakaoId: myId,
-    //         },
-    //       }),
-    //     );
-    //   };
-    // }
+    // WebSocket;
+    if (!socket.current) {
+      socket.current = new WebSocket(
+        `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
+      );
+
+      socket.current.onopen = () => {
+        console.log('연결!');
+        // 소켓 열고 유저 정보 보내기
+        socket.current?.send(
+          JSON.stringify({
+            type: 'JOIN',
+            content: {
+              kakaoId: userInfo.id,
+            },
+          }),
+        );
+      };
+    }
 
     if (socket.current) {
       console.log('연결연결');
@@ -156,7 +160,9 @@ function Chatroom({route, client}: ChatroomProp) {
     }
     return () => {
       console.log('=======================채팅방 나감========================');
-      // socket?.close();
+      if (socket.current) {
+        socket.current.close();
+      }
     };
   }, [moimId, userInfo]);
 
