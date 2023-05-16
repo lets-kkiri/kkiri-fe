@@ -19,6 +19,7 @@ interface PathProps {
   setDrawpoint: React.Dispatch<React.SetStateAction<PathState | null>>;
   drawpath: PathState[];
   setDrawpath: React.Dispatch<React.SetStateAction<PathState[]>>;
+  kakaoId: number;
 }
 
 interface PathState {
@@ -51,6 +52,7 @@ const AboutPath = ({
   setDrawpoint,
   drawpath,
   setDrawpath,
+  kakaoId,
 }: PathProps) => {
   const dispatch = useAppDispatch();
 
@@ -78,7 +80,8 @@ const AboutPath = ({
     <>
       {startDraw === false ? (
         <NotiBox
-          mainTitle="@친구가 도움을 요청했어요"
+          kakaoId={kakaoId}
+          mainTitle="가 도움을 요청했어요"
           subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
           onPress={() => setStartDraw(true)}
         />
