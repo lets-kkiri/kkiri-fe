@@ -4,7 +4,7 @@ buildscript {
     ext {
         buildToolsVersion = "30.0.2"
         minSdkVersion = 24
-        compileSdkVersion = 30
+        compileSdkVersion = 31
         targetSdkVersion = 30
         ndkVersion = "20.1.5948944"
         reactNativeVersion = "0.65.1"
@@ -45,6 +45,10 @@ allprojects {
         // 카카오 로그인
         maven {
             url 'https://devrepo.kakao.com/nexus/content/groups/public/'
+        }
+        maven {
+            // react-native-background-fetch
+            url("${project(':react-native-background-fetch').projectDir}/libs")
         }
     }
 }

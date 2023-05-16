@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {View, Alert} from 'react-native';
 
 // Naver Map
@@ -48,7 +48,7 @@ interface UserType {
   type: string;
   content: {
     moimId: number;
-    kakaoId: number;
+    kakaoId: string;
     longitude: number;
     latitude: number;
     pubTime: string;
@@ -58,11 +58,18 @@ interface UserType {
 interface MapProps {
   startDraw: boolean;
   setStartDraw: React.Dispatch<React.SetStateAction<boolean>>;
-  client: any;
   moimId: number;
+  users: UserType[];
+  socket: any;
 }
 
-function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
+function RealtimeMap({
+  startDraw,
+  setStartDraw,
+  moimId,
+  users,
+  socket,
+}: MapProps) {
   const [myPosition, setMyPosition] = useState<UserState | null>(null);
   // const [startDraw, setStartDraw] = useState<boolean>(false);
   const [drawpoint, setDrawpoint] = useState<PathState | null>(null);
@@ -72,8 +79,6 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [sideModal, setSideModal] = useState<boolean>(false);
   const [count, setCount] = useState<number>(0);
-  const [user, setUser] = useState<UserType | null>(null);
-  const [users, setUsers] = useState<UserType[]>([]);
   const date = new Date();
 
   const dispatch = useAppDispatch();
@@ -82,29 +87,26 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
   const destination = {latitude: 37.501303, longitude: 127.039603};
 
   setTimeout(() => {
-    Geolocation.getCurrentPosition(
-      position => {
-        setMyPosition({
-          type: 'GPS',
-          content: {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            regDate: date.toISOString(),
-          },
-        });
+    if (socket.current) {
+      console.log('실시간 위치 공유 시작');
+      Geolocation.getCurrentPosition(
+        position => {
+          const data = {
+            type: 'GPS',
+            content: {
+              longitude: position.coords.longitude,
+              latitude: position.coords.latitude,
+              regDate: date.toISOString(),
+            },
+          };
+          socket.current.send(JSON.stringify(data));
+          console.log('서버로 내 위치 보내기');
+          setMyPosition(data);
 
-        // 현재 위치와 목적지 위치의 거리 계산
-        if (myPosition) {
-          // 내 위치 서버로 보내기 -> websocket 로직으로 변경하기
-          if (client) {
-            client.send(JSON.stringify(myPosition));
-            console.log('내 위치 보낸다');
-            // socket.send(JSON.stringify(myPosition));
-          }
-
+          // 현재 위치와 목적지 위치의 거리 계산
           const distance = calculateDistance({
-            lat1: myPosition.content.latitude,
-            lon1: myPosition.content.longitude,
+            lat1: position.coords.latitude,
+            lon1: position.coords.longitude,
             lat2: 37.501303,
             lon2: 127.039603,
           });
@@ -112,35 +114,25 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
           // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
           if (distance <= 50) {
             console.log('목적지 도착');
-            const arrivalTime = date.toISOString();
-            dispatch(arrivePost({moimId: moimId, arrivalTime: arrivalTime}));
+            const destinationTime = date.toISOString();
+            dispatch(
+              arrivePost({
+                moimId: moimId,
+                destinationTime: destinationTime,
+              }),
+            );
             setModalVisible(true);
             setModalType('arrive');
           }
-        }
-      },
-      error => console.log(error),
-      {
-        enableHighAccuracy: true,
-        timeout: 20000,
-      },
-    );
-
-    // 서버로부터 모임원들 위치 받아오기
-    if (client) {
-      client.onmessage = function (event: any) {
-        const data = JSON.parse(event.data);
-        if (data.type === 'GPS') {
-          console.log('구성원들 위치 받았다.', data);
-          setUser(data.content);
-        }
-
-        if (user) {
-          setUsers([...users, user]);
-        }
-      };
+        },
+        error => console.log(error),
+        {
+          enableHighAccuracy: true,
+          timeout: 20000,
+        },
+      );
     }
-  }, 10000);
+  }, 30000);
 
   // 두 위치의 거리 계산 함수
   const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
@@ -180,7 +172,7 @@ function RealtimeMap({startDraw, setStartDraw, client, moimId}: MapProps) {
   };
 
   // 재촉 보내는 함수
-  const sendPress = (kakaoId: number) => {
+  const sendPress = (kakaoId: string) => {
     if (!startDraw) {
       Alert.alert('재촉했어요!');
       setCount(count + 1);

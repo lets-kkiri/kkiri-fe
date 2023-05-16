@@ -3,11 +3,11 @@ import {authInstance, baseInstance} from '../api/axios';
 import {requests} from '../api/requests';
 
 interface PressProps {
-  receiverKakaoId: number;
+  receiverKakaoId: string;
 }
 
 const initialState: PressProps = {
-  receiverKakaoId: 0,
+  receiverKakaoId: '',
 };
 
 export const pressPost = createAsyncThunk(
