@@ -324,7 +324,7 @@ function AppInner() {
           {},
           {headers: {authorization: `Bearer ${token}`}},
         );
-        console.log('Refresh 토큰 살아있음', response.data);
+        console.log('Refresh 토큰 살아있음', response.config);
       } catch (error) {
         console.error('refresh 토큰 관리 :', error.message);
         // 만약 response가 error를 들고왔을 때, refreshToken이 만료된 경우
