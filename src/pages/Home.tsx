@@ -15,6 +15,7 @@ import {requests} from '../api/requests';
 import {FlatList} from 'react-native-gesture-handler';
 import {Moim} from '../types';
 import Carousel from '../components/Carousel';
+import ModalToRealtime from '../components/ModalToRealtime/ModalToRealtime';
 
 // Styled component
 const HomeContainer = styled.View<{theme: any}>`
@@ -47,6 +48,7 @@ export default function Home() {
   const today = moment().tz('Asia/Seoul').format('YYYY-MM-DD');
   const [selectedDay, setSelectedDay] = useState('');
   const [moimList, setMoimList] = useState<Moim[]>([]);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   const colorScheme = useColorScheme();
   const theme = useSelector((state: RootState) => state.persisted.theme.theme);
@@ -78,6 +80,7 @@ export default function Home() {
 
   return (
     <HomeContainer theme={theme}>
+      <ModalToRealtime moimInfo={moimList[0]} />
       <HeaderContainer>
         <Text>{userInfo.nickname} 님</Text>
         <Text>

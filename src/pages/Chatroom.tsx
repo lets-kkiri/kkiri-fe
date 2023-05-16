@@ -69,7 +69,7 @@ function Chatroom({route, client}: ChatroomProp) {
   const moimId = route.params.moimId;
   // 나 자신
   const userInfo = useSelector((state: RootState) => state.persisted.user);
-
+  console.log('moimId :', moimId);
   // socket 저장하는 변수
   // const socket = locationUpdater({moimId: 9, myId: myId});
   const socket = useRef<WebSocket | null>(client);
@@ -142,9 +142,10 @@ function Chatroom({route, client}: ChatroomProp) {
           console.log('GPSGPSGPSGPS');
           const user = data;
           if (user) {
-            console.log(user);
-            setUsers([...users, user]);
-            console.log(users);
+            setUsers(prev => {
+              console.log('prev :', prev);
+              return [...prev, user];
+            });
           }
         }
       };
@@ -237,14 +238,14 @@ function Chatroom({route, client}: ChatroomProp) {
         <EmojiPicker onSelect={onSelect} onClose={() => closeEmojiPicker()} />
       )}
       {/* 지도 */}
-      {/* <RealtimeMap
+      <RealtimeMap
         startDraw={startDraw}
         setStartDraw={setStartDraw}
         moimId={moimId}
         users={users}
         socket={socket}
-      /> */}
-      {emojiMessages.map((emoji, index) => (
+      />
+      {Object.keys(emojiMessages).map((emoji, index) => (
         <View style={{position: 'absolute', bottom: 100}} key={index}>
           <EmojiAnimation index={0} />
         </View>
