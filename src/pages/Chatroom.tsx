@@ -4,6 +4,7 @@ import styled from 'styled-components/native';
 import {useSelector} from 'react-redux';
 import EmojiBtn from '../components/Chatroom/EmojiBtn';
 import {RouteProp} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
 
 // API
 import {requests} from '../api/requests';
@@ -129,12 +130,18 @@ function Chatroom({route, client}: ChatroomProp) {
 
         // 모임원들의 실시간 위치일 경우
         if (data.type === 'GPS') {
-          console.log('GPSGPSGPSGPS');
-          const user = data;
-          if (user) {
-            console.log(user);
-            setUsers([...users, user]);
-            console.log(users);
+          if (users[data.content.kakaoId]) {
+            const updatedUser = {
+              ...users[data.content.kakaoId],
+              content: {
+                ...users[data.content.kakaoId].content,
+                longitude: data.content.longitude,
+                latitude: data.content.latitude,
+              },
+            };
+            setUsers(prev => ({...prev, [data.content.kakaoId]: updatedUser}));
+          } else {
+            setUsers(prev => ({...prev, [data.content.kakaoId]: data}));
           }
         }
       };

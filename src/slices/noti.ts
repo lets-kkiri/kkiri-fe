@@ -9,16 +9,16 @@ import {PayloadAction, createSlice} from '@reduxjs/toolkit';
 // dispatch : action을 실제로 실행하는 함수
 // reducer : action이 실제로 실행되면 state를 바꾸는 로직
 
-type notiDatatype = {
-  path: {latitude: number; longitude: number}[];
-};
+// type notiDatatype = {
+//   path: {latitude: number; longitude: number}[];
+// };
 
 export type notiType = {
   channelId: string;
   id: string;
   title: string;
   message: string;
-  data: notiDatatype;
+  data: Object;
   checked: boolean;
 };
 
