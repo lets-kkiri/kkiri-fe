@@ -30,10 +30,10 @@ function Setting() {
         <Text>계좌정보</Text>
       </View>
       <DivideLine />
-      <Button
+      {/* <Button
         title="채팅방 입장"
-        onPress={() => navigation.navigate('Chatroom', {moimId: 9})}
-      />
+        onPress={() => navigation.navigate('Chatroom', {moimId: 49})}
+      /> */}
       {/* <Button title="지도" onPress={() => navigation.navigate('Map')} /> */}
       <Button
         title={darkMode ? '테마 : 다크' : '테마 : 라이트'}

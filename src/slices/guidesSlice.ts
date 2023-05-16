@@ -8,12 +8,12 @@ interface PathProps {
 }
 
 interface GuidesProps {
-  receiverKakaoId: number;
+  receiverKakaoId: string;
   path: PathProps[];
 }
 
 const initialState: GuidesProps = {
-  receiverKakaoId: 0,
+  receiverKakaoId: '',
   path: [{latitude: 0, longitude: 0}],
 };
 

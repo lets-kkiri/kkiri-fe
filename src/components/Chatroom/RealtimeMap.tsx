@@ -51,7 +51,7 @@ interface UserType {
     kakaoId: string;
     longitude: number;
     latitude: number;
-    pubTime: string;
+    regDate: string;
   };
 }
 
@@ -197,6 +197,8 @@ function RealtimeMap({
     }
   };
 
+  const notices = useSelector((state: RootState) => state.persisted.noti);
+
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
       {myPosition ? (
@@ -258,18 +260,20 @@ function RealtimeMap({
           ) : null}
         </NaverMapView>
       ) : null}
-      <AboutPath
-        startDraw={startDraw}
-        setStartDraw={setStartDraw}
-        sendpath={sendpath}
-        setModalVisible={setModalVisible}
-        setModalType={setModalType}
-        setSendpath={setSendpath}
-        drawpoint={drawpoint}
-        setDrawpoint={setDrawpoint}
-        drawpath={drawpath}
-        setDrawpath={setDrawpath}
-      />
+      {notices && notices[0].channelId === 'sos' ? (
+        <AboutPath
+          startDraw={startDraw}
+          setStartDraw={setStartDraw}
+          sendpath={sendpath}
+          setModalVisible={setModalVisible}
+          setModalType={setModalType}
+          setSendpath={setSendpath}
+          drawpoint={drawpoint}
+          setDrawpoint={setDrawpoint}
+          drawpath={drawpath}
+          setDrawpath={setDrawpath}
+        />
+      ) : null}
       <SideButton
         setSideModal={setSideModal}
         setModalVisible={setModalVisible}

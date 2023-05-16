@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import {Text, ScrollView, FlatList} from 'react-native';
+import {Text, ScrollView, FlatList, Button} from 'react-native';
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../types';
@@ -233,6 +233,10 @@ function Moim({navigation, route}: MoimProps) {
             renderItem={eachMember}
           />
         </MembersContainer>
+        <Button
+          title="채팅방 입장"
+          onPress={() => navigation.navigate('Chatroom', {moimId: moimId})}
+        />
       </ScrollView>
     </MoimContainer>
   );

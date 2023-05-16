@@ -64,7 +64,7 @@ const AboutPath = ({
   function sendPath() {
     // 임시 데이터
     const postData = {
-      receiverKakaoId: 2783374648,
+      receiverKakaoId: '2783374648',
       path: drawpath,
     };
     dispatch(guidesPost(postData));

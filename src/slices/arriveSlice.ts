@@ -10,7 +10,7 @@ interface ArriveProps {
 const initialState = {
   userGrade: {
     moimId: 0,
-    kakaoId: 0,
+    kakaoId: '',
     destinationTime: '',
     ranking: {
       rank: 0,
