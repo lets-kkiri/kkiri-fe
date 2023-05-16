@@ -7,7 +7,7 @@ const TokenRefreshService = {
   async refreshAccessToken() {
     const refreshToken = await EncryptedStorage.getItem('refreshToken');
     const response = await baseInstance.post(
-      `${requests.base_url}/api/auth/reissue`,
+      requests.GET_REISSUE(),
       {},
       {
         headers: {authorization: `Bearer ${refreshToken}`},

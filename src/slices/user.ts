@@ -56,7 +56,7 @@ const userSlice = createSlice({
       state.isLoggedIn = action.payload;
     },
     setDeviceTokens(state, action) {
-      state.deviceTokens = [...action.payload];
+      state.deviceTokens.push(action.payload);
     },
   },
   // 비동기 action
