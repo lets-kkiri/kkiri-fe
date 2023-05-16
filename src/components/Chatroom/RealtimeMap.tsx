@@ -128,7 +128,7 @@ function RealtimeMap({
             setModalType('arrive');
           }
           // 재귀적으로 자기 자신을 호출하여 일정 시간 후에 함수를 다시 실행
-          timerId = setTimeout(sendLocation, 3000);
+          timerId = setTimeout(sendLocation, 30000);
         },
         error => console.log(error),
         {
