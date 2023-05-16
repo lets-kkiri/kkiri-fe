@@ -23,6 +23,7 @@ import CustomModal from '../Common/Modal';
 import AboutPath from '../Map/AboutPath';
 import SideButton from '../Map/SideButton';
 import NotiBox from '../Common/NotiBox';
+import notiSlice from '../../slices/noti';
 
 interface UserState {
   type: string;
@@ -128,13 +129,13 @@ function RealtimeMap({
             setModalType('arrive');
           }
           // 재귀적으로 자기 자신을 호출하여 일정 시간 후에 함수를 다시 실행
-          timerId = setTimeout(sendLocation, 30000);
+          // timerId = setTimeout(sendLocation, 30000);
         },
         error => console.log(error),
         {
           enableHighAccuracy: true,
           timeout: 20000,
-          distanceFilter: 5,
+          distanceFilter: 1,
         },
       );
     }
@@ -262,13 +263,15 @@ function RealtimeMap({
               strokeWidth={5}
             />
           ) : null}
-          {notices.length > 0 && notices[0].channelId === 'path' ? (
-            !startInfo ? (
+          {notices.length > 0 ? (
+            notices[0].channelId === 'path' && !notices[0].checked ? (
               <NotiBox
                 nickname={notices[0].data.senderNickname}
-                mainTitle="님이 도움을 요청했어요"
-                subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
-                onPress={() => setStartInfo(true)}
+                mainTitle="가 길 안내를 보냈어요!"
+                subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
+                onPress={() =>
+                  dispatch(notiSlice.actions.clickNoti(notices[0].id))
+                }
               />
             ) : (
               <Polyline
@@ -294,7 +297,7 @@ function RealtimeMap({
             drawpath={drawpath}
             setDrawpath={setDrawpath}
             nickname={notices[0].data.senderNickname}
-            id={notices[0].data.id}
+            id={notices[0].id}
           />
         ) : null
       ) : null}
