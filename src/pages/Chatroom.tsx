@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View, Vibration} from 'react-native';
+import {View, Vibration, Button} from 'react-native';
 import styled from 'styled-components/native';
 import {useSelector} from 'react-redux';
 import EmojiBtn from '../components/Chatroom/EmojiBtn';
@@ -7,13 +7,14 @@ import {RouteProp} from '@react-navigation/native';
 
 // API
 import {requests} from '../api/requests';
-import {baseInstance} from '../api/axios';
+import {authInstance, baseInstance} from '../api/axios';
 
 // Components
 import ChatArea from '../components/Chatroom/ChatArea';
 import RealtimeMap from '../components/Chatroom/RealtimeMap';
 import MessagePreview from '../components/Chatroom/MessagePreview';
 import EmojiPicker from '../components/EmojiPicker/EmojiPicker';
+import EmojiAnimation from '../components/EmojiAnimation/EmojiAnimation';
 
 // types
 import {MessageData, RootStackParamList} from '../types/index';
@@ -49,15 +50,18 @@ const MessagePreviewContainer = styled.View`
 
 function Chatroom({route, client}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
+  const [emojiMessages, setEmojiMessages] = useState([]);
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
   const [startDraw, setStartDraw] = useState<boolean>(false);
-  const [showEmoji, setShowEmoji] = useState(false);
-  const [isEmojiSelected, setIsEmojiSelected] = useState(false);
-  const [selectedEmoji, setSelectedEmoji] = useState('');
+
+  const [showEmoji, setShowEmoji] = useState<boolean>(false);
+  const [isEmojiSelected, setIsEmojiSelected] = useState<boolean>(false);
+  const [selectedEmoji, setSelectedEmoji] = useState<number>('');
+
   const [user, setUser] = useState<UserType | null>(null);
   const [users, setUsers] = useState<UserType[]>([]);
-  // const [socket, SetSocket] = useState<WebSocket | null>(null);
   const [theTimerId, setTheTimerId] = useState<null | number>(null);
+  const [animateCounter, setAnimateCounter] = useState<number>(0);
 
   // 채팅방 id
   const moimId = route.params.moimId;
@@ -81,7 +85,7 @@ function Chatroom({route, client}: ChatroomProp) {
     // 이전 메시지 fetch
     const get_previous_chat = async (id: number) => {
       try {
-        const {data} = await baseInstance.get(requests.GET_CHAT(id, 20));
+        const {data} = await authInstance.get(requests.GET_CHAT(id, 20));
         setMessages(data.chat);
       } catch (error) {
         console.log('get previous chat error :', error);
@@ -124,7 +128,7 @@ function Chatroom({route, client}: ChatroomProp) {
 
         // 이모티콘인 경우
         if (event.data.messageType === 'EMOJI') {
-          // setMessages(prev => [...prev, event.data]);
+          //
         }
 
         // 모임원들의 실시간 위치일 경우
@@ -199,20 +203,29 @@ function Chatroom({route, client}: ChatroomProp) {
     setShowEmoji(false);
   };
 
+  const animateEmoji = () => {
+    setAnimateCounter(prev => prev + 1);
+    console.log(animateCounter);
+  };
+
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
+      <Button title="이모지" onPress={() => animateEmoji()} />
       {/* 이모지 */}
       {showEmoji && (
         <EmojiPicker onSelect={onSelect} onClose={() => closeEmojiPicker()} />
       )}
       {/* 지도 */}
-      <RealtimeMap
+      {/* <RealtimeMap
         startDraw={startDraw}
         setStartDraw={setStartDraw}
         moimId={moimId}
         users={users}
         socket={socket}
-      />
+      /> */}
+      <View style={{position: 'absolute', bottom: 100}}>
+        <EmojiAnimation index={0} />
+      </View>
       {/* 채팅 */}
       {showChatArea ? (
         <ChatArea
@@ -235,7 +248,7 @@ function Chatroom({route, client}: ChatroomProp) {
         !startDraw && (
           <MessagePreviewContainer>
             <MessagePreview
-              message={messages[0]}
+              message={!messages ? null : messages[0]}
               onPress={() => {
                 setShowChatArea(true);
                 setShowEmoji(false);

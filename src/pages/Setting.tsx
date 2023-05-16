@@ -76,7 +76,7 @@ function Setting() {
       <DivideLine />
       <Button
         title="채팅방 입장"
-        onPress={() => navigation.navigate('Chatroom', {moimId: 9})}
+        onPress={() => navigation.navigate('Chatroom', {moimId: 49})}
       />
       {/* <Button title="지도" onPress={() => navigation.navigate('Map')} /> */}
       <Button
