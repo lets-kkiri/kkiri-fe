@@ -48,9 +48,13 @@ const MessagePreviewContainer = styled.View`
   padding: 16px;
 `;
 
+type EmojiMessagesType = {
+  [key: number]: MessageData[];
+};
+
 function Chatroom({route, client}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
-  const [emojiMessages, setEmojiMessages] = useState([]);
+  const [emojiMessages, setEmojiMessages] = useState<EmojiMessagesType>({});
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
   const [startDraw, setStartDraw] = useState<boolean>(false);
 
@@ -91,6 +95,7 @@ function Chatroom({route, client}: ChatroomProp) {
         console.log('get previous chat error :', error);
       }
     };
+
     get_previous_chat(moimId);
 
     // WebSocket;
@@ -128,7 +133,10 @@ function Chatroom({route, client}: ChatroomProp) {
 
         // 이모티콘인 경우
         if (event.data.messageType === 'EMOJI') {
-          //
+          const temp = emojiMessages[data.kakaoId]
+            ? [...emojiMessages[data.kakaoId], data]
+            : [data];
+          setEmojiMessages(temp);
         }
 
         // 모임원들의 실시간 위치일 경우
@@ -206,6 +214,18 @@ function Chatroom({route, client}: ChatroomProp) {
   const animateEmoji = () => {
     setAnimateCounter(prev => prev + 1);
     console.log(animateCounter);
+    setEmojiMessages(prev => [
+      ...prev,
+      {
+        kakaoId: 2785529705,
+        message: '3',
+        messageType: 'EMOJI',
+        moimId: 94,
+        nickname: '이은지',
+        seq: 759,
+        time: '2023-05-16 06:27:11.243391',
+      },
+    ]);
   };
 
   return (
@@ -223,9 +243,11 @@ function Chatroom({route, client}: ChatroomProp) {
         users={users}
         socket={socket}
       /> */}
-      <View style={{position: 'absolute', bottom: 100}}>
-        <EmojiAnimation index={0} />
-      </View>
+      {emojiMessages.map((emoji, index) => (
+        <View style={{position: 'absolute', bottom: 100}} key={index}>
+          <EmojiAnimation index={0} />
+        </View>
+      ))}
       {/* 채팅 */}
       {showChatArea ? (
         <ChatArea
