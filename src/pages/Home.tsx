@@ -64,6 +64,7 @@ export default function Home() {
     setSelectedDay(today);
 
     const get_moim_list = async () => {
+      authInstance.defaults.headers.common.Authorization = `Bearer ${userInfo.accessToken}`;
       const {data} = await authInstance.get(requests.GET_MOIM_LIST());
       setMoimList(data.moimCardList);
     };

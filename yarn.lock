@@ -2054,10 +2054,10 @@
   dependencies:
     "eslint-visitor-keys" "^1.1.0"
 
-"@viro-community/react-viro@^2.23.0":
-  "integrity" "sha512-mi1oA0lRLbfXtSSszXhdfrfoAhWNCJ+VkJWdtsfGLwZsg3x+cyaN5qcP1gWW2OqqVRTVLicbNmYoom85/a1CjA=="
-  "resolved" "https://registry.npmjs.org/@viro-community/react-viro/-/react-viro-2.23.0.tgz"
-  "version" "2.23.0"
+"@viro-community/react-viro@npm:react-viro-sw@^2.23.6":
+  "integrity" "sha512-p7bcI1mYgxS1L9Rwh/1jo3BXX26PsiJ3R6ORdBpS1dkT2O2+J++G2HlZxiGYDAEEWmFnFNjpb+z8TwrL+RpnvA=="
+  "resolved" "https://registry.npmjs.org/react-viro-sw/-/react-viro-sw-2.23.6.tgz"
+  "version" "2.23.6"
   dependencies:
     "@expo/config-plugins" "^4.0.16"
     "react" "^17.0.2"
@@ -6693,12 +6693,22 @@
     "jscodeshift" "^0.11.0"
     "nullthrows" "^1.1.1"
 
+"react-native-compass-heading@^1.4.2":
+  "integrity" "sha512-7j37EIw2bNXgdu/mb47eTxXgXqwnMQAud69KflqaTfxXdr+6ODurlou3WH1o/V+6pAIV2A0kuYJJ9S7l9T8CMg=="
+  "resolved" "https://registry.npmjs.org/react-native-compass-heading/-/react-native-compass-heading-1.4.2.tgz"
+  "version" "1.4.2"
+
 "react-native-date-picker@^4.2.13":
   "integrity" "sha512-cQ3k+ExXggAnytomeNGNrtV/l2a7WzVUeWKo7Gs2pv/z3TCjjlmKn0ZBMPgcThrFAgFMxgYI0XzKVKT7TPsOmw=="
   "resolved" "https://registry.npmjs.org/react-native-date-picker/-/react-native-date-picker-4.2.13.tgz"
   "version" "4.2.13"
   dependencies:
     "prop-types" "^15.8.1"
+
+"react-native-dropdown-picker@^5.4.6":
+  "integrity" "sha512-T1XBHbE++M6aRU3wFYw3MvcOuabhWZ29RK/Ivdls2r1ZkZ62iEBZknLUPeVLMX3x6iUxj4Zgr3X2DGlEGXeHsA=="
+  "resolved" "https://registry.npmjs.org/react-native-dropdown-picker/-/react-native-dropdown-picker-5.4.6.tgz"
+  "version" "5.4.6"
 
 "react-native-encrypted-storage@^4.0.3":
   "integrity" "sha512-0pJA4Aj2S1PIJEbU7pN/Qvf7JIJx3hFywx+i+bLHtgK0/6Zryf1V2xVsWcrD50dfiu3jY1eN2gesQ5osGxE7jA=="
@@ -6808,7 +6818,7 @@
   "resolved" "https://registry.npmjs.org/react-native-uuid/-/react-native-uuid-2.0.1.tgz"
   "version" "2.0.1"
 
-"react-native@*", "react-native@^0.0.0-0 || 0.60 - 0.72 || 1000.0.0", "react-native@>= 0.30.0", "react-native@>= 0.64.3", "react-native@>=0.23.1", "react-native@>=0.25.1", "react-native@>=0.33", "react-native@>=0.47.0", "react-native@>=0.57.0", "react-native@>=0.58.4", "react-native@>=0.59", "react-native@>=0.63.0", "react-native@>=0.63.3", "react-native@>=0.65.0", "react-native@>0.62.0", "react-native@0.60.5", "react-native@0.65.1":
+"react-native@*", "react-native@^0.0.0-0 || 0.60 - 0.72 || 1000.0.0", "react-native@>= 0.30.0", "react-native@>= 0.64.3", "react-native@>=0.23.1", "react-native@>=0.25.1", "react-native@>=0.33", "react-native@>=0.47.0", "react-native@>=0.57.0", "react-native@>=0.58.4", "react-native@>=0.59", "react-native@>=0.60.0 <1.0.x", "react-native@>=0.63.0", "react-native@>=0.63.3", "react-native@>=0.65.0", "react-native@>0.62.0", "react-native@0.60.5", "react-native@0.65.1":
   "integrity" "sha512-0UOVSnlssweQZjuaUtzViCifE/4tXm8oRbxwakopc8GavPu9vLulde145GOw6QVYiOy4iL50f+2XXRdX9NmMeQ=="
   "resolved" "https://registry.npmjs.org/react-native/-/react-native-0.65.1.tgz"
   "version" "0.65.1"
@@ -6879,7 +6889,7 @@
     "react-shallow-renderer" "^16.13.1"
     "scheduler" "^0.20.2"
 
-"react@*", "react@^16.0.0 || ^17.0.0 || ^18.0.0", "react@^16.8 || ^17.0 || ^18.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.9.0 || ^17.0.0 || ^18", "react@^17.0.2", "react@^18.2.0", "react@>= 15.2.1", "react@>= 16.8.0", "react@>= 17.0.1", "react@>=0.14.5", "react@>=0.14.8", "react@>=16.13.1", "react@>=16.6.3", "react@>=16.8", "react@>=17.0.0", "react@16.8.6", "react@17.0.2":
+"react@*", "react@^16.0.0 || ^17.0.0 || ^18.0.0", "react@^16.8 || ^17.0 || ^18.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^16.9.0 || ^17.0.0 || ^18", "react@^17.0.2", "react@^18.2.0", "react@>= 15.2.1", "react@>= 16.8.0", "react@>= 17.0.1", "react@>=0.14.5", "react@>=0.14.8", "react@>=16.13.1", "react@>=16.6.3", "react@>=16.8", "react@>=17.0.0", "react@>=17.0.2", "react@16.8.6", "react@17.0.2":
   "integrity" "sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA=="
   "resolved" "https://registry.npmjs.org/react/-/react-17.0.2.tgz"
   "version" "17.0.2"

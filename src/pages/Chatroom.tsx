@@ -34,7 +34,7 @@ interface UserType {
     kakaoId: string;
     longitude: number;
     latitude: number;
-    pubTime: string;
+    regDate: string;
   };
 }
 
@@ -57,12 +57,10 @@ function Chatroom({route, client}: ChatroomProp) {
   const [emojiMessages, setEmojiMessages] = useState<EmojiMessagesType>({});
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
   const [startDraw, setStartDraw] = useState<boolean>(false);
-
-  const [showEmoji, setShowEmoji] = useState<boolean>(false);
-  const [isEmojiSelected, setIsEmojiSelected] = useState<boolean>(false);
-  const [selectedEmoji, setSelectedEmoji] = useState<number>('');
-
-  const [user, setUser] = useState<UserType | null>(null);
+  const [showEmoji, setShowEmoji] = useState(false);
+  const [isEmojiSelected, setIsEmojiSelected] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState('');
+  // const [user, setUser] = useState<UserType | null>();
   const [users, setUsers] = useState<UserType[]>([]);
   const [theTimerId, setTheTimerId] = useState<null | number>(null);
   const [animateCounter, setAnimateCounter] = useState<number>(0);
@@ -141,9 +139,12 @@ function Chatroom({route, client}: ChatroomProp) {
 
         // 모임원들의 실시간 위치일 경우
         if (data.type === 'GPS') {
-          setUser(data);
+          console.log('GPSGPSGPSGPS');
+          const user = data;
           if (user) {
+            console.log(user);
             setUsers([...users, user]);
+            console.log(users);
           }
         }
       };
@@ -270,7 +271,7 @@ function Chatroom({route, client}: ChatroomProp) {
         !startDraw && (
           <MessagePreviewContainer>
             <MessagePreview
-              message={!messages ? null : messages[0]}
+              message={messages ? messages[0] : null}
               onPress={() => {
                 setShowChatArea(true);
                 setShowEmoji(false);

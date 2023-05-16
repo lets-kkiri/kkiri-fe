@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Alert} from 'react-native';
 
 // Naver Map
@@ -22,6 +22,7 @@ import CustomModal from '../Common/Modal';
 // svg
 import AboutPath from '../Map/AboutPath';
 import SideButton from '../Map/SideButton';
+import NotiBox from '../Common/NotiBox';
 
 interface UserState {
   type: string;
@@ -51,7 +52,7 @@ interface UserType {
     kakaoId: string;
     longitude: number;
     latitude: number;
-    pubTime: string;
+    regDate: string;
   };
 }
 
@@ -79,6 +80,7 @@ function RealtimeMap({
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [sideModal, setSideModal] = useState<boolean>(false);
   const [count, setCount] = useState<number>(0);
+  const [startInfo, setStartInfo] = useState<boolean>(false);
   const date = new Date();
 
   const dispatch = useAppDispatch();
@@ -90,7 +92,7 @@ function RealtimeMap({
   function sendLocation() {
     if (socket.current) {
       console.log('실시간 위치 공유 시작');
-      Geolocation.getCurrentPosition(
+      Geolocation.watchPosition(
         position => {
           const data = {
             type: 'GPS',
@@ -132,6 +134,7 @@ function RealtimeMap({
         {
           enableHighAccuracy: true,
           timeout: 20000,
+          distanceFilter: 5,
         },
       );
     }
@@ -197,6 +200,9 @@ function RealtimeMap({
     }
   };
 
+  const notices = useSelector((state: RootState) => state.persisted.noti);
+  // console.log('노티노티 : ', notices);
+
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
       {myPosition ? (
@@ -256,20 +262,42 @@ function RealtimeMap({
               strokeWidth={5}
             />
           ) : null}
+          {notices.length > 0 && notices[0].channelId === 'path' ? (
+            !startInfo ? (
+              <NotiBox
+                nickname={notices[0].data.senderNickname}
+                mainTitle="님이 도움을 요청했어요"
+                subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
+                onPress={() => setStartInfo(true)}
+              />
+            ) : (
+              <Polyline
+                coordinates={notices[0].data.path}
+                strokeColor="#B0BDFF"
+                strokeWidth={5}
+              />
+            )
+          ) : null}
         </NaverMapView>
       ) : null}
-      <AboutPath
-        startDraw={startDraw}
-        setStartDraw={setStartDraw}
-        sendpath={sendpath}
-        setModalVisible={setModalVisible}
-        setModalType={setModalType}
-        setSendpath={setSendpath}
-        drawpoint={drawpoint}
-        setDrawpoint={setDrawpoint}
-        drawpath={drawpath}
-        setDrawpath={setDrawpath}
-      />
+      {notices.length > 0 ? (
+        notices[0].channelId === 'sos' && !notices[0].checked ? (
+          <AboutPath
+            startDraw={startDraw}
+            setStartDraw={setStartDraw}
+            sendpath={sendpath}
+            setModalVisible={setModalVisible}
+            setModalType={setModalType}
+            setSendpath={setSendpath}
+            drawpoint={drawpoint}
+            setDrawpoint={setDrawpoint}
+            drawpath={drawpath}
+            setDrawpath={setDrawpath}
+            nickname={notices[0].data.senderNickname}
+            id={notices[0].data.id}
+          />
+        ) : null
+      ) : null}
       <SideButton
         setSideModal={setSideModal}
         setModalVisible={setModalVisible}
