@@ -178,7 +178,7 @@ function AppInner() {
         dispatch(userSlice.actions.setDeviceTokens(token));
         console.log('getTokenRes : ', response.data);
       } catch (error) {
-        console.error(error);
+        console.error('FCM 토큰 설정할 때 나는 에러 : ', error);
       }
     }
     if (isLoggedIn === true) {
@@ -229,7 +229,7 @@ function AppInner() {
 
     // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
     onRegistrationError: function (err: Error) {
-      console.error(err.message, err);
+      console.error('fails to register:', err.message, err);
     },
 
     // IOS ONLY (optional): default: all - Permissions to register.
@@ -326,7 +326,7 @@ function AppInner() {
         );
         console.log('Refresh 토큰 살아있음', response.data);
       } catch (error) {
-        console.error(error.message);
+        console.error('refresh 토큰 관리 :', error.message);
         // 만약 response가 error를 들고왔을 때, refreshToken이 만료된 경우
         if (error.status === 409) {
           const signOutWithKakao = async (): Promise<void> => {
