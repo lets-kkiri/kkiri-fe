@@ -28,6 +28,10 @@ const naverAPI = (url: string, options?: any) => {
 //   config.headers.Authorization =
 //     'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyNzgzMzc0NjQ4IiwiaXNzIjoiS0tJUkkiLCJleHAiOjE2OTYwMDU0NjMsImlhdCI6MTY4MzkwOTQ2M30.E6hPIi_78WVgRdbKsD5uIlVS8YQpj0eZC-QFzEkDFxv4MYJmHhOni9KdS77TGZNsQC5fJ8w_uEjCJNGVfLovSA';
 //   // console.log(config);
+// export const setTokenHeader = (config: any) => {
+//   config.headers.Authorization =
+//     'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyNzgzMzc0NjQ4IiwiaXNzIjoiS0tJUkkiLCJleHAiOjE2OTYwMDU0NjMsImlhdCI6MTY4MzkwOTQ2M30.E6hPIi_78WVgRdbKsD5uIlVS8YQpj0eZC-QFzEkDFxv4MYJmHhOni9KdS77TGZNsQC5fJ8w_uEjCJNGVfLovSA';
+//   // console.log(config);
 //   return config;
 // };
 
@@ -57,6 +61,7 @@ authInstance.interceptors.response.use(
         error.response.status === 403) &&
       !originalRequest._retry
     ) {
+      console.log('아시오스 에러!', error.response.status);
       originalRequest._retry = true;
       const accessToken = await TokenRefreshService.refreshAccessToken();
       console.log('새로 받은 엑세스 토큰', accessToken);

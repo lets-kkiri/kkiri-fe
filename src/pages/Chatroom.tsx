@@ -1,6 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View} from 'react-native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {View, Vibration} from 'react-native';
 import styled from 'styled-components/native';
 import {useSelector} from 'react-redux';
 import EmojiBtn from '../components/Chatroom/EmojiBtn';
@@ -14,6 +13,7 @@ import {baseInstance} from '../api/axios';
 import ChatArea from '../components/Chatroom/ChatArea';
 import RealtimeMap from '../components/Chatroom/RealtimeMap';
 import MessagePreview from '../components/Chatroom/MessagePreview';
+import EmojiPicker from '../components/EmojiPicker/EmojiPicker';
 
 // types
 import {MessageData, RootStackParamList} from '../types/index';
@@ -22,7 +22,6 @@ import {MessageData, RootStackParamList} from '../types/index';
 import {RootState} from '../store';
 
 interface ChatroomProp {
-  // navigation: NativeStackNavigationProp<RootStackParamList, 'Chatroom'>;
   route: RouteProp<RootStackParamList, 'Chatroom'>;
   client: WebSocket | null;
 }
@@ -52,17 +51,18 @@ function Chatroom({route, client}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
   const [startDraw, setStartDraw] = useState<boolean>(false);
-  const [emojiSelected, setEmojiSelected] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
+  const [isEmojiSelected, setIsEmojiSelected] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('');
   const [user, setUser] = useState<UserType | null>(null);
   const [users, setUsers] = useState<UserType[]>([]);
   // const [socket, SetSocket] = useState<WebSocket | null>(null);
+  const [theTimerId, setTheTimerId] = useState<null | number>(null);
 
   // 채팅방 id
   const moimId = route.params.moimId;
   // 나 자신
-  const myId = useSelector((state: RootState) => state.persisted.user.id);
+  const userInfo = useSelector((state: RootState) => state.persisted.user);
 
   // socket 저장하는 변수
   // const socket = locationUpdater({moimId: 9, myId: myId});
@@ -115,6 +115,7 @@ function Chatroom({route, client}: ChatroomProp) {
       socket.current.onmessage = event => {
         console.log(event.data);
         const data = JSON.parse(event.data);
+        console.log('onmessage :', data);
         // 채팅 메시지, 재촉 메시지인 경우
         if (data.messageType === 'MESSAGE' || data.messageType === 'URGENT') {
           let newMessages = [data];
@@ -147,12 +148,63 @@ function Chatroom({route, client}: ChatroomProp) {
       console.log('=======================채팅방 나감========================');
       // socket?.close();
     };
-  }, [moimId, myId]);
+  }, [moimId, userInfo]);
 
-  const sendEmoji = () => {};
+  const sendEmoji = () => {
+    if (theTimerId) {
+      clearTimeout(theTimerId);
+    }
+
+    if (socket.current) {
+      console.log('send emoji :', selectedEmoji);
+      socket.current?.send(
+        JSON.stringify({
+          type: 'EMOJI',
+          content: {
+            moimId: moimId,
+            kakaoId: userInfo.id,
+            nickname: userInfo.nickname,
+            message: selectedEmoji,
+          },
+        }),
+      );
+      Vibration.vibrate();
+    }
+  };
+
+  const onSelect = (emoji: any) => {
+    // 선택
+    setIsEmojiSelected(true);
+    setSelectedEmoji(emoji);
+
+    // 그 전 타이머 지우기
+    if (theTimerId) {
+      clearTimeout(theTimerId);
+    }
+
+    // 새로운 타이머 생성
+    const timerId = setTimeout(() => {
+      setIsEmojiSelected(false);
+      setSelectedEmoji('');
+      setTheTimerId(null);
+      // 3초 동안 상호작용이 없다면 타이머 지우기
+      clearTimeout(timerId);
+    }, 3000);
+
+    // 새로운 타이머 저장
+    setTheTimerId(timerId);
+  };
+
+  const closeEmojiPicker = () => {
+    setShowEmoji(false);
+  };
 
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
+      {/* 이모지 */}
+      {showEmoji && (
+        <EmojiPicker onSelect={onSelect} onClose={() => closeEmojiPicker()} />
+      )}
       {/* 지도 */}
       <RealtimeMap
         startDraw={startDraw}
@@ -167,18 +219,39 @@ function Chatroom({route, client}: ChatroomProp) {
           messages={messages}
           client={socket}
           moimId={moimId}
-          closeHandler={() => setShowChatArea(false)}
-          onPress={emojiSelected ? sendEmoji : () => setShowEmoji(true)}
+          closeHandler={() => {
+            setShowChatArea(false);
+            setShowEmoji(false);
+          }}
+          onPress={
+            isEmojiSelected
+              ? () => sendEmoji()
+              : () => setShowEmoji(prev => !prev)
+          }
+          isEmojiSelected={isEmojiSelected}
+          selectedEmoji={selectedEmoji}
         />
       ) : (
         !startDraw && (
           <MessagePreviewContainer>
             <MessagePreview
               message={messages[0]}
-              onPress={() => setShowChatArea(true)}
+              onPress={() => {
+                setShowChatArea(true);
+                setShowEmoji(false);
+              }}
             />
             <EmojiBtn
-              onPress={emojiSelected ? sendEmoji : () => setShowEmoji(true)}
+              onPress={
+                isEmojiSelected
+                  ? () => {
+                      sendEmoji();
+                      onSelect(selectedEmoji);
+                    }
+                  : () => setShowEmoji(prev => !prev)
+              }
+              isEmojiSelected={isEmojiSelected}
+              selectedEmoji={selectedEmoji}
             />
           </MessagePreviewContainer>
         )
