@@ -23,6 +23,8 @@ import CustomModal from '../Common/Modal';
 import AboutPath from '../Map/AboutPath';
 import SideButton from '../Map/SideButton';
 import NotiBox from '../Common/NotiBox';
+import EmojiAnimation from '../EmojiAnimation/EmojiAnimation';
+import {MessageData} from '../../types';
 
 interface UserState {
   type: string;
@@ -62,6 +64,7 @@ interface MapProps {
   moimId: number;
   users: UserType[];
   socket: any;
+  emojiMessages: MessageData[];
 }
 
 function RealtimeMap({
@@ -70,6 +73,7 @@ function RealtimeMap({
   moimId,
   users,
   socket,
+  emojiMessages,
 }: MapProps) {
   const [myPosition, setMyPosition] = useState<UserState | null>(null);
   // const [startDraw, setStartDraw] = useState<boolean>(false);
@@ -128,7 +132,7 @@ function RealtimeMap({
             setModalType('arrive');
           }
           // 재귀적으로 자기 자신을 호출하여 일정 시간 후에 함수를 다시 실행
-          timerId = setTimeout(sendLocation, 30000);
+          // timerId = setTimeout(sendLocation, 30000);
         },
         error => console.log(error),
         {
@@ -242,18 +246,21 @@ function RealtimeMap({
             />
           ) : null}
           {users?.map((data, index) => (
-            <Marker
-              onClick={() => sendPress(data.content.kakaoId)}
-              key={index}
-              coordinate={{
-                latitude: data.content.latitude,
-                longitude: data.content.longitude,
-              }}
-              image={require('../../assets/icons/cat.png')}
-              width={45}
-              height={50}
-              // caption={{text: user.id}}
-            />
+            <View>
+              <EmojiAnimation index={0} />
+              <Marker
+                onClick={() => sendPress(data.content.kakaoId)}
+                key={index}
+                coordinate={{
+                  latitude: data.content.latitude,
+                  longitude: data.content.longitude,
+                }}
+                image={require('../../assets/icons/cat.png')}
+                width={45}
+                height={50}
+                // caption={{text: user.id}}
+              />
+            </View>
           ))}
           {drawpath.length > 1 ? (
             <Polyline
