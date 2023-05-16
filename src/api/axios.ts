@@ -41,11 +41,6 @@ export const setTokenHeader = (config: any, token: string) => {
   return config;
 };
 
-export const setTokenHeader = (config: any, token: string) => {
-  config.headers.Authorization = `Bearer ${token}`;
-  return config;
-};
-
 export const baseInstance = baseAPI(BASE_URL);
 export const authInstance = authAPI(BASE_URL);
 export const naverInstance = naverAPI(NAVER_URL);
@@ -66,6 +61,7 @@ authInstance.interceptors.response.use(
         error.response.status === 403) &&
       !originalRequest._retry
     ) {
+      console.log('아시오스 에러!', error.response.status);
       originalRequest._retry = true;
       const accessToken = await TokenRefreshService.refreshAccessToken();
       console.log('새로 받은 엑세스 토큰', accessToken);

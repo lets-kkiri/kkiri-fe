@@ -1,6 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {View, Vibration} from 'react-native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import styled from 'styled-components/native';
 import {useSelector} from 'react-redux';
 import EmojiBtn from '../components/Chatroom/EmojiBtn';
@@ -23,7 +22,6 @@ import {MessageData, RootStackParamList} from '../types/index';
 import {RootState} from '../store';
 
 interface ChatroomProp {
-  // navigation: NativeStackNavigationProp<RootStackParamList, 'Chatroom'>;
   route: RouteProp<RootStackParamList, 'Chatroom'>;
   client: WebSocket | null;
 }
@@ -61,17 +59,10 @@ function Chatroom({route, client}: ChatroomProp) {
   // const [socket, SetSocket] = useState<WebSocket | null>(null);
   const [theTimerId, setTheTimerId] = useState<null | number>(null);
 
-  // socket 저장하는 변수
-  const client = useRef<WebSocket | null>(null);
-
   // 채팅방 id
   const moimId = route.params.moimId;
   // 나 자신
   const userInfo = useSelector((state: RootState) => state.persisted.user);
-
-  // socket 저장하는 변수
-  // const socket = locationUpdater({moimId: 9, myId: myId});
-  const socket = useRef<WebSocket | null>(client);
 
   // socket 저장하는 변수
   // const socket = locationUpdater({moimId: 9, myId: myId});
@@ -164,9 +155,9 @@ function Chatroom({route, client}: ChatroomProp) {
       clearTimeout(theTimerId);
     }
 
-    if (client.current) {
+    if (socket.current) {
       console.log('send emoji :', selectedEmoji);
-      client.current?.send(
+      socket.current?.send(
         JSON.stringify({
           type: 'EMOJI',
           content: {
