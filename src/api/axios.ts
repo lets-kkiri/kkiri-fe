@@ -54,7 +54,12 @@ authInstance.interceptors.response.use(
   },
   async error => {
     const originalRequest = error.config;
-    console.error('에러입니다', error.config);
+    console.error(
+      '에러입니다',
+      error.config,
+      '에러 번호',
+      error.response.status,
+    );
     if (
       (error.response.status === 400 ||
         error.response.status === 401 ||

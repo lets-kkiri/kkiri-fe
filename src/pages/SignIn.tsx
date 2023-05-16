@@ -90,7 +90,7 @@ function SignIn() {
       // dispatch(userSlice.actions.setIsLoggedIn(true));
       console.log('리스폰스 데이타 : ', response.data);
     } catch (error: any) {
-      console.error(error.message);
+      console.error('로그인 에러: ', error.message);
     }
   };
 
@@ -118,7 +118,7 @@ function SignIn() {
           console.log('로그아웃');
         }
       } catch (error) {
-        console.error(error.message);
+        console.error('로그아웃 에러:', error.message);
       }
     } else {
       console.log('User is not logged in');

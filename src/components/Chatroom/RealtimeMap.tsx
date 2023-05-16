@@ -258,29 +258,31 @@ function RealtimeMap({
               strokeWidth={5}
             />
           ) : null}
-          {notices && notices[0].channelId === 'path' ? (
+          {/* {notices ? (
             <Polyline
               coordinates={drawpath}
               strokeColor="#B0BDFF"
               strokeWidth={5}
             />
-          ) : null}
+          ) : null} */}
         </NaverMapView>
       ) : null}
-      {notices && notices[0].channelId === 'sos' ? (
-        <AboutPath
-          startDraw={startDraw}
-          setStartDraw={setStartDraw}
-          sendpath={sendpath}
-          setModalVisible={setModalVisible}
-          setModalType={setModalType}
-          setSendpath={setSendpath}
-          drawpoint={drawpoint}
-          setDrawpoint={setDrawpoint}
-          drawpath={drawpath}
-          setDrawpath={setDrawpath}
-          kakaoId={notices[0].data.kakaoId}
-        />
+      {notices ? (
+        notices.length > 1 && notices[0].channelId === 'sos' ? (
+          <AboutPath
+            startDraw={startDraw}
+            setStartDraw={setStartDraw}
+            sendpath={sendpath}
+            setModalVisible={setModalVisible}
+            setModalType={setModalType}
+            setSendpath={setSendpath}
+            drawpoint={drawpoint}
+            setDrawpoint={setDrawpoint}
+            drawpath={drawpath}
+            setDrawpath={setDrawpath}
+            kakaoId={notices[0].data.kakaoId}
+          />
+        ) : null
       ) : null}
       <SideButton
         setSideModal={setSideModal}

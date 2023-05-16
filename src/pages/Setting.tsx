@@ -54,7 +54,7 @@ function Setting() {
           console.log('로그아웃');
         }
       } catch (error) {
-        console.error(error.message);
+        console.error('setting 에러 :', error.message);
       }
     } else {
       console.log('User is not logged in');
