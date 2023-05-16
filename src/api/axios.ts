@@ -45,7 +45,7 @@ export const baseInstance = baseAPI(BASE_URL);
 export const authInstance = authAPI(BASE_URL);
 export const naverInstance = naverAPI(NAVER_URL);
 
-authInstance.interceptors.request.use(setTokenHeader);
+// authInstance.interceptors.request.use(setTokenHeader);
 
 // authInstance.interceptors.response.use(
 //   response => {
