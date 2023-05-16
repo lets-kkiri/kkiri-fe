@@ -195,19 +195,17 @@ function AppInner() {
     // (required) 리모트 노티를 수신하거나, 열었거나 로컬 노티를 열었을 때 실행
     onNotification: function (notification: any) {
       console.log('NOTIFICATION:', notification);
-      if (notification.channelId === 'hurry') {
-        if (notification.message || notification.data.message) {
-          dispatch(
-            notiSlice.actions.pushNoti({
-              channelId: notification.channelId,
-              id: notification.id,
-              title: notification.title,
-              message: notification.message,
-              data: notification.data,
-              checked: false,
-            }),
-          );
-        }
+      if (notification.message || notification.data.message) {
+        dispatch(
+          notiSlice.actions.pushNoti({
+            channelId: notification.channelId,
+            id: notification.id,
+            title: notification.title,
+            message: notification.message,
+            data: notification.data,
+            checked: false,
+          }),
+        );
       }
 
       // 모임 한 시간 전 알림 감지
@@ -298,6 +296,19 @@ function AppInner() {
       channelId: 'open',
       channelName: '모임 한 시간 전 알림',
       channelDescription: '모임 한 시간 전에 울리는 알림', // (optional) default: undefined.
+      soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+      importance: 4, // (optional) default: 4. Int value of the Android notification importance
+      vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+    },
+    (created: boolean) =>
+      console.log(`createChannel socket returned ${created}`),
+  );
+
+  PushNotification.createChannel(
+    {
+      channelId: 'sos',
+      channelName: '도움 요청 알림',
+      channelDescription: '누군가 도움을 요청했을 때 울리는 알림', // (optional) default: undefined.
       soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
       importance: 4, // (optional) default: 4. Int value of the Android notification importance
       vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
