@@ -58,6 +58,9 @@ export default function Home() {
   const windowWidth = Dimensions.get('window').width;
 
   useEffect(() => {
+    if (!userInfo.accessToken) {
+      return;
+    }
     setSelectedDay(today);
 
     const get_moim_list = async () => {
@@ -66,7 +69,7 @@ export default function Home() {
     };
 
     get_moim_list();
-  }, [today]);
+  }, [today, userInfo.accessToken]);
 
   if (!selectedDay) {
     return null;
