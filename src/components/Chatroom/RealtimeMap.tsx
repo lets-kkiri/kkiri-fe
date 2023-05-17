@@ -266,7 +266,7 @@ function RealtimeMap({
                 mainTitle="가 길 안내를 보냈어요!"
                 subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
                 onPress={() =>
-                  dispatch(notiSlice.actions.clickNoti(notices[0].id))
+                  dispatch(notiSlice.actions.clickNoti(notices[0]))
                 }
               />
             ) : (
@@ -293,7 +293,7 @@ function RealtimeMap({
             drawpath={drawpath}
             setDrawpath={setDrawpath}
             nickname={notices[0].data.senderNickname}
-            id={notices[0].id}
+            noti={notices[0]}
           />
         ) : null
       ) : null}

@@ -61,13 +61,14 @@ function Chatroom({route}: ChatroomProp) {
 
   // 채팅방 id
   const moimId = route.params.moimId;
+  const client = route.params.socket;
   // 나 자신
   const userInfo = useSelector((state: RootState) => state.persisted.user);
 
   // socket 저장하는 변수
   // const socket = locationUpdater({moimId: 9, myId: myId});
   // const socket = new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`);
-  const socket = useRef<WebSocket | null>(null);
+  const socket = useRef<WebSocket | null>(client);
 
   interface Data {
     meta: {
@@ -91,31 +92,30 @@ function Chatroom({route}: ChatroomProp) {
     get_previous_chat(moimId);
 
     // const socket = new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`);
-    console.log('socket');
-    console.log('socket open');
 
     // WebSocket;
-    if (!socket.current) {
-      socket.current = new WebSocket(
-        `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
-      );
+    // if (!socket.current) {
+    //   socket.current = new WebSocket(
+    //     `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
+    //   );
 
-      socket.current.onopen = () => {
-        console.log('연결!');
-        // 소켓 열고 유저 정보 보내기
-        socket.current?.send(
-          JSON.stringify({
-            type: 'JOIN',
-            content: {
-              kakaoId: userInfo.id,
-            },
-          }),
-        );
-      };
-    }
+    //   socket.current.onopen = () => {
+    //     console.log('연결!');
+    //     // 소켓 열고 유저 정보 보내기
+    //     socket.current?.send(
+    //       JSON.stringify({
+    //         type: 'JOIN',
+    //         content: {
+    //           kakaoId: userInfo.id,
+    //         },
+    //       }),
+    //     );
+    //   };
+    // }
 
     if (socket.current) {
       console.log('연결연결');
+      console.log(moimId);
       // 메시지 수신 이벤트
       socket.current.onmessage = event => {
         console.log(event.data);
@@ -160,9 +160,7 @@ function Chatroom({route}: ChatroomProp) {
     }
     return () => {
       console.log('=======================채팅방 나감========================');
-      if (socket.current) {
-        socket.current.close();
-      }
+      client.close(1000, 'Work complete');
     };
   }, [moimId, userInfo]);
 
