@@ -61,7 +61,6 @@ function Chatroom({route, client}: ChatroomProp) {
   const [showEmoji, setShowEmoji] = useState(false);
   const [isEmojiSelected, setIsEmojiSelected] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('');
-  // const [user, setUser] = useState<UserType | null>();
   const [users, setUsers] = useState<UserType[]>([]);
   const [theTimerId, setTheTimerId] = useState<null | number>(null);
   const [animateCounter, setAnimateCounter] = useState<number>(0);
@@ -72,7 +71,6 @@ function Chatroom({route, client}: ChatroomProp) {
   const userInfo = useSelector((state: RootState) => state.persisted.user);
   console.log('moimId :', moimId);
   // socket 저장하는 변수
-  // const socket = locationUpdater({moimId: 9, myId: myId});
   const socket = useRef<WebSocket | null>(client);
 
   interface Data {
@@ -131,11 +129,18 @@ function Chatroom({route, client}: ChatroomProp) {
         }
 
         // 이모티콘인 경우
-        if (event.data.messageType === 'EMOJI') {
-          const temp = emojiMessages[data.kakaoId]
-            ? [...emojiMessages[data.kakaoId], data]
-            : [data];
-          setEmojiMessages(temp);
+        if (data.messageType === 'EMOJI') {
+          setEmojiMessages(prev => {
+            const temp = {...prev};
+            if (temp[data.kakaoId]) {
+              temp[data.kakaoId] = [...temp[data.kakaoId], data];
+            } else {
+              temp[data.kakaoId] = [data];
+            }
+
+            console.log('emojis :', temp);
+            return temp;
+          });
         }
 
         // 모임원들의 실시간 위치일 경우
@@ -250,6 +255,7 @@ function Chatroom({route, client}: ChatroomProp) {
         moimId={moimId}
         users={users}
         socket={socket}
+        emojiMessages={emojiMessages}
       />
       {Object.keys(emojiMessages).map((emoji, index) => (
         <View style={{position: 'absolute', bottom: 100}} key={index}>
