@@ -1,7 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {View, Text, StyleSheet, Alert, TouchableOpacity} from 'react-native';
 import NaverMapView, {Marker, Polyline, Circle} from 'react-native-nmap';
 import Geolocation from '@react-native-community/geolocation';
+import CompassHeading, {start} from 'react-native-compass-heading';
 
 interface PathProps {
   latitude: number;
@@ -10,6 +11,7 @@ interface PathProps {
 
 function Map({places}) {
   const [destination, setDestination] = useState({});
+  const [nowHeading, setNowHeading] = useState(0);
 
   const [startDraw, setStartDraw] = useState<boolean>(false);
   const [myPosition, setMyPosition] = useState<PathProps | null>(null);
@@ -115,6 +117,17 @@ function Map({places}) {
     }
   }, [drawpoint]);
 
+  // compassHeading 처리를 위한 useEffect, mount시 설정, unmount시 해제
+  useEffect(() => {
+    CompassHeading.start(3, heading => {
+      setNowHeading(heading.heading);
+      console.log('nowHeading =====', heading.heading);
+    });
+    return () => {
+      CompassHeading.stop();
+    };
+  }, []);
+
   return (
     <View style={{flex: 1}}>
       {myPosition ? (
@@ -128,6 +141,7 @@ function Map({places}) {
           center={{
             zoom: 16,
             tilt: 100,
+            bearing: nowHeading,
             ...myPosition,
           }}>
           {/* 임시 목적지 역삼 멀티캠퍼스 */}
@@ -142,7 +156,6 @@ function Map({places}) {
               />
             );
           })}
-
           {/* 반경 n미터 원으로 표시 */}
           {!startDraw && (
             <Circle
