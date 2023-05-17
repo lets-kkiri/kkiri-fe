@@ -7,7 +7,7 @@ import {useAppDispatch} from '../../store';
 import {guidesPost} from '../../slices/guidesSlice';
 import Pencil from '../../assets/icons/pencil.svg';
 import CustomButton from '../Common/Button';
-import notiSlice, { notiType } from '../../slices/noti';
+import notiSlice, {notiType} from '../../slices/noti';
 
 interface PathProps {
   startDraw: boolean;
