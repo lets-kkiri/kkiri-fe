@@ -17,6 +17,7 @@ const initialState = {
       overall: 0,
     },
   },
+  checked: false,
 };
 
 export const arrivePost = createAsyncThunk(
@@ -38,6 +39,7 @@ const arriveSlice = createSlice({
     builder.addCase(arrivePost.fulfilled, (state, action) => {
       console.log('fulfilled');
       state.userGrade = action.payload;
+      console.log('유저 도착 순서 : ', action.payload);
     });
     builder.addCase(arrivePost.rejected, (state, action) => {
       console.log('reject', action.error);
