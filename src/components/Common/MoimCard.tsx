@@ -40,9 +40,12 @@ const Container = styled.View<{
   font-family: 'Pretendard-Thin';
   margin-left: ${({marginHorizontal}) => marginHorizontal}px;
   margin-right: ${({marginHorizontal}) => marginHorizontal}px;
+  display: flex;
+  align-items: center;
 `;
 
 const Head = styled.View`
+  width: 100%;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
@@ -105,6 +108,8 @@ const Bottom = styled.View`
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  /* background-color: red; */
 `;
 
 const TimeAndPeople = styled.View`

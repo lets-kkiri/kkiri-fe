@@ -28,7 +28,7 @@ const HomeContainer = styled.View<{theme: any}>`
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background-color: ${({theme}) => theme.color.background};
+  background-color: ${({theme}) => theme.color.backBlue};
 `;
 const HeaderContainer = styled.View<{theme: any}>`
   background-color: ${({theme}) => theme.color.background};
@@ -100,121 +100,125 @@ export default function Home() {
 
   return (
     <HomeContainer theme={theme}>
-      {notices.length > 0 ? (
-        notices[0].channelId === 'comming' && !notices[0].checked ? (
-          <HeaderContainer theme={theme}>
-            <NotiBox
-              nickname=""
-              mainTitle={notices[0].message}
-              subTitle="실시간으로 친구들의 위치를 확인해 보세요!"
-              onPress={() => {
-                dispatch(notiSlice.actions.clickNoti(notices[0]));
-                const socket = new WebSocket(
-                  `wss://k8a606.p.ssafy.io/ws/api/${notices[0].data.moimId}`,
-                );
-                console.log('socket');
-                console.log('socket open');
-                socket.onopen = () => {
-                  console.log('연결!');
-                  // 소켓 열고 유저 정보 보내기
-                  socket?.send(
-                    JSON.stringify({
-                      type: 'JOIN',
-                      content: {
-                        kakaoId: userInfo.id,
-                      },
-                    }),
+      <ScrollView>
+        {notices.length > 0 ? (
+          notices[0].channelId === 'comming' && !notices[0].checked ? (
+            <HeaderContainer theme={theme}>
+              <NotiBox
+                nickname=""
+                mainTitle={notices[0].message}
+                subTitle="실시간으로 친구들의 위치를 확인해 보세요!"
+                onPress={() => {
+                  dispatch(notiSlice.actions.clickNoti(notices[0]));
+                  const socket = new WebSocket(
+                    `wss://k8a606.p.ssafy.io/ws/api/${notices[0].data.moimId}`,
                   );
-                };
-                if (socket) {
-                  navigation.navigate('Chatroom', {
-                    moimId: notices[0].data.moimId,
-                    socket: socket,
-                  });
-                }
-              }}
-              type="commming"
-            />
-          </HeaderContainer>
+                  console.log('socket');
+                  console.log('socket open');
+                  socket.onopen = () => {
+                    console.log('연결!');
+                    // 소켓 열고 유저 정보 보내기
+                    socket?.send(
+                      JSON.stringify({
+                        type: 'JOIN',
+                        content: {
+                          kakaoId: userInfo.id,
+                        },
+                      }),
+                    );
+                  };
+                  if (socket) {
+                    navigation.navigate('Chatroom', {
+                      moimId: notices[0].data.moimId,
+                      socket: socket,
+                    });
+                  }
+                }}
+                type="commming"
+              />
+            </HeaderContainer>
+          ) : (
+            <HeaderContainer theme={theme}>
+              <Text style={{fontSize: 16, color: theme.color.text}}>
+                {userInfo.nickname} 님
+              </Text>
+              <Text style={{fontSize: 16, color: theme.color.text}}>
+                이번 주 약속이{' '}
+                <Text style={{color: theme.color.blue}}>
+                  {moimList.length}개
+                </Text>
+                있어요!
+              </Text>
+            </HeaderContainer>
+          )
         ) : (
           <HeaderContainer theme={theme}>
             <Text style={{fontSize: 16, color: theme.color.text}}>
               {userInfo.nickname} 님
             </Text>
             <Text style={{fontSize: 16, color: theme.color.text}}>
-              이번 주 약속이{' '}
-              <Text style={{color: theme.color.blue}}>{moimList.length}개</Text>
+              약속이{' '}
+              <Text style={{color: theme.color.blue, fontWeight: '800'}}>
+                {moimList.length}개
+              </Text>
               있어요!
             </Text>
           </HeaderContainer>
-        )
-      ) : (
-        <HeaderContainer theme={theme}>
-          <Text style={{fontSize: 16, color: theme.color.text}}>
-            {userInfo.nickname} 님
-          </Text>
-          <Text style={{fontSize: 16, color: theme.color.text}}>
-            약속이{' '}
-            <Text style={{color: theme.color.blue, fontWeight: '800'}}>
-              {moimList.length}개
-            </Text>
-            있어요!
-          </Text>
-        </HeaderContainer>
-      )}
-      <CalendarContainer theme={theme}>
-        <MonthSelectContainer>
-          <MonthSelectBtn
-            activeOpacity={0.6}
-            underlayColor={theme.color.orange3}
-            onPress={() => setShowDropDown(prev => !prev)}>
-            <View
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <Text style={{color: theme.color.text, fontSize: 12}}>
-                {selectedYear}년 {selectedMonth}월
-              </Text>
-              <WithLocalSvg asset={arrow} />
-            </View>
-          </MonthSelectBtn>
-        </MonthSelectContainer>
-        <CalendarProvider
-          date={today}
-          onDateChanged={date => {
-            console.log('date :', date);
-            setSelectedDay(date);
-          }}
-          onMonthChange={month => console.log('month :', month)}
-          disabledOpacity={0.6}
-          style={{backgroundColor: theme.color.backBlue}}
-          theme={{
-            todayButtonTextColor: theme.color.blue,
-          }}
-          todayBottomMargin={16}>
-          <WeekCalendar
-            style={{backgroundColor: theme.color.backBlue}}
-            allowShadow={false}
-            current={selectedDay}
-            markedDates={{
-              // 오늘 날짜를 표시하기 위한 설정
-              [today]: {
-                marked: true,
-              },
+        )}
+        <CalendarContainer theme={theme}>
+          <MonthSelectContainer>
+            <MonthSelectBtn
+              activeOpacity={0.6}
+              underlayColor={theme.color.orange3}
+              onPress={() => setShowDropDown(prev => !prev)}>
+              <View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <Text style={{color: theme.color.text, fontSize: 12}}>
+                  {selectedYear}년 {selectedMonth}월
+                </Text>
+                <WithLocalSvg asset={arrow} />
+              </View>
+            </MonthSelectBtn>
+          </MonthSelectContainer>
+          <CalendarProvider
+            date={today}
+            onDateChanged={date => {
+              console.log('date :', date);
+              setSelectedDay(date);
             }}
+            onMonthChange={month => console.log('month :', month)}
+            disabledOpacity={0.6}
+            style={{backgroundColor: theme.color.backBlue}}
+            theme={{
+              todayButtonTextColor: theme.color.blue,
+            }}
+            todayBottomMargin={16}>
+            <WeekCalendar
+              style={{backgroundColor: theme.color.backBlue}}
+              allowShadow={false}
+              current={selectedDay}
+              markedDates={{
+                // 오늘 날짜를 표시하기 위한 설정
+                [today]: {
+                  marked: true,
+                },
+              }}
+            />
+          </CalendarProvider>
+        </CalendarContainer>
+        <CardsContainer>
+          <Carousel
+            gap={windowWidth * 0.04}
+            offset={windowWidth * 0.08}
+            pages={moimList}
+            pageWidth={windowWidth * 0.78}
           />
-        </CalendarProvider>
-      </CalendarContainer>
-      <CardsContainer>
-        <Carousel
-          gap={windowWidth * 0.04}
-          offset={windowWidth * 0.08}
-          pages={moimList}
-          pageWidth={windowWidth * 0.78}
-        />
-      </CardsContainer>
+        </CardsContainer>
+      </ScrollView>
     </HomeContainer>
   );
 }
