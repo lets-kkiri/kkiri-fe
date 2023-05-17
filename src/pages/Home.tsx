@@ -5,7 +5,7 @@ import {Dimensions, ScrollView, Text, useColorScheme} from 'react-native';
 import styled from 'styled-components/native';
 import MoimCard from '../components/Common/MoimCard';
 import {useDispatch, useSelector} from 'react-redux';
-import {RootState} from '../store';
+import {RootState, useAppDispatch} from '../store';
 import CustomTheme from 'styled-components/native';
 
 // Redux
@@ -15,6 +15,10 @@ import {requests} from '../api/requests';
 import {FlatList} from 'react-native-gesture-handler';
 import {Moim} from '../types';
 import Carousel from '../components/Carousel';
+import notiSlice from '../slices/noti';
+import NotiBox from '../components/Common/NotiBox';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 // Styled component
 const HomeContainer = styled.View<{theme: any}>`
@@ -50,10 +54,12 @@ export default function Home() {
 
   const colorScheme = useColorScheme();
   const theme = useSelector((state: RootState) => state.persisted.theme.theme);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
 
   // 유저정보
   const userInfo = useSelector((state: RootState) => state.persisted.user);
+  const notices = useSelector((state: RootState) => state.persisted.noti);
 
   const windowWidth = Dimensions.get('window').width;
 
@@ -78,13 +84,51 @@ export default function Home() {
 
   return (
     <HomeContainer theme={theme}>
-      <HeaderContainer>
-        <Text>{userInfo.nickname} 님</Text>
-        <Text>
-          이번 주 약속이 <Text style={{color: theme.color.blue}}>9개</Text>
-          있어요!
-        </Text>
-      </HeaderContainer>
+      {notices.length > 0 ? (
+        notices[0].channelId === 'comming' && !notices[0].checked ? (
+          <HeaderContainer>
+            <NotiBox
+              nickname={notices[0].data.moimId}
+              mainTitle="모임이 1시간 남았어요."
+              subTitle="실시간으로 친구들의 위치를 확인해 보세요!"
+              onPress={() => {
+                dispatch(notiSlice.actions.clickNoti(notices[0]));
+                const socket = new WebSocket(
+                  `wss://k8a606.p.ssafy.io/ws/api/${notices[0].data.moimId}`,
+                );
+                console.log('socket');
+                console.log('socket open');
+                socket.onopen = () => {
+                  console.log('연결!');
+                  // 소켓 열고 유저 정보 보내기
+                  socket?.send(
+                    JSON.stringify({
+                      type: 'JOIN',
+                      content: {
+                        kakaoId: userInfo.id,
+                      },
+                    }),
+                  );
+                };
+                if (socket) {
+                  navigation.navigate('Chatroom', {
+                    moimId: notices[0].data.moimId,
+                    socket: socket,
+                  });
+                }
+              }}
+            />
+          </HeaderContainer>
+        ) : (
+          <HeaderContainer>
+            <Text>{userInfo.nickname} 님</Text>
+            <Text>
+              이번 주 약속이 <Text style={{color: theme.color.blue}}>9개</Text>
+              있어요!
+            </Text>
+          </HeaderContainer>
+        )
+      ) : null}
       <CalendarContainer>
         <CalendarProvider
           date={today}
