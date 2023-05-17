@@ -114,19 +114,19 @@ function RealtimeMap({
         });
 
         // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-        if (distance <= 50 && !sendArrive) {
-          console.log('목적지 도착');
-          const destinationTime = date.toISOString();
-          dispatch(
-            arrivePost({
-              moimId: moimId,
-              destinationTime: destinationTime,
-            }),
-          );
-          setSendArrive(true);
-          setModalVisible(true);
-          setModalType('arrive');
-        }
+        // if (distance <= 50 && !sendArrive) {
+        //   console.log('목적지 도착');
+        //   const destinationTime = date.toISOString();
+        //   dispatch(
+        //     arrivePost({
+        //       moimId: moimId,
+        //       destinationTime: destinationTime,
+        //     }),
+        //   );
+        //   setSendArrive(true);
+        //   setModalVisible(true);
+        //   setModalType('arrive');
+        // }
         // 재귀적으로 자기 자신을 호출하여 일정 시간 후에 함수를 다시 실행
         // timerId = setTimeout(sendLocation, 30000);
       },
@@ -240,7 +240,7 @@ function RealtimeMap({
               height={50}
             />
           ) : null}
-          {users?.map((data, index) => (
+          {/* {users?.map((data, index) => (
             <Marker
               onClick={() => sendPress(data.content.kakaoId)}
               key={index}
@@ -253,7 +253,7 @@ function RealtimeMap({
               height={50}
               // caption={{text: user.id}}
             />
-          ))}
+          ))} */}
           {drawpath.length > 1 ? (
             <Polyline
               coordinates={drawpath}

@@ -256,7 +256,7 @@ function Moim({navigation, route}: MoimProps) {
           title="채팅방 입장"
           onPress={() => {
             const socket = new WebSocket(
-              `wss://k8a606.p.ssafy.io/ws/api/${notices[0].data.moimId}`,
+              `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
             );
             console.log('socket');
             console.log('socket open');
@@ -274,7 +274,7 @@ function Moim({navigation, route}: MoimProps) {
             };
             if (socket) {
               navigation.navigate('Chatroom', {
-                moimId: notices[0].data.moimId,
+                moimId: moimId,
                 socket: socket,
               });
             }

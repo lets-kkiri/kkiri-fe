@@ -5,36 +5,19 @@
  * @format
  */
 
-const {getDefaultConfig} = require('metro-config');
+const defaultAssetExts =
+  require('metro-config/src/defaults/defaults').assetExts;
 
-module.exports = (async () => {
-  const {
-    resolver: {assetExts},
-  } = await getDefaultConfig();
-
-  return {
-    transformer: {
-      getTransformOptions: async () => ({
-        transform: {
-          experimentalImportSupport: false,
-          inlineRequires: true,
-        },
-      }),
-    },
-    resolver: {
-      assetExts: [
-        ...assetExts,
-        'obj',
-        'mtl',
-        'JPG',
-        'vrx',
-        'hdr',
-        'gltf',
-        'glb',
-        'bin',
-        'arobject',
-        'gif',
-      ],
-    },
-  };
-})();
+module.exports = {
+  transformer: {
+    getTransformOptions: async () => ({
+      transform: {
+        experimentalImportSupport: false,
+        inlineRequires: true,
+      },
+    }),
+  },
+  resolver: {
+    assetExts: [...defaultAssetExts, 'obj', 'mtl'], // Add "obj" and "mtl" to the list of asset extensions
+  },
+};
