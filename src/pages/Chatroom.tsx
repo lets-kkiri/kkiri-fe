@@ -50,7 +50,7 @@ type EmojiMessagesType = {
   [key: number]: MessageData[];
 };
 
-function Chatroom({route, client}: ChatroomProp) {
+function Chatroom({route}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
   const [emojiMessages, setEmojiMessages] = useState<EmojiMessagesType>({});
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
@@ -58,8 +58,8 @@ function Chatroom({route, client}: ChatroomProp) {
   const [showEmoji, setShowEmoji] = useState(false);
   const [isEmojiSelected, setIsEmojiSelected] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('');
-  // const [user, setUser] = useState<UserType | null>();
-  const [users, setUsers] = useState<UserType[]>([]);
+  const [user, setUser] = useState<UserType | null>();
+  // const [users, setUsers] = useState<UserType[]>([]);
   // const [socket, SetSocket] = useState<WebSocket | null>(null);
   const [theTimerId, setTheTimerId] = useState<null | number>(null);
   const [animateCounter, setAnimateCounter] = useState<number>(0);

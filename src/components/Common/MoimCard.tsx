@@ -23,6 +23,7 @@ import {RootState} from '../../store';
 import useGetDday from '../../hooks/useGetDday';
 import {useNavigation} from '@react-navigation/core';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {Image} from 'react-native';
 
 // Styled components
 const Container = styled.View<{
@@ -84,7 +85,7 @@ const MidFont = styled.Text`
 `;
 
 const SubFont = styled.Text`
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   color: #e9e9e9;
   margin-left: 10px;
@@ -113,24 +114,14 @@ const TimeAndPeople = styled.View`
 
 const ImageContainer = styled.View`
   width: 100%;
-  position: absolute;
-  top: 40px;
+  height: 50%;
+  /* position: absolute; */
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  /* background-color: red; */
 `;
-
-// export interface Moim {
-//   moimId: number;
-//   name: string;
-//   placeName: string;
-//   data: string;
-//   time: string;
-//   lateFee: number;
-//   members: Member[];
-// }
-// export interface Member {
-//   kakaoId: string;
-//   profileImage: string;
-//   nickname: string;
-// }
 
 interface MoimCardProp {
   item: Moim;
@@ -139,18 +130,10 @@ interface MoimCardProp {
 }
 
 const MoimCard = ({item, width, marginHorizontal}: MoimCardProp) => {
-  const {
-    moimId,
-    name,
-    placeName,
-    date,
-    time: meetingTIme,
-    lateFee,
-    members,
-  } = item;
+  const {moimId, name, placeName, date, time: meetingTime, members} = item;
   const [dday, setDday] = useState<number>(0);
-  const [month, setMonth] = useState<string>('12');
-  const [day, setDay] = useState<string>('12');
+  const [month, setMonth] = useState<number>(0);
+  const [day, setDay] = useState<number>(0);
   const [formattedTime, setFormattedTime] = useState<string>('');
 
   const windowWidth = Dimensions.get('window').width;
@@ -162,18 +145,31 @@ const MoimCard = ({item, width, marginHorizontal}: MoimCardProp) => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
 
   useEffect(() => {
-    // setMonth(date.slice(5, 7));
-    // setDay(date.slice(8, 10));
-    const time = '12:07';
-    const zone = Number(time?.slice(0, 2)) >= 12 ? '오후' : '오전';
+    setMonth(Number(date.slice(5, 7)));
+    setDay(Number(date.slice(8, 10)));
+
+    const zone = Number(meetingTime?.slice(0, 2)) >= 12 ? '오후' : '오전';
     const hour =
-      Number(time?.slice(0, 2)) >= 12
-        ? Number(time?.slice(0, 2)) - 12
-        : Number(time?.slice(0, 2));
-    const minute = Number(time?.slice(3, 5));
+      Number(meetingTime?.slice(0, 2)) >= 12
+        ? Number(meetingTime?.slice(0, 2)) - 12
+        : Number(meetingTime?.slice(0, 2));
+    const minute = Number(meetingTime?.slice(3, 5));
     setFormattedTime(`${zone} ${hour === 0 ? 12 : hour}시 ${minute}분`);
     setDday(cnt);
   }, []);
+
+  const numbers = [
+    require('../../assets/numbers/0.png'),
+    require('../../assets/numbers/1.png'),
+    require('../../assets/numbers/2.png'),
+    require('../../assets/numbers/3.png'),
+    require('../../assets/numbers/4.png'),
+    require('../../assets/numbers/5.png'),
+    require('../../assets/numbers/6.png'),
+    require('../../assets/numbers/7.png'),
+    require('../../assets/numbers/8.png'),
+    require('../../assets/numbers/9.png'),
+  ];
 
   return (
     <TouchableHighlight
@@ -192,7 +188,6 @@ const MoimCard = ({item, width, marginHorizontal}: MoimCardProp) => {
               {dday > 0 ? `D-${dday}` : dday === 0 ? 'D-day' : '지남'}
             </DayFont>
           </DDay>
-          {/* 모임 날짜 */}
           <MainFont>
             <Text style={{color: theme.color.green}}>
               {month}월 {day}일
@@ -200,15 +195,29 @@ const MoimCard = ({item, width, marginHorizontal}: MoimCardProp) => {
           </MainFont>
           <WithLocalSvg asset={Cash} />
         </Head>
-        <ImageContainer>
-          <WithLocalSvg asset={Day} style={{left: -10, marginTop: 27}} />
-        </ImageContainer>
+        {/* <ImageContainer>
+          {day
+            .toString()
+            .split('')
+            .map(number => {
+              return (
+                <Image
+                  source={numbers[Number(number)]}
+                  style={{
+                    resizeMode: 'contain',
+                    height: 100,
+                    position: 'absolute',
+                  }}
+                />
+              );
+            })}
+        </ImageContainer> */}
         <Bottom>
           <MidFont>{name}</MidFont>
           <Location>
             <WithLocalSvg asset={Mark} />
             {/* 모임 장소 */}
-            <SubFont>서울특별시 용산구 청파동 스타벅스</SubFont>
+            <SubFont>{placeName}</SubFont>
           </Location>
           <TimeAndPeople
             style={{justifyContent: 'space-evenly', paddingHorizontal: 30}}>
@@ -219,13 +228,12 @@ const MoimCard = ({item, width, marginHorizontal}: MoimCardProp) => {
                 alignItems: 'center',
               }}>
               <WithLocalSvg asset={Time} />
-              {/* 모임 시간 */}
               <SubFont>{formattedTime}</SubFont>
             </View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <WithLocalSvg asset={People} />
               {/* 모임원 수 */}
-              <SubFont>4명</SubFont>
+              <SubFont>{members.length}명</SubFont>
             </View>
           </TimeAndPeople>
         </Bottom>
