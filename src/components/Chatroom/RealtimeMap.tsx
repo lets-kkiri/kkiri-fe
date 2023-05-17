@@ -170,27 +170,27 @@ function RealtimeMap({
   }, []);
 
   // 두 위치의 거리 계산 함수
-  // const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
-  //   const R = 6371e3; // 지구 반경 (m)
-  //   const cal1 = toRadians(lat1);
-  //   const cal2 = toRadians(lat2);
-  //   const cal3 = toRadians(lat2 - lat1);
-  //   const cal4 = toRadians(lon2 - lon1);
+  const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
+    const R = 6371e3; // 지구 반경 (m)
+    const cal1 = toRadians(lat1);
+    const cal2 = toRadians(lat2);
+    const cal3 = toRadians(lat2 - lat1);
+    const cal4 = toRadians(lon2 - lon1);
 
-  //   const a =
-  //     Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
-  //     Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
-  //   Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
-  //   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const a =
+      Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
+      Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
+    Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  //   const distance = R * c; // 두 지점 사이의 거리 (m)
+    const distance = R * c; // 두 지점 사이의 거리 (m)
 
-  //   return distance;
-  // };
+    return distance;
+  };
 
-  // const toRadians = (degrees: any) => {
-  //   return (degrees * Math.PI) / 180;
-  // };
+  const toRadians = (degrees: any) => {
+    return (degrees * Math.PI) / 180;
+  };
 
   const userGrades = useSelector(
     (state: RootState) => state.persisted.arrives.userGrade,
@@ -211,7 +211,6 @@ function RealtimeMap({
   const sendPress = (kakaoId: string) => {
     if (!startDraw) {
       Alert.alert('재촉했어요!');
-      setCount(count + 1);
       // 임시 데이터
       const postData = {
         chatRoomId: moimId,
@@ -224,6 +223,7 @@ function RealtimeMap({
   const notices = useSelector((state: RootState) => state.persisted.noti);
   console.log('노티노티 : ', notices[0]);
 
+  // 여기 한별 여기다
   if (receivePath) {
     const data = JSON.parse(`${notices[0].path}`);
     setPath(data);
@@ -257,24 +257,26 @@ function RealtimeMap({
             />
           )}
 
-          {Object.keys(emojiMessages).includes(userInfo.id) &&
+          {/* {Object.keys(emojiMessages).includes(userInfo.id) &&
             emojiMessages[userInfo.id].map(emoji => (
               <EmojiAnimation index={emoji.message} key={emoji.seq} />
-            ))}
-          <Marker
-            coordinate={{
-              latitude: 37.501303,
-              longitude: 127.039603,
-            }}
-            image={require('../../assets/icons/bear.png')}
-            width={45}
-            height={50}
-          />
+            ))} */}
+          {myPosition?.content.latitude ? (
+            <Marker
+              coordinate={{
+                latitude: myPosition.content.latitude,
+                longitude: myPosition.content.longitude,
+              }}
+              image={require('../../assets/icons/bear.png')}
+              width={45}
+              height={50}
+            />
+          ) : null}
 
           {users &&
             Object.entries(users).map(([kakaoId, data], index) => (
               <View>
-                <EmojiAnimation index={'0'} />
+                {/* <EmojiAnimation index={'0'} /> */}
                 <Marker
                   onClick={() => sendPress(kakaoId)}
                   key={index}
@@ -305,12 +307,13 @@ function RealtimeMap({
         </NaverMapView>
       ) : null}
       {notices.length > 0 ? (
-        notices[0].channelId === 'path' && !notices[0].checked ? (
+        notices[0].channelId === 'path' && notices[0].checked === false ? (
           <NotiBox
             nickname={notices[0].data.senderNickname}
             mainTitle="가 길 안내를 보냈어요!"
             subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
             onPress={() => {
+              // 여기 한별 네비게이트해
               dispatch(notiSlice.actions.clickNoti(notices[0]));
               setReceivePath(true);
             }}
@@ -336,7 +339,7 @@ function RealtimeMap({
             kakaoId={notices[0].data.kakaoId}
           />
         ) : null
-      ) : null} */}
+      ) : null}
       <SideButton
         // setSideModal={setSideModal}
         setModalVisible={setModalVisible}
