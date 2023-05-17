@@ -47,21 +47,19 @@ interface LocateState {
 }
 
 interface UserType {
-  type: string;
-  content: {
-    moimId: number;
-    kakaoId: string;
-    longitude: number;
-    latitude: number;
-    regDate: string;
-  };
+  longitude: number;
+  latitude: number;
 }
+
+type UsersType = {
+  [key: number]: UserType;
+};
 
 interface MapProps {
   startDraw: boolean;
   setStartDraw: React.Dispatch<React.SetStateAction<boolean>>;
   moimId: number;
-  users: UserType[];
+  users: UsersType | null;
   socket: any;
 }
 
@@ -240,7 +238,7 @@ function RealtimeMap({
               height={50}
             />
           ) : null}
-          {/* {users?.map((data, index) => (
+          {users?.map((data, index) => (
             <Marker
               onClick={() => sendPress(data.content.kakaoId)}
               key={index}
@@ -253,7 +251,7 @@ function RealtimeMap({
               height={50}
               // caption={{text: user.id}}
             />
-          ))} */}
+          ))}
           {drawpath.length > 1 ? (
             <Polyline
               coordinates={drawpath}
