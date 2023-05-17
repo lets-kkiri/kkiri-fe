@@ -79,7 +79,8 @@ function RealtimeMap({
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [sideModal, setSideModal] = useState<boolean>(false);
   const [count, setCount] = useState<number>(0);
-  const [sendArrive, setSendArrive] = useState<boolean>(false);
+  // const [sendArrive, setSendArrive] = useState<boolean>(false);
+  const [receivePath, setReceivePath] = useState<boolean>(false);
   const date = new Date();
 
   const dispatch = useAppDispatch();
@@ -259,25 +260,27 @@ function RealtimeMap({
               strokeWidth={5}
             />
           ) : null}
-          {notices.length > 0 ? (
-            notices[0].channelId === 'path' && !notices[0].checked ? (
-              <NotiBox
-                nickname={notices[0].data.senderNickname}
-                mainTitle="가 길 안내를 보냈어요!"
-                subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
-                onPress={() =>
-                  dispatch(notiSlice.actions.clickNoti(notices[0]))
-                }
-              />
-            ) : (
-              <Polyline
-                coordinates={notices[0].data.path}
-                strokeColor="#B0BDFF"
-                strokeWidth={5}
-              />
-            )
+          {receivePath ? (
+            <Polyline
+              coordinates={notices[0].data.path}
+              strokeColor="#B0BDFF"
+              strokeWidth={5}
+            />
           ) : null}
         </NaverMapView>
+      ) : null}
+      {notices.length > 0 ? (
+        notices[0].channelId === 'path' && !notices[0].checked ? (
+          <NotiBox
+            nickname={notices[0].data.senderNickname}
+            mainTitle="가 길 안내를 보냈어요!"
+            subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
+            onPress={() => {
+              dispatch(notiSlice.actions.clickNoti(notices[0]));
+              setReceivePath(true);
+            }}
+          />
+        ) : null
       ) : null}
       {notices.length > 0 ? (
         notices[0].channelId === 'sos' && !notices[0].checked ? (
@@ -321,9 +324,9 @@ function RealtimeMap({
           }
         />
       ) : null}
-      {sideModal ? (
+      {/* {sideModal ? (
         <AboutMoim setSideModal={setSideModal} count={count} />
-      ) : null}
+      ) : null} */}
     </View>
   );
 }
