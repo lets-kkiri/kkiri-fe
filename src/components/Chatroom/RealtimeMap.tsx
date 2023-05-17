@@ -103,12 +103,12 @@ function RealtimeMap({
     setMyPosition(data);
 
     // 현재 위치와 목적지 위치의 거리 계산
-    const distance = calculateDistance({
-      lat1: position.coords.latitude,
-      lon1: position.coords.longitude,
-      lat2: 37.501303,
-      lon2: 127.039603,
-    });
+    // const distance = calculateDistance({
+    //   lat1: position.coords.latitude,
+    //   lon1: position.coords.longitude,
+    //   lat2: 37.501303,
+    //   lon2: 127.039603,
+    // });
 
     // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
     // if (distance <= 50 && !sendArrive) {
@@ -162,27 +162,27 @@ function RealtimeMap({
   }, []);
 
   // 두 위치의 거리 계산 함수
-  const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
-    const R = 6371e3; // 지구 반경 (m)
-    const cal1 = toRadians(lat1);
-    const cal2 = toRadians(lat2);
-    const cal3 = toRadians(lat2 - lat1);
-    const cal4 = toRadians(lon2 - lon1);
+  // const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
+  //   const R = 6371e3; // 지구 반경 (m)
+  //   const cal1 = toRadians(lat1);
+  //   const cal2 = toRadians(lat2);
+  //   const cal3 = toRadians(lat2 - lat1);
+  //   const cal4 = toRadians(lon2 - lon1);
 
-    const a =
-      Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
-      Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
-    Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  //   const a =
+  //     Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
+  //     Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
+  //   Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
+  //   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-    const distance = R * c; // 두 지점 사이의 거리 (m)
+  //   const distance = R * c; // 두 지점 사이의 거리 (m)
 
-    return distance;
-  };
+  //   return distance;
+  // };
 
-  const toRadians = (degrees: any) => {
-    return (degrees * Math.PI) / 180;
-  };
+  // const toRadians = (degrees: any) => {
+  //   return (degrees * Math.PI) / 180;
+  // };
 
   const userGrades = useSelector(
     (state: RootState) => state.persisted.arrives.userGrade,
@@ -214,7 +214,7 @@ function RealtimeMap({
   };
 
   const notices = useSelector((state: RootState) => state.persisted.noti);
-  // console.log('노티노티 : ', notices);
+  console.log('노티노티 : ', notices[0]);
 
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
@@ -294,11 +294,12 @@ function RealtimeMap({
               dispatch(notiSlice.actions.clickNoti(notices[0]));
               setReceivePath(true);
             }}
+            type="map"
           />
         ) : null
       ) : null}
       {notices.length > 0 ? (
-        notices[0].channelId === 'sos' && !notices[0].checked ? (
+        notices[0].channelId === 'sos' && notices[0].checked === false ? (
           <AboutPath
             startDraw={startDraw}
             setStartDraw={setStartDraw}
@@ -310,7 +311,7 @@ function RealtimeMap({
             setDrawpoint={setDrawpoint}
             drawpath={drawpath}
             setDrawpath={setDrawpath}
-            nickname="지니"
+            nickname={notices[0].data.senderNickname}
             noti={notices[0]}
           />
         ) : null
