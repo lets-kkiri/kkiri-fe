@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Alert} from 'react-native';
+import {View, Alert, Text} from 'react-native';
 import * as Animatable from 'react-native-animatable';
 
 // Naver Map
@@ -25,6 +25,8 @@ import AboutPath from '../Map/AboutPath';
 import SideButton from '../Map/SideButton';
 import NotiBox from '../Common/NotiBox';
 import notiSlice from '../../slices/noti';
+import EmojiAnimation from '../EmojiAnimation/EmojiAnimation';
+import {MessageData} from '../../types';
 
 interface UserState {
   type: string;
@@ -62,6 +64,9 @@ interface MapProps {
   moimId: number;
   users: UsersType | null;
   socket: any;
+  emojiMessages: {
+    [key: number]: MessageData[];
+  };
 }
 
 function RealtimeMap({
@@ -70,6 +75,7 @@ function RealtimeMap({
   moimId,
   users,
   socket,
+  emojiMessages,
 }: MapProps) {
   const [myPosition, setMyPosition] = useState<UserState | null>(null);
   // const [startDraw, setStartDraw] = useState<boolean>(false);
@@ -232,8 +238,8 @@ function RealtimeMap({
             drawPath(e);
           }}
           center={{
-            latitude: myPosition.content.latitude,
-            longitude: myPosition.content.longitude,
+            latitude: 37.501303,
+            longitude: 127.039603,
           }}>
           {/* 임시 목적지 역삼 멀티캠퍼스 */}
           <Marker
@@ -250,30 +256,37 @@ function RealtimeMap({
               radius={50}
             />
           )}
-          {myPosition?.content.latitude ? (
-            <Marker
-              coordinate={{
-                latitude: myPosition.content.latitude,
-                longitude: myPosition.content.longitude,
-              }}
-              image={require('../../assets/icons/bear.png')}
-              width={45}
-              height={50}
-            />
-          ) : null}
+
+          {Object.keys(emojiMessages).includes(userInfo.id) &&
+            emojiMessages[userInfo.id].map(emoji => (
+              <EmojiAnimation index={emoji.message} key={emoji.seq} />
+            ))}
+          <Marker
+            coordinate={{
+              latitude: 37.501303,
+              longitude: 127.039603,
+            }}
+            image={require('../../assets/icons/bear.png')}
+            width={45}
+            height={50}
+          />
+
           {users &&
             Object.entries(users).map(([kakaoId, data], index) => (
-              <Marker
-                onClick={() => sendPress(kakaoId)}
-                key={index}
-                coordinate={{
-                  latitude: data.latitude,
-                  longitude: data.longitude,
-                }}
-                image={require('../../assets/icons/cat.png')}
-                width={45}
-                height={50}
-              />
+              <View>
+                <EmojiAnimation index={'0'} />
+                <Marker
+                  onClick={() => sendPress(kakaoId)}
+                  key={index}
+                  coordinate={{
+                    latitude: data.latitude,
+                    longitude: data.longitude,
+                  }}
+                  image={require('../../assets/icons/cat.png')}
+                  width={45}
+                  height={50}
+                />
+              </View>
             ))}
           {drawpath.length > 1 ? (
             <Polyline
@@ -323,7 +336,7 @@ function RealtimeMap({
             kakaoId={notices[0].data.kakaoId}
           />
         ) : null
-      ) : null}
+      ) : null} */}
       <SideButton
         // setSideModal={setSideModal}
         setModalVisible={setModalVisible}
