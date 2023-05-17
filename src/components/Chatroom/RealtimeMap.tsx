@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Alert} from 'react-native';
+import {View, Alert, Text} from 'react-native';
 
 // Naver Map
 import Geolocation from '@react-native-community/geolocation';
@@ -65,7 +65,9 @@ interface MapProps {
   moimId: number;
   users: UserType[];
   socket: any;
-  emojiMessages: MessageData[];
+  emojiMessages: {
+    [key: number]: MessageData[];
+  };
 }
 
 function RealtimeMap({
@@ -109,7 +111,15 @@ function RealtimeMap({
           };
           socket.current.send(JSON.stringify(data));
           console.log('서버로 내 위치 보내기');
-          setMyPosition(data);
+          // setMyPosition(data);
+          setMyPosition({
+            type: 'GPS',
+            content: {
+              latitude: 37.501303,
+              longitude: 127.039603,
+              regDate: date.toISOString(),
+            },
+          });
 
           // 현재 위치와 목적지 위치의 거리 계산
           const distance = calculateDistance({
@@ -148,8 +158,15 @@ function RealtimeMap({
 
   // 컴포넌트가 마운트되었을 때 최초로 함수를 실행
   useEffect(() => {
-    sendLocation();
-
+    // sendLocation();
+    setMyPosition({
+      type: 'GPS',
+      content: {
+        latitude: 37.501303,
+        longitude: 127.039603,
+        regDate: date.toISOString(),
+      },
+    });
     // 컴포넌트가 언마운트될 때 clearTimeout을 사용하여 타이머를 정리해주는 것이 좋습니다.
     return () => clearTimeout(timerId);
   }, []);
@@ -208,6 +225,9 @@ function RealtimeMap({
 
   const notices = useSelector((state: RootState) => state.persisted.noti);
   // console.log('노티노티 : ', notices);
+  const userInfo = useSelector((state: RootState) => state.persisted.user);
+  // console.log('my id :', userInfo.id);
+  console.log('emojiMessages :', emojiMessages);
 
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
@@ -218,8 +238,8 @@ function RealtimeMap({
             drawPath(e);
           }}
           center={{
-            latitude: myPosition.content.latitude,
-            longitude: myPosition.content.longitude,
+            latitude: 37.501303,
+            longitude: 127.039603,
           }}>
           {/* 임시 목적지 역삼 멀티캠퍼스 */}
           <Marker
@@ -236,20 +256,24 @@ function RealtimeMap({
               radius={50}
             />
           )}
-          {myPosition?.content.latitude ? (
-            <Marker
-              coordinate={{
-                latitude: myPosition.content.latitude,
-                longitude: myPosition.content.longitude,
-              }}
-              image={require('../../assets/icons/bear.png')}
-              width={45}
-              height={50}
-            />
-          ) : null}
+
+          {Object.keys(emojiMessages).includes(userInfo.id) &&
+            emojiMessages[userInfo.id].map(emoji => (
+              <EmojiAnimation index={emoji.message} key={emoji.seq} />
+            ))}
+          <Marker
+            coordinate={{
+              latitude: 37.501303,
+              longitude: 127.039603,
+            }}
+            image={require('../../assets/icons/bear.png')}
+            width={45}
+            height={50}
+          />
+
           {users?.map((data, index) => (
             <View>
-              <EmojiAnimation index={0} />
+              <EmojiAnimation index={'0'} />
               <Marker
                 onClick={() => sendPress(data.content.kakaoId)}
                 key={index}
@@ -291,7 +315,7 @@ function RealtimeMap({
           ) : null}
         </NaverMapView>
       ) : null}
-      {notices.length > 0 ? (
+      {/* {notices.length > 0 ? (
         notices[0].channelId === 'sos' && !notices[0].checked ? (
           <AboutPath
             startDraw={startDraw}
@@ -308,7 +332,7 @@ function RealtimeMap({
             id={notices[0].id}
           />
         ) : null
-      ) : null}
+      ) : null} */}
       <SideButton
         setSideModal={setSideModal}
         setModalVisible={setModalVisible}

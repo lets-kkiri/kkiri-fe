@@ -4,7 +4,7 @@ import {emojis} from '../../components/EmojiPicker/Emojis';
 import {WithLocalSvg} from 'react-native-svg';
 
 interface EmojiAnimationProp {
-  index: number;
+  index: string;
 }
 
 const EmojiAnimation = ({index}: EmojiAnimationProp) => {
