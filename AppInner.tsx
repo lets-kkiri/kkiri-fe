@@ -88,7 +88,7 @@ function AppInner() {
   const [newSocket, setNewSocket] = useState<WebSocket | null>(null);
 
   // const myId = useSelector((state: RootState) => state.persisted.user.id);
-  const notices = useSelector((state: RootState) => state.persisted.noti);
+  // const notices = useSelector((state: RootState) => state.persisted.noti);
   // const moimId = 101;
 
   // useEffect(() => {
@@ -420,9 +420,14 @@ function AppInner() {
                 component={Notification}
                 options={{title: '알림센터'}}
               />
-              <Stack.Screen name="Chatroom" options={{title: '채팅방'}}>
+              {/* <Stack.Screen name="Chatroom" options={{title: '채팅방'}}>
                 {({route}) => <Chatroom route={route} client={newSocket} />}
-              </Stack.Screen>
+              </Stack.Screen> */}
+              <Stack.Screen
+                name="Chatroom"
+                component={Chatroom}
+                options={{title: '채팅방'}}
+              />
               <Stack.Screen
                 name="CreateMoim"
                 component={CreateMoim}

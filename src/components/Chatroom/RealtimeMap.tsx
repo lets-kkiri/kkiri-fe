@@ -81,6 +81,7 @@ function RealtimeMap({
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [sideModal, setSideModal] = useState<boolean>(false);
   const [count, setCount] = useState<number>(0);
+  const [sendArrive, setSendArrive] = useState<boolean>(false);
   const date = new Date();
 
   const dispatch = useAppDispatch();
@@ -113,7 +114,7 @@ function RealtimeMap({
         });
 
         // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-        if (distance <= 50) {
+        if (distance <= 50 && !sendArrive) {
           console.log('목적지 도착');
           const destinationTime = date.toISOString();
           dispatch(
@@ -122,6 +123,7 @@ function RealtimeMap({
               destinationTime: destinationTime,
             }),
           );
+          setSendArrive(true);
           setModalVisible(true);
           setModalType('arrive');
         }
@@ -266,7 +268,7 @@ function RealtimeMap({
                 mainTitle="가 길 안내를 보냈어요!"
                 subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
                 onPress={() =>
-                  dispatch(notiSlice.actions.clickNoti(notices[0].id))
+                  dispatch(notiSlice.actions.clickNoti(notices[0]))
                 }
               />
             ) : (
@@ -293,12 +295,12 @@ function RealtimeMap({
             drawpath={drawpath}
             setDrawpath={setDrawpath}
             nickname={notices[0].data.senderNickname}
-            id={notices[0].id}
+            noti={notices[0]}
           />
         ) : null
       ) : null}
       <SideButton
-        setSideModal={setSideModal}
+        // setSideModal={setSideModal}
         setModalVisible={setModalVisible}
         setModalType={setModalType}
         moimId={moimId}
