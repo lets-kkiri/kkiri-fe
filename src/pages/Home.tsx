@@ -104,8 +104,8 @@ export default function Home() {
         notices[0].channelId === 'comming' && !notices[0].checked ? (
           <HeaderContainer theme={theme}>
             <NotiBox
-              nickname={notices[0].data.moimId}
-              mainTitle="모임이 1시간 남았어요."
+              nickname=""
+              mainTitle={notices[0].message}
               subTitle="실시간으로 친구들의 위치를 확인해 보세요!"
               onPress={() => {
                 dispatch(notiSlice.actions.clickNoti(notices[0]));
@@ -133,6 +133,7 @@ export default function Home() {
                   });
                 }
               }}
+              type="commming"
             />
           </HeaderContainer>
         ) : (

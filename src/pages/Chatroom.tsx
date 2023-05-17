@@ -144,6 +144,7 @@ function Chatroom({route}: ChatroomProp) {
 
       socket.current.onclose = e => {
         console.log('socket close :', e.code, e.reason);
+        console.log('소켓 연결 닫힘', e);
       };
     }
     return () => {

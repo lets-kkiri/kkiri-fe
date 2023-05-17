@@ -210,6 +210,7 @@ function Map() {
           mainTitle="@친구가 도움을 요청했어요"
           subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
           onPress={() => setStartDraw(true)}
+          type="map"
         />
       ) : sendpath === false ? (
         <View style={{position: 'absolute', alignItems: 'center'}}>
