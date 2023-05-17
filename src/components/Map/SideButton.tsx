@@ -5,17 +5,17 @@ import {useAppDispatch} from '../../store';
 import {helpPost} from '../../slices/helpSlice';
 
 import Help from '../../assets/icons/help.svg';
-import Info from '../../assets/icons/info.svg';
+// import Info from '../../assets/icons/info.svg';
 
 interface ButtonProps {
-  setSideModal: React.Dispatch<React.SetStateAction<boolean>>;
+  // setSideModal: React.Dispatch<React.SetStateAction<boolean>>;
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
   setModalType: React.Dispatch<React.SetStateAction<string>>;
   moimId: number;
 }
 
 const SideButton = ({
-  setSideModal,
+  // setSideModal,
   setModalVisible,
   setModalType,
   moimId,
@@ -46,7 +46,7 @@ const SideButton = ({
         onPress={sendHelp}>
         <WithLocalSvg asset={Help} />
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={{
           width: '100%',
           height: '100%',
@@ -56,7 +56,7 @@ const SideButton = ({
         }}
         onPress={() => setSideModal(true)}>
         <WithLocalSvg asset={Info} />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </>
   );
 };

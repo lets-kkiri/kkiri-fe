@@ -4,7 +4,7 @@ export type RootStackParamList = {
   Tab: undefined;
   Setting: undefined;
   Notification: undefined;
-  Chatroom: {moimId: number};
+  Chatroom: {moimId: number; socket: WebSocket};
   Map: undefined;
   CreateMoim: undefined;
   SignIn: undefined;
