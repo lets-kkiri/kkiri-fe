@@ -23,53 +23,32 @@ const ARnavi = () => {
     {
       id: 0,
       title: 'Start',
-      lat: 37.50193624244697,
-      lng: 127.03938447682401,
+      lat: 37.50263505530211,
+      lng: 127.0377506415285,
       isNode: true,
     },
     {
       id: 1,
       title: 'Point1',
-      lat: 37.50134613266238,
-      lng: 127.03923714772884,
+      lat: 37.501960002270515,
+      lng: 127.03548845022681,
       isNode: true,
     },
     {
       id: 2,
       title: 'Point2',
-      lat: 37.50107578673264,
-      lng: 127.03936988846523,
+      lat: 37.50064506680933,
+      lng: 127.03366706940584,
       isNode: true,
     },
     {
       id: 3,
       title: 'Dest',
-      lat: 37.50116128011996,
-      lng: 127.03967528004125,
+      lat: 37.49851815627377,
+      lng: 127.03549813007466,
       isNode: true,
     },
   ];
-
-  const [heading, setHeading] = useState(0);
-  // compassHeading 처리를 위한 useEffect, mount시 설정, unmount시 해제
-  // useEffect(() => {
-  //   CompassHeading.start(3, heading => {
-  //     if (geoState.compassHeading === 0) {
-  //       const newGeoState = {...geoState};
-  //       newGeoState.compassHeading = heading.heading;
-  //       newGeoState.locationReady = true;
-  //       setGeoState(newGeoState);
-  //       CompassHeading.stop();
-  //     }
-  //   });
-
-  //   return () => {
-  //     if (listener.current) {
-  //       Geolocation.clearWatch(listener.current);
-  //     }
-  //     CompassHeading.stop();
-  //   };
-  // }, []);
 
   return (
     <Container>
