@@ -128,6 +128,8 @@ function Moim({navigation, route}: MoimProps) {
   const moimId = route.params.moimId;
   const dispatch = useAppDispatch();
   const moimInfo = useSelector((state: RootState) => state.volatile.moimInfo);
+  const notices = useSelector((state: RootState) => state.persisted.noti);
+  const userInfo = useSelector((state: RootState) => state.persisted.user);
 
   const fetchData = async (id: number) => {
     try {
@@ -252,7 +254,31 @@ function Moim({navigation, route}: MoimProps) {
         </MembersContainer>
         <Button
           title="채팅방 입장"
-          onPress={() => navigation.navigate('Chatroom', {moimId: moimId})}
+          onPress={() => {
+            const socket = new WebSocket(
+              `wss://k8a606.p.ssafy.io/ws/api/${notices[0].data.moimId}`,
+            );
+            console.log('socket');
+            console.log('socket open');
+            socket.onopen = () => {
+              console.log('연결!');
+              // 소켓 열고 유저 정보 보내기
+              socket?.send(
+                JSON.stringify({
+                  type: 'JOIN',
+                  content: {
+                    kakaoId: userInfo.id,
+                  },
+                }),
+              );
+            };
+            if (socket) {
+              navigation.navigate('Chatroom', {
+                moimId: notices[0].data.moimId,
+                socket: socket,
+              });
+            }
+          }}
         />
       </ScrollView>
     </MoimContainer>

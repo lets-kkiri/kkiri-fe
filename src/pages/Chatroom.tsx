@@ -91,28 +91,6 @@ function Chatroom({route}: ChatroomProp) {
     };
     get_previous_chat(moimId);
 
-    // const socket = new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`);
-
-    // WebSocket;
-    // if (!socket.current) {
-    //   socket.current = new WebSocket(
-    //     `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
-    //   );
-
-    //   socket.current.onopen = () => {
-    //     console.log('연결!');
-    //     // 소켓 열고 유저 정보 보내기
-    //     socket.current?.send(
-    //       JSON.stringify({
-    //         type: 'JOIN',
-    //         content: {
-    //           kakaoId: userInfo.id,
-    //         },
-    //       }),
-    //     );
-    //   };
-    // }
-
     if (socket.current) {
       console.log('연결연결');
       console.log(moimId);

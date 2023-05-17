@@ -128,7 +128,15 @@ export default function Home() {
             </Text>
           </HeaderContainer>
         )
-      ) : null}
+      ) : (
+        <HeaderContainer>
+          <Text>{userInfo.nickname} 님</Text>
+          <Text>
+            이번 주 약속이 <Text style={{color: theme.color.blue}}>9개</Text>
+            있어요!
+          </Text>
+        </HeaderContainer>
+      )}
       <CalendarContainer>
         <CalendarProvider
           date={today}

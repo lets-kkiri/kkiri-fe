@@ -113,18 +113,18 @@ function RealtimeMap({
         });
 
         // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-        if (distance <= 50) {
-          console.log('목적지 도착');
-          const destinationTime = date.toISOString();
-          dispatch(
-            arrivePost({
-              moimId: moimId,
-              destinationTime: destinationTime,
-            }),
-          );
-          setModalVisible(true);
-          setModalType('arrive');
-        }
+        // if (distance <= 50) {
+        //   console.log('목적지 도착');
+        //   const destinationTime = date.toISOString();
+        //   dispatch(
+        //     arrivePost({
+        //       moimId: moimId,
+        //       destinationTime: destinationTime,
+        //     }),
+        //   );
+        //   setModalVisible(true);
+        //   setModalType('arrive');
+        // }
         // 재귀적으로 자기 자신을 호출하여 일정 시간 후에 함수를 다시 실행
         // timerId = setTimeout(sendLocation, 30000);
       },
