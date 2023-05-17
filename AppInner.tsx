@@ -54,9 +54,6 @@ import {authInstance} from './src/api/axios';
 import AddCard from './src/components/MyPage/AddCard';
 import userSlice from './src/slices/user';
 import {logout} from '@react-native-seoul/kakao-login';
-import NotiBox from './src/components/Common/NotiBox';
-import {StackNavigationProp} from '@react-navigation/stack';
-import CommingNoti from './src/components/Common/CommingNoti';
 
 export type LoggedInParamList = {
   Orders: undefined;

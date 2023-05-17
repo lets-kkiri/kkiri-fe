@@ -40,11 +40,12 @@ interface NotiProps {
   mainTitle: string;
   subTitle: string;
   onPress: () => void;
+  type: string;
 }
 
-const NotiBox = ({nickname, mainTitle, subTitle, onPress}: NotiProps) => {
+const NotiBox = ({nickname, mainTitle, subTitle, onPress, type}: NotiProps) => {
   return (
-    <Container>
+    <Container style={type === 'map' ? {position: 'absolute'} : null}>
       <Inner>
         <Font>
           {nickname}
