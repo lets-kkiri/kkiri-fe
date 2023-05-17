@@ -27,15 +27,13 @@ interface ChatroomProp {
 }
 
 interface UserType {
-  type: string;
-  content: {
-    moimId: number;
-    kakaoId: string;
-    longitude: number;
-    latitude: number;
-    regDate: string;
-  };
+  longitude: number;
+  latitude: number;
 }
+
+type UsersType = {
+  [key: number]: UserType;
+};
 
 // Style components
 const MessagePreviewContainer = styled.View`
@@ -55,7 +53,7 @@ function Chatroom({route}: ChatroomProp) {
   const [isEmojiSelected, setIsEmojiSelected] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('');
   // const [user, setUser] = useState<UserType | null>();
-  const [users, setUsers] = useState<UserType[]>([]);
+  const [user, setUser] = useState<UsersType>();
   // const [socket, SetSocket] = useState<WebSocket | null>(null);
   const [theTimerId, setTheTimerId] = useState<null | number>(null);
 
@@ -112,19 +110,15 @@ function Chatroom({route}: ChatroomProp) {
 
         // 모임원들의 실시간 위치일 경우
         if (data.type === 'GPS') {
-          if (users[data.content.kakaoId]) {
-            const updatedUser = {
-              ...users[data.content.kakaoId],
-              content: {
-                ...users[data.content.kakaoId].content,
-                longitude: data.content.longitude,
-                latitude: data.content.latitude,
-              },
+          setUser(prev => {
+            const temp = {...prev};
+            temp[data.content.kakaoId] = {
+              longitude: data.content.longitude,
+              latitude: data.content.latitude,
             };
-            setUsers(prev => ({...prev, [data.content.kakaoId]: updatedUser}));
-          } else {
-            setUsers(prev => ({...prev, [data.content.kakaoId]: data}));
-          }
+            console.log(temp);
+            return temp;
+          });
         }
       };
 
@@ -138,7 +132,7 @@ function Chatroom({route}: ChatroomProp) {
     }
     return () => {
       console.log('=======================채팅방 나감========================');
-      client.close(1000, 'Work complete');
+      // client.close(1000, 'Work complete');
     };
   }, [moimId, userInfo]);
 
@@ -202,7 +196,7 @@ function Chatroom({route}: ChatroomProp) {
         startDraw={startDraw}
         setStartDraw={setStartDraw}
         moimId={moimId}
-        users={users}
+        users={user ? user : null}
         socket={socket}
       />
       {/* 채팅 */}
