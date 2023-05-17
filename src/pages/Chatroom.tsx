@@ -25,19 +25,16 @@ import {RootState} from '../store';
 
 interface ChatroomProp {
   route: RouteProp<RootStackParamList, 'Chatroom'>;
-  client: WebSocket | null;
 }
 
 interface UserType {
-  type: string;
-  content: {
-    moimId: number;
-    kakaoId: string;
-    longitude: number;
-    latitude: number;
-    regDate: string;
-  };
+  longitude: number;
+  latitude: number;
 }
+
+type UsersType = {
+  [key: number]: UserType;
+};
 
 // Style components
 const MessagePreviewContainer = styled.View`
@@ -61,12 +58,15 @@ function Chatroom({route, client}: ChatroomProp) {
   const [showEmoji, setShowEmoji] = useState(false);
   const [isEmojiSelected, setIsEmojiSelected] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('');
+  // const [user, setUser] = useState<UserType | null>();
   const [users, setUsers] = useState<UserType[]>([]);
+  // const [socket, SetSocket] = useState<WebSocket | null>(null);
   const [theTimerId, setTheTimerId] = useState<null | number>(null);
   const [animateCounter, setAnimateCounter] = useState<number>(0);
 
   // 채팅방 id
   const moimId = route.params.moimId;
+  const client = route.params.socket;
   // 나 자신
   const userInfo = useSelector((state: RootState) => state.persisted.user);
   console.log('moimId :', moimId);
@@ -95,28 +95,9 @@ function Chatroom({route, client}: ChatroomProp) {
 
     get_previous_chat(moimId);
 
-    // WebSocket;
-    // if (!socket.current) {
-    //   socket.current = new WebSocket(
-    //     `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
-    //   );
-
-    //   socket.current.onopen = () => {
-    //     console.log('연결!');
-    //     // 소켓 열고 유저 정보 보내기
-    //     socket.current?.send(
-    //       JSON.stringify({
-    //         type: 'JOIN',
-    //         content: {
-    //           kakaoId: myId,
-    //         },
-    //       }),
-    //     );
-    //   };
-    // }
-
     if (socket.current) {
       console.log('연결연결');
+      console.log(moimId);
       // 메시지 수신 이벤트
       socket.current.onmessage = event => {
         console.log(event.data);
@@ -145,19 +126,15 @@ function Chatroom({route, client}: ChatroomProp) {
 
         // 모임원들의 실시간 위치일 경우
         if (data.type === 'GPS') {
-          if (users[data.content.kakaoId]) {
-            const updatedUser = {
-              ...users[data.content.kakaoId],
-              content: {
-                ...users[data.content.kakaoId].content,
-                longitude: data.content.longitude,
-                latitude: data.content.latitude,
-              },
+          setUser(prev => {
+            const temp = {...prev};
+            temp[data.content.kakaoId] = {
+              longitude: data.content.longitude,
+              latitude: data.content.latitude,
             };
-            setUsers(prev => ({...prev, [data.content.kakaoId]: updatedUser}));
-          } else {
-            setUsers(prev => ({...prev, [data.content.kakaoId]: data}));
-          }
+            console.log(temp);
+            return temp;
+          });
         }
       };
 
@@ -171,7 +148,7 @@ function Chatroom({route, client}: ChatroomProp) {
     }
     return () => {
       console.log('=======================채팅방 나감========================');
-      // socket?.close();
+      // client.close(1000, 'Work complete');
     };
   }, [moimId, userInfo]);
 
@@ -253,7 +230,7 @@ function Chatroom({route, client}: ChatroomProp) {
         startDraw={startDraw}
         setStartDraw={setStartDraw}
         moimId={moimId}
-        users={users}
+        users={user ? user : null}
         socket={socket}
         emojiMessages={emojiMessages}
       />

@@ -7,7 +7,6 @@ import {WithLocalSvg} from 'react-native-svg';
 import Draw from '../../assets/icons/draw.svg';
 
 const Container = styled(Animated.View)`
-  position: absolute;
   flex-direction: row;
   justify-content: center;
 `;

@@ -18,7 +18,7 @@ export type notiType = {
   id: string;
   title: string;
   message: string;
-  data: Object;
+  data: any;
   checked: boolean;
 };
 
