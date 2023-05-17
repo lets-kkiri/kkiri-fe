@@ -389,7 +389,11 @@ function AppInner() {
           <Stack.Navigator>
             <Stack.Group
               screenOptions={{
-                headerStyle: {backgroundColor: theme.color.background},
+                headerStyle: {
+                  backgroundColor: theme.color.background,
+                  elevation: 0,
+                },
+                headerShadowVisible: false,
               }}>
               <Stack.Screen
                 name="Tab"
@@ -409,7 +413,10 @@ function AppInner() {
               <Stack.Screen
                 name="Moim"
                 component={Moim}
-                options={{title: '모임 상세'}}
+                options={{
+                  title: '모임 상세',
+                  headerStyle: {backgroundColor: theme.color.backBlue},
+                }}
               />
               <Stack.Screen
                 name="Notification"
@@ -427,12 +434,12 @@ function AppInner() {
               <Stack.Screen
                 name="CreateMoim"
                 component={CreateMoim}
-                options={{title: '모임 생성'}}
+                options={{title: '모임 생성중'}}
               />
               <Stack.Screen
                 name="CompleteCreate"
                 component={CompleteCreate}
-                options={{title: '모임 생성 완료'}}
+                options={{headerShown: false}}
               />
               <Stack.Screen
                 name="Map"
