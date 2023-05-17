@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {TextInput, View} from 'react-native';
 import styled from 'styled-components/native';
 import ARMapView from '../components/ARnavi/ARView';
 import Map from './Map';
+import CompassHeading, {start} from 'react-native-compass-heading';
 
 const Container = styled.View`
   display: flex;
@@ -17,14 +18,13 @@ const ARContainer = styled.View`
 const MapContainer = styled.View`
   flex: 0.35;
 `;
-
 const ARnavi = () => {
   const places = [
     {
       id: 0,
       title: 'Start',
-      lat: 37.50142037422344,
-      lng: 127.0395114340882,
+      lat: 37.50193624244697,
+      lng: 127.03938447682401,
       isNode: true,
     },
     {
@@ -49,6 +49,27 @@ const ARnavi = () => {
       isNode: true,
     },
   ];
+
+  const [heading, setHeading] = useState(0);
+  // compassHeading 처리를 위한 useEffect, mount시 설정, unmount시 해제
+  // useEffect(() => {
+  //   CompassHeading.start(3, heading => {
+  //     if (geoState.compassHeading === 0) {
+  //       const newGeoState = {...geoState};
+  //       newGeoState.compassHeading = heading.heading;
+  //       newGeoState.locationReady = true;
+  //       setGeoState(newGeoState);
+  //       CompassHeading.stop();
+  //     }
+  //   });
+
+  //   return () => {
+  //     if (listener.current) {
+  //       Geolocation.clearWatch(listener.current);
+  //     }
+  //     CompassHeading.stop();
+  //   };
+  // }, []);
 
   return (
     <Container>

@@ -282,14 +282,14 @@ const MyScene = props => {
               position={[0, -0.75, 0]}
             />
             <ViroAmbientLight color="#ffffff" />
-            {/* <Viro3DObject
+            <Viro3DObject
               source={require('../../assets/objects/Cat_v1_L3.123cc81ac858-7d2c-4c7e-bf80-81982996d26d/12222_Cat_v1_l3.obj')}
-              scale={[0.05, 0.05, 0.05]}
-              position={[0, 0, -10]}
+              scale={[0.5, 0.5, 0.5]}
+              position={[0, 0, 0]}
               rotation={[90, 150, 180]}
               type="OBJ"
-            /> */}
-            <ViroBox width={2} length={2} height={2} position={[0, -1.5, 0]} />
+            />
+            {/* <ViroBox width={2} length={2} height={2} position={[0, -1.5, 0]} /> */}
           </ViroFlexView>
         </ViroNode>
       );
