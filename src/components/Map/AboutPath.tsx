@@ -126,10 +126,14 @@ const AboutPath = ({
               status="active"
               width="short"
               onPress={() => {
-                setDrawpoint(null);
-                setDrawpath([]);
-                sendPath(kakaoId);
-                dispatch(notiSlice.actions.clickNoti(noti));
+                if (drawpath.length < 2) {
+                  return;
+                } else {
+                  setDrawpoint(null);
+                  setDrawpath([]);
+                  sendPath(kakaoId);
+                  dispatch(notiSlice.actions.clickNoti(noti));
+                }
                 console.log(drawpath);
               }}
             />
