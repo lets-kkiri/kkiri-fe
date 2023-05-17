@@ -47,21 +47,19 @@ interface LocateState {
 }
 
 interface UserType {
-  type: string;
-  content: {
-    moimId: number;
-    kakaoId: string;
-    longitude: number;
-    latitude: number;
-    regDate: string;
-  };
+  longitude: number;
+  latitude: number;
 }
+
+type UsersType = {
+  [key: number]: UserType;
+};
 
 interface MapProps {
   startDraw: boolean;
   setStartDraw: React.Dispatch<React.SetStateAction<boolean>>;
   moimId: number;
-  users: UserType[];
+  users: UsersType | null;
   socket: any;
 }
 
@@ -114,19 +112,19 @@ function RealtimeMap({
         });
 
         // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-        if (distance <= 50 && !sendArrive) {
-          console.log('목적지 도착');
-          const destinationTime = date.toISOString();
-          dispatch(
-            arrivePost({
-              moimId: moimId,
-              destinationTime: destinationTime,
-            }),
-          );
-          setSendArrive(true);
-          setModalVisible(true);
-          setModalType('arrive');
-        }
+        // if (distance <= 50 && !sendArrive) {
+        //   console.log('목적지 도착');
+        //   const destinationTime = date.toISOString();
+        //   dispatch(
+        //     arrivePost({
+        //       moimId: moimId,
+        //       destinationTime: destinationTime,
+        //     }),
+        //   );
+        //   setSendArrive(true);
+        //   setModalVisible(true);
+        //   setModalType('arrive');
+        // }
         // 재귀적으로 자기 자신을 호출하여 일정 시간 후에 함수를 다시 실행
         // timerId = setTimeout(sendLocation, 30000);
       },
@@ -240,20 +238,20 @@ function RealtimeMap({
               height={50}
             />
           ) : null}
-          {users?.map((data, index) => (
-            <Marker
-              onClick={() => sendPress(data.content.kakaoId)}
-              key={index}
-              coordinate={{
-                latitude: data.content.latitude,
-                longitude: data.content.longitude,
-              }}
-              image={require('../../assets/icons/cat.png')}
-              width={45}
-              height={50}
-              // caption={{text: user.id}}
-            />
-          ))}
+          {users &&
+            Object.entries(users).map(([kakaoId, data], index) => (
+              <Marker
+                onClick={() => sendPress(kakaoId)}
+                key={index}
+                coordinate={{
+                  latitude: data.latitude,
+                  longitude: data.longitude,
+                }}
+                image={require('../../assets/icons/cat.png')}
+                width={45}
+                height={50}
+              />
+            ))}
           {drawpath.length > 1 ? (
             <Polyline
               coordinates={drawpath}
