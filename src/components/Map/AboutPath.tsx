@@ -22,6 +22,7 @@ interface PathProps {
   setDrawpath: React.Dispatch<React.SetStateAction<PathState[]>>;
   nickname: string;
   noti: notiType;
+  kakaoId: string;
 }
 
 interface PathState {
@@ -56,6 +57,7 @@ const AboutPath = ({
   setDrawpath,
   nickname,
   noti,
+  kakaoId,
 }: PathProps) => {
   const dispatch = useAppDispatch();
 
@@ -66,10 +68,10 @@ const AboutPath = ({
   }, [drawpoint]);
 
   // 서버로 그린 경로 보내는 함수
-  function sendPath() {
+  function sendPath(user: string) {
     // 임시 데이터
     const postData = {
-      receiverKakaoId: '2783374648',
+      receiverKakaoId: user,
       path: drawpath,
     };
     dispatch(guidesPost(postData));
@@ -126,7 +128,7 @@ const AboutPath = ({
               onPress={() => {
                 setDrawpoint(null);
                 setDrawpath([]);
-                sendPath();
+                sendPath(kakaoId);
                 dispatch(notiSlice.actions.clickNoti(noti));
                 console.log(drawpath);
               }}

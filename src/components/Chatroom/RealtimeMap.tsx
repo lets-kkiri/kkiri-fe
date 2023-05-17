@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {View, Alert} from 'react-native';
+import * as Animatable from 'react-native-animatable';
 
 // Naver Map
 import Geolocation from '@react-native-community/geolocation';
@@ -81,6 +82,7 @@ function RealtimeMap({
   const [count, setCount] = useState<number>(0);
   // const [sendArrive, setSendArrive] = useState<boolean>(false);
   const [receivePath, setReceivePath] = useState<boolean>(false);
+  const [path, setPath] = useState();
   const date = new Date();
 
   const dispatch = useAppDispatch();
@@ -216,6 +218,11 @@ function RealtimeMap({
   const notices = useSelector((state: RootState) => state.persisted.noti);
   console.log('노티노티 : ', notices[0]);
 
+  if (receivePath) {
+    const data = JSON.parse(`${notices[0].path}`);
+    setPath(data);
+  }
+
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
       {myPosition ? (
@@ -275,9 +282,9 @@ function RealtimeMap({
               strokeWidth={5}
             />
           ) : null}
-          {receivePath ? (
+          {receivePath && path ? (
             <Polyline
-              coordinates={notices[0].data.path}
+              coordinates={path}
               strokeColor="#B0BDFF"
               strokeWidth={5}
             />
@@ -313,6 +320,7 @@ function RealtimeMap({
             setDrawpath={setDrawpath}
             nickname={notices[0].data.senderNickname}
             noti={notices[0]}
+            kakaoId={notices[0].data.kakaoId}
           />
         ) : null
       ) : null}
