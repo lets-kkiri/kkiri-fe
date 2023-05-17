@@ -1,5 +1,5 @@
 import React from 'react';
-import {Dimensions} from 'react-native';
+import {Dimensions, Text} from 'react-native';
 import UserProfile from './UserProfile';
 import styled from 'styled-components/native';
 
@@ -31,7 +31,7 @@ const MessageText = styled.Text`
 import {MessageData} from '../../types';
 
 type MessagePreviewProps = {
-  message: MessageData;
+  message?: MessageData | null;
   onPress: () => void;
 };
 
@@ -52,6 +52,7 @@ const MessagePreview = ({message, onPress}: MessagePreviewProps) => {
           <MessageText>{message.message}</MessageText>
         </>
       )}
+      {!message && <Text>친구들과 채팅을 시작해보세요</Text>}
     </Bubble>
   );
 };

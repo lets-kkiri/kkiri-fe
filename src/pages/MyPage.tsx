@@ -1,235 +1,223 @@
-import React, {useState} from 'react';
-import {FlatList, Text, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {ScrollView, Text, TouchableHighlight, View} from 'react-native';
 import {WithLocalSvg} from 'react-native-svg';
-import {useSelector} from 'react-redux';
-import {RootState} from '../store/index';
 import styled from 'styled-components/native';
-import DropDownPicker from 'react-native-dropdown-picker';
+import {useSelector} from 'react-redux';
+import {RootState} from '../store';
 
-// Styled component
+import arrow_down from '../assets/icons/arrow_down.svg';
+import worikkiri from '../assets/mypage/worikkiri.svg';
+import Dropdown from '../components/MyPage/Dropdown';
+import DropdownList from '../components/MyPage/Dropdown';
+import axios from 'axios';
+import {authInstance} from '../api/axios';
+import {requests} from '../api/requests';
 
-const MyPageContainer = styled.View`
-  flex-direction: column;
-  align-items: center;
+// Styled components
+const MyPageContainer = styled.SafeAreaView<{theme: any}>`
+  /* width: 100%; */
+  /* height: 100%; */
+  /* padding: 16px;
+  padding-top: 0px;
+  padding-bottom: 0px; */
+  background-color: ${({theme}) => theme.color.background};
+  flex: 1;
 `;
 
-const FilterContainer = styled.View`
-  flex-direction: row;
-  width: 343px;
-  height: 30px;
-  border: 1px;
+const FilterButton = styled.TouchableHighlight`
+  padding: 4px;
+  width: 100px;
+  /* border-radius: 99px; */
+  /* border-bottom: blue;
+  border-width: 1px; */
 `;
 
-const FilterTouchable = styled.TouchableOpacity``;
-
-const PeriodFilter = styled.Text``;
-
-const FilterIconContainer = styled.View`
-  height: 12px;
-  width: 12px;
-  align-items: center;
+const FilterRow = styled.View`
+  position: relative;
+  width: 100%;
+  height: 36px;
+  /* background-color: red; */
   justify-content: center;
 `;
 
-const PeriodContainer = styled.View``;
+const SummaryContainer = styled.View`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 20%;
+  /* border-radius: 15px; */
+  /* padding: 40px; */
+  /* background-color: blue; */
+`;
 
-const PeriodText = styled.Text``;
+const PeopleContainer = styled.View<{theme: any}>`
+  display: flex;
+  /* height: 30%; */
+  padding: 16px;
+  padding-top: 28px;
+  padding-bottom: 0px;
+  margin-bottom: 8px;
+  background-color: ${({theme}) => theme.color.backBlue};
+  border-radius: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
-const HeaderContainer = styled.View``;
+const KkiriImage = styled.View<{
+  containerWidth: number;
+  peopleTextHeight: number;
+}>`
+  /* position: absolute; */
+  /* bottom: 0px; */
+  /* left: ${({containerWidth}) => (containerWidth - 200) / 2}px; */
+  /* top: ${({peopleTextHeight}) => peopleTextHeight}px; */
+  /* background-color: red; */
+`;
 
-const BannerContainer = styled.View``;
+const RowContainer = styled.View<{peopleConHeight: number}>`
+  display: flex;
+  flex-direction: row;
+  height: ${({peopleConHeight}) => peopleConHeight + 100}px;
+  /* background-color: blue; */
+`;
 
-const SmallBannerContainer = styled.View``;
+const PlaceContainer = styled.View<{
+  theme: any;
+  containerWidth: number;
+  peopleConHeight: number;
+}>`
+  width: ${({containerWidth}) => containerWidth / 2 - 4}px;
+  height: ${({peopleConHeight}) => peopleConHeight}px;
+  padding: 16px;
+  padding-top: 28px;
+  background-color: ${({theme}) => theme.color.backBlue};
+  border-radius: 15px;
+`;
 
-const BodyContainer = styled.View``;
+const MyPage = props => {
+  const [showDropDown, setShowDropDown] = useState<boolean>(false);
+  const [filterIndex, setFilterIndex] = useState<number>(0);
+  const [startDate, setStartDate] = useState<string>('');
+  const [today, setToday] = useState<string>('');
+  const [myData, setMyData] = useState();
 
-const RankingHeader = styled.View``;
+  const filterTypeList = ['최근 한 달', '최근 세 달', '최근 6개월', '최근 1년'];
 
-const RankingContainer = styled.ScrollView``;
+  const userInfo = useSelector((state: RootState) => state.persisted.user);
+  const theme = useSelector((state: RootState) => state.persisted.theme.theme);
 
-const BtnContainer = styled.TouchableHighlight``;
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [peopleConHeight, setPeopleConHeight] = useState(0);
+  const [peopleTextHeight, setPeopleTextHeight] = useState(0);
 
-const Banner = ({nickname, period, count, startDay, endDay}) => {
-  if (!nickname || !period || !count || !startDay) {
-    return null;
-  }
-  return (
-    <BannerContainer>
-      <View>
-        <Text>
-          {nickname}님, 최근 {period}간
-        </Text>
-        <Text>총 {count}번의 약속이 있었군요!</Text>
-      </View>
-      <View>
-        <Text>
-          {startDay} ~ {endDay}
-        </Text>
-      </View>
-    </BannerContainer>
-  );
-};
-
-const FavoriteMate = ({period, bestMember}) => {
-  if (!period || !bestMember) {
-    return null;
-  }
-  return (
-    <BannerContainer>
-      <Text>{period}간</Text>
-      <Text>{bestMember}님</Text>
-      <Text>을 가장 많이 만났어요!</Text>
-    </BannerContainer>
-  );
-};
-
-const FavoriteLoc = ({location}) => {
-  if (!location) {
-    return null;
-  }
-  return (
-    <SmallBannerContainer>
-      <Text>{location}</Text>
-      <Text>(을)를</Text>
-      <Text>좋아하시는군요</Text>
-    </SmallBannerContainer>
-  );
-};
-
-const FavoriteTime = ({time}) => {
-  if (!time) {
-    return null;
-  }
-  return (
-    <SmallBannerContainer>
-      <Text>주로</Text>
-      <Text>{time}</Text>
-      <Text>에</Text>
-      <Text>만나는 편이네요</Text>
-    </SmallBannerContainer>
-  );
-};
-
-// Icons
-const dateIcon = require('../assets/icons/moim_date.svg');
-
-function MyPage() {
-  const user = useSelector((state: RootState) => state.persisted.user);
-  const [isDetail, setIsDetail] = useState(false);
-  const [filter, setFilter] = useState(0);
-
-  // filter를 위한 요소
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState([
-    {label: '최근 한 달간', value: 0},
-    {label: '최근 세 달간', value: 1},
-    {label: '최근 반 년간', value: 2},
-    {label: '최근 일 년간', value: 3},
-  ]);
-
-  const periodList = ['한 달', '세 달', '반 년', '일 년'];
-
-  const tmpData = {
-    month: {
-      startDay: '2023-04-10', // e.g. "2023-04-10"
-      endDay: '2023-05-10', // e.g. "2023-05-10"
-      meetCnt: 10, //e.g. 10,
-      mostMem: '이은지', //e.g. "이은지",
-      mostLoc: '용산구', //e.g. "용산구",
-      mostTime: '저녁 시간대', //e.g. "저녁시간대",
-      memList: [
-        {
-          rank: 1,
-          kakaoId: '01',
-          profileImage: '',
-          nickname: '이은지',
-          cnt: 6,
-        },
-        {
-          rank: 2,
-          kakaoId: '02',
-          profileImage: '',
-          nickname: '박유진',
-          cnt: 5,
-        },
-        {
-          rank: 3,
-          kakaoId: '03',
-          profileImage: '',
-          nickname: '김준호',
-          cnt: 4,
-        },
-      ],
-    },
-    trimestral: {},
-    semiannual: {},
-    annual: {},
+  const onPeopleContainerLayout = event => {
+    const {width, height} = event.nativeEvent.layout;
+    setContainerWidth(width);
+    setPeopleConHeight(height);
   };
 
+  const onPeopleTextLayout = event => {
+    const {height} = event.nativeEvent.layout;
+    setPeopleTextHeight(height);
+  };
+
+  const onDropdownPressHandler = index => {
+    setFilterIndex(index);
+  };
+
+  useEffect(() => {
+    const periodList = ['one-month', 'three-month', 'six-month', 'one-year'];
+    const get_mypage = () => {
+      const {data} = authInstance.get(
+        requests.GET_MYPAGE(periodList[filterIndex]),
+      );
+      console.log('my page data :', data);
+      setMyData(data);
+    };
+    get_mypage();
+  }, [filterIndex]);
   return (
-    <MyPageContainer>
-      <FilterContainer>
-        <FilterTouchable>
-          {/* <PeriodFilter>{}</PeriodFilter>
-          <FilterIconContainer>
-            <WithLocalSvg asset={dateIcon} height={6} width={12} />
-          </FilterIconContainer> */}
-          <DropDownPicker
-            open={filterOpen}
-            value={value}
-            items={items}
-            setOpen={setFilterOpen}
-            setValue={setValue}
-            setItems={setItems}
-          />
-        </FilterTouchable>
-        <PeriodContainer>
-          <PeriodText>{}</PeriodText>
-        </PeriodContainer>
-      </FilterContainer>
-      <HeaderContainer>
-        {isDetail === true ? (
-          <FavoriteMate
-            period={periodList[filter]}
-            bestMember={tmpData.month.mostMem}
-          />
-        ) : (
-          <Banner
-            nickname={user.nickname}
-            period={periodList[filter]}
-            count={tmpData.month.meetCnt}
-            startDay={tmpData.month.startDay}
-            endDay={tmpData.month.endDay}
-          />
-        )}
-      </HeaderContainer>
-      <BodyContainer>
-        {isDetail === true ? (
-          <View>
-            <RankingHeader>
-              <Text>만남 횟수 순위</Text>
-              <BtnContainer onPress={() => setIsDetail(false)}>
-                <WithLocalSvg asset={dateIcon} height={20} width={20} />
-              </BtnContainer>
-            </RankingHeader>
-            <RankingContainer>{/* <FlatList /> */}</RankingContainer>
+    <MyPageContainer theme={theme}>
+      <FilterRow style={{paddingLeft: 16}}>
+        <FilterButton
+          activeOpacity={0.6}
+          underlayColor={theme.color.orange3}
+          onPress={() => setShowDropDown(prev => !prev)}>
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <Text style={{fontSize: 12}}>{filterTypeList[filterIndex]}</Text>
+            <WithLocalSvg asset={arrow_down} />
           </View>
-        ) : (
-          <>
-            <FavoriteMate
-              period={periodList[filter]}
-              bestMember={tmpData.month.mostMem}
+        </FilterButton>
+        {showDropDown ? (
+          <DropdownList
+            textList={filterTypeList}
+            onPress={onDropdownPressHandler}
+          />
+        ) : null}
+      </FilterRow>
+      <ScrollView
+        style={{
+          marginHorizontal: 16,
+        }}>
+        <SummaryContainer>
+          <Text style={{color: theme.color.text}}>
+            {userInfo.nickname}님 {filterTypeList[filterIndex]}간
+          </Text>
+          <Text style={{color: theme.color.text}}>
+            총 {'10'}번의 약속이 있었군요!
+          </Text>
+          <Text style={{fontSize: 10, marginTop: 8, color: theme.color.blue}}>
+            {'2023년 04일 10일'} - {'5월 10일'}
+          </Text>
+        </SummaryContainer>
+        <PeopleContainer theme={theme} onLayout={onPeopleContainerLayout}>
+          <View onLayout={onPeopleTextLayout} style={{width: '100%'}}>
+            <Text style={{color: theme.color.text}}>
+              {filterTypeList[filterIndex]}간
+            </Text>
+            <Text style={{position: 'relative', color: theme.color.text}}>
+              <Text>{'이은지'}</Text>
+              님을 가장 많이 만났어요!
+            </Text>
+          </View>
+          <KkiriImage
+            containerWidth={containerWidth}
+            peopleTextHeight={peopleTextHeight}>
+            <WithLocalSvg
+              asset={worikkiri}
+              // style={{position: 'absolute', bottom: 0}}
             />
-            <View>
-              <FavoriteLoc location={tmpData.month.mostLoc} />
-              <FavoriteTime time={tmpData.month.mostTime} />
-            </View>
-          </>
-        )}
-      </BodyContainer>
+          </KkiriImage>
+        </PeopleContainer>
+        <RowContainer peopleConHeight={peopleConHeight}>
+          <PlaceContainer
+            containerWidth={containerWidth}
+            peopleConHeight={peopleConHeight}
+            style={{marginRight: 8}}>
+            <Text style={{color: theme.color.text}}>
+              <Text style={{color: theme.color.text}}>{'용산구'}</Text>를
+              좋아하시는군요
+            </Text>
+          </PlaceContainer>
+          <PlaceContainer
+            containerWidth={containerWidth}
+            peopleConHeight={peopleConHeight}>
+            <Text style={{color: theme.color.text}}>
+              <Text style={{color: theme.color.text}}>{}</Text>
+              님을 가장 많이 만났어요!
+            </Text>
+          </PlaceContainer>
+        </RowContainer>
+      </ScrollView>
     </MyPageContainer>
   );
-}
+};
 
 export default MyPage;

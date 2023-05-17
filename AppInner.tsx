@@ -77,9 +77,9 @@ function AppInner() {
   const darkMode = useSelector(
     (state: RootState) => state.persisted.theme.darkmode,
   );
-  // 사용자 다크 모드
-  const colorScheme = useColorScheme();
-  console.log('다크모드', colorScheme);
+  // // 사용자 다크 모드
+  // const colorScheme = useColorScheme();
+  // console.log('다크모드', colorScheme);
 
   const [newSocket, setNewSocket] = useState<WebSocket | null>(null);
 

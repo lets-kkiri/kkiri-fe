@@ -65,7 +65,7 @@ const ViewBinder = styled.View`
   flex-direction: row;
   align-items: center;
   width: 80px;
-  margin-right: 10;
+  margin-right: 10px;
 `;
 
 const MembersContainer = styled.View`
