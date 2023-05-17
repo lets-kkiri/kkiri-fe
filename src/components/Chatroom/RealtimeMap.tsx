@@ -85,7 +85,8 @@ function RealtimeMap({
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [sideModal, setSideModal] = useState<boolean>(false);
   const [count, setCount] = useState<number>(0);
-  const [sendArrive, setSendArrive] = useState<boolean>(false);
+  // const [sendArrive, setSendArrive] = useState<boolean>(false);
+  const [receivePath, setReceivePath] = useState<boolean>(false);
   const date = new Date();
 
   const dispatch = useAppDispatch();
@@ -93,93 +94,101 @@ function RealtimeMap({
   // 임시 목적지: 역삼 멀티캠퍼스
   const destination = {latitude: 37.501303, longitude: 127.039603};
 
-  function sendLocation() {
-    console.log('실시간 위치 공유 시작');
-    Geolocation.watchPosition(
-      position => {
-        const data = {
-          type: 'GPS',
-          content: {
-            longitude: position.coords.longitude,
-            latitude: position.coords.latitude,
-            regDate: date.toISOString(),
-          },
-        };
-        socket.current.send(JSON.stringify(data));
-        console.log('서버로 내 위치 보내기');
-        setMyPosition(data);
-
-        // 현재 위치와 목적지 위치의 거리 계산
-        const distance = calculateDistance({
-          lat1: position.coords.latitude,
-          lon1: position.coords.longitude,
-          lat2: 37.501303,
-          lon2: 127.039603,
-        });
-
-        // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-        // if (distance <= 50 && !sendArrive) {
-        //   console.log('목적지 도착');
-        //   const destinationTime = date.toISOString();
-        //   dispatch(
-        //     arrivePost({
-        //       moimId: moimId,
-        //       destinationTime: destinationTime,
-        //     }),
-        //   );
-        //   setSendArrive(true);
-        //   setModalVisible(true);
-        //   setModalType('arrive');
-        // }
-        // 재귀적으로 자기 자신을 호출하여 일정 시간 후에 함수를 다시 실행
-        // timerId = setTimeout(sendLocation, 30000);
+  const sendLocation = (position: any) => {
+    // 위치 업데이트 처리 로직
+    const data = {
+      type: 'GPS',
+      content: {
+        longitude: position.coords.longitude,
+        latitude: position.coords.latitude,
+        regDate: date.toISOString(),
       },
-      error => console.log(error),
-      {
-        enableHighAccuracy: true,
-        timeout: 20000,
-        distanceFilter: 5,
-      },
-    );
-  }
+    };
+    socket.current.send(JSON.stringify(data));
+    console.log('서버로 내 위치 보내기');
+    setMyPosition(data);
+
+    // 현재 위치와 목적지 위치의 거리 계산
+    // const distance = calculateDistance({
+    //   lat1: position.coords.latitude,
+    //   lon1: position.coords.longitude,
+    //   lat2: 37.501303,
+    //   lon2: 127.039603,
+    // });
+
+    // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
+    // if (distance <= 50 && !sendArrive) {
+    //   console.log('목적지 도착');
+    //   const destinationTime = date.toISOString();
+    //   dispatch(
+    //     arrivePost({
+    //       moimId: moimId,
+    //       destinationTime: destinationTime,
+    //     }),
+    //   );
+    //   setSendArrive(true);
+    //   setModalVisible(true);
+    //   setModalType('arrive');
+    // }
+    // 재귀적으로 자기 자신을 호출하여 일정 시간 후에 함수를 다시 실행
+    // timerId = setTimeout(sendLocation, 30000);
+  };
 
   // 컴포넌트가 마운트되었을 때 최초로 함수를 실행
   useEffect(() => {
+    let watchID: any;
     // sendLocation();
-    setMyPosition({
-      type: 'GPS',
-      content: {
-        latitude: 37.501303,
-        longitude: 127.039603,
-        regDate: date.toISOString(),
-      },
-    });
+
+    const startWatchingLocation = () => {
+      watchID = Geolocation.watchPosition(
+        sendLocation,
+        error => console.log(error),
+        {
+          enableHighAccuracy: true,
+          timeout: 20000,
+          distanceFilter: 5,
+        },
+      );
+    };
+
+    const stopWatchingLocation = () => {
+      if (watchID !== null) {
+        Geolocation.clearWatch(watchID);
+        watchID = null;
+      }
+    };
+
+    // 컴포넌트 마운트 시 위치 업데이트 시작
+    startWatchingLocation();
+
     // 컴포넌트가 언마운트될 때 clearTimeout을 사용하여 타이머를 정리해주는 것이 좋습니다.
-    return () => {};
+    return () => {
+      stopWatchingLocation();
+    };
   }, []);
 
   // 두 위치의 거리 계산 함수
-  const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
-    const R = 6371e3; // 지구 반경 (m)
-    const cal1 = toRadians(lat1);
-    const cal2 = toRadians(lat2);
-    const cal3 = toRadians(lat2 - lat1);
-    const cal4 = toRadians(lon2 - lon1);
+  // const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
+  //   const R = 6371e3; // 지구 반경 (m)
+  //   const cal1 = toRadians(lat1);
+  //   const cal2 = toRadians(lat2);
+  //   const cal3 = toRadians(lat2 - lat1);
+  //   const cal4 = toRadians(lon2 - lon1);
 
-    const a =
-      Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
-      Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
-    Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  //   const a =
+  //     Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
+  //     Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
+  //   Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
+  //   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-    const distance = R * c; // 두 지점 사이의 거리 (m)
+  //   const distance = R * c; // 두 지점 사이의 거리 (m)
 
-    return distance;
-  };
+  //   return distance;
+  // };
 
-  const toRadians = (degrees: any) => {
-    return (degrees * Math.PI) / 180;
-  };
+  // const toRadians = (degrees: any) => {
+  //   return (degrees * Math.PI) / 180;
+  // };
 
   const userGrades = useSelector(
     (state: RootState) => state.persisted.arrives.userGrade,
@@ -211,10 +220,7 @@ function RealtimeMap({
   };
 
   const notices = useSelector((state: RootState) => state.persisted.noti);
-  // console.log('노티노티 : ', notices);
-  const userInfo = useSelector((state: RootState) => state.persisted.user);
-  // console.log('my id :', userInfo.id);
-  console.log('emojiMessages :', emojiMessages);
+  console.log('노티노티 : ', notices[0]);
 
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
@@ -282,28 +288,31 @@ function RealtimeMap({
               strokeWidth={5}
             />
           ) : null}
-          {notices.length > 0 ? (
-            notices[0].channelId === 'path' && !notices[0].checked ? (
-              <NotiBox
-                nickname={notices[0].data.senderNickname}
-                mainTitle="가 길 안내를 보냈어요!"
-                subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
-                onPress={() =>
-                  dispatch(notiSlice.actions.clickNoti(notices[0]))
-                }
-              />
-            ) : (
-              <Polyline
-                coordinates={notices[0].data.path}
-                strokeColor="#B0BDFF"
-                strokeWidth={5}
-              />
-            )
+          {receivePath ? (
+            <Polyline
+              coordinates={notices[0].data.path}
+              strokeColor="#B0BDFF"
+              strokeWidth={5}
+            />
           ) : null}
         </NaverMapView>
       ) : null}
-      {/* {notices.length > 0 ? (
-        notices[0].channelId === 'sos' && !notices[0].checked ? (
+      {notices.length > 0 ? (
+        notices[0].channelId === 'path' && !notices[0].checked ? (
+          <NotiBox
+            nickname={notices[0].data.senderNickname}
+            mainTitle="가 길 안내를 보냈어요!"
+            subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
+            onPress={() => {
+              dispatch(notiSlice.actions.clickNoti(notices[0]));
+              setReceivePath(true);
+            }}
+            type="map"
+          />
+        ) : null
+      ) : null}
+      {notices.length > 0 ? (
+        notices[0].channelId === 'sos' && notices[0].checked === false ? (
           <AboutPath
             startDraw={startDraw}
             setStartDraw={setStartDraw}
@@ -344,9 +353,9 @@ function RealtimeMap({
           }
         />
       ) : null}
-      {sideModal ? (
+      {/* {sideModal ? (
         <AboutMoim setSideModal={setSideModal} count={count} />
-      ) : null}
+      ) : null} */}
     </View>
   );
 }
