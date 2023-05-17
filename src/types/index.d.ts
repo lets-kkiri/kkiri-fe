@@ -4,13 +4,14 @@ export type RootStackParamList = {
   Tab: undefined;
   Setting: undefined;
   Notification: undefined;
-  Chatroom: {moimId: number};
+  Chatroom: {moimId: number; socket: WebSocket};
   Map: undefined;
   CreateMoim: undefined;
   SignIn: undefined;
   Moim: {moimId: number};
   CompleteCreate: {moimId: number};
   AddCard: undefined;
+  CommingNoti: undefined;
 };
 
 // 단일 메시지

@@ -24,7 +24,7 @@ export const requests = {
 
   // 도착 시간 전송 (반경 50m)
   POST_ARRIVE() {
-    return '/api/moims/arrive';
+    return '/api/gps/arrive';
   },
 
   // Naver Map API (장소 받아오기)
@@ -37,7 +37,7 @@ export const requests = {
     return '/api/noti/presses';
   },
 
-  // 재촉 알림
+  // 도윰 알림
   POST_HELP() {
     return '/api/noti/helps';
   },
