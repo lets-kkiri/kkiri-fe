@@ -23,12 +23,15 @@ function Map({places}) {
 
   useEffect(() => {
     console.log('맵의 프롭스입니다=========', places);
-    if (!places) {
+    if (!places && places.length < 1) {
       return;
     }
     const newDrawPath = [];
     for (let i = 0; i < places.length; i++) {
-      const point = {latitude: places[i].lat, longitude: places[i].lng};
+      const point = {
+        latitude: places[i].latitude,
+        longitude: places[i].longitude,
+      };
       if (i === places.length - 1) {
         setDestination(point);
       }
@@ -49,8 +52,8 @@ function Map({places}) {
         const distance = calculateDistance(
           position.coords.latitude,
           position.coords.longitude,
-          destination.lat,
-          destination.lng,
+          destination.latitude,
+          destination.longitude,
         );
 
         const date = new Date();
@@ -121,7 +124,7 @@ function Map({places}) {
   useEffect(() => {
     CompassHeading.start(3, heading => {
       setNowHeading(heading.heading);
-      console.log('nowHeading =====', heading.heading);
+      // console.log('nowHeading =====', heading.heading);
     });
     return () => {
       CompassHeading.stop();
@@ -144,8 +147,19 @@ function Map({places}) {
             bearing: nowHeading,
             ...myPosition,
           }}>
-          {/* 임시 목적지 역삼 멀티캠퍼스 */}
-          {places?.map(place => {
+          {/* 목적지 Marker */}
+          {places && (
+            <Marker
+              coordinate={{
+                latitude: places[places.length - 1].latitude,
+                longitude: places[places.length - 1].longitude,
+              }}
+              image={require('../assets/icons/destination.png')}
+              width={30}
+              height={35}
+            />
+          )}
+          {/* {places?.map(place => {
             return (
               <Marker
                 key={place.id}
@@ -155,7 +169,7 @@ function Map({places}) {
                 height={35}
               />
             );
-          })}
+          })} */}
           {/* 반경 n미터 원으로 표시 */}
           {!startDraw && (
             <Circle

@@ -111,8 +111,11 @@ const MyScene = props => {
     for (let i = 0; i < geoState.nearbyPlaces.length - 1; i++) {
       const startGeo = geoState.nearbyPlaces[i];
       const endGeo = geoState.nearbyPlaces[i + 1];
-      const startGeoCoords = transformGpsToAR(startGeo.lat, startGeo.lng);
-      const endGeoCoords = transformGpsToAR(endGeo.lat, endGeo.lng);
+      const startGeoCoords = transformGpsToAR(
+        startGeo.latitude,
+        startGeo.longitude,
+      );
+      const endGeoCoords = transformGpsToAR(endGeo.latitude, endGeo.longitude);
       const startPosition = [startGeoCoords.x, -1, startGeoCoords.z];
       const relativePosition = [
         endGeoCoords.x - startGeoCoords.x,
@@ -150,8 +153,6 @@ const MyScene = props => {
 
   // 최근 위치 받아오기
   const getCurrentLocation = useCallback(() => {
-    Toast('All set!');
-    Toast('Move your device around gently to calibrate AR and compass.');
     if (
       geoState.cameraReady &&
       geoState.locationReady &&
@@ -248,12 +249,12 @@ const MyScene = props => {
     }
 
     const placePoints = geoState.nearbyPlaces.map((item, idx) => {
-      const coords = transformGpsToAR(item.lat, item.lng);
+      const coords = transformGpsToAR(item.latitude, item.longitude);
       const scale = Math.abs(Math.round(coords.z / 15));
       // const scale = 100;
       const distance = distanceBetweenPoints(geoState.location, {
-        latitude: item.lat,
-        longitude: item.lng,
+        latitude: item.latitude,
+        longitude: item.longitude,
       });
       console.log(`${idx + 1}번째 포인트`);
       console.log('coords :', coords);
@@ -282,14 +283,19 @@ const MyScene = props => {
               position={[0, -0.75, 0]}
             />
             <ViroAmbientLight color="#ffffff" />
-            <Viro3DObject
+            {/* <Viro3DObject
               source={require('../../assets/objects/Cat_v1_L3.123cc81ac858-7d2c-4c7e-bf80-81982996d26d/12222_Cat_v1_l3.obj')}
               scale={[0.5, 0.5, 0.5]}
               position={[0, 0, 0]}
               rotation={[90, 150, 180]}
               type="OBJ"
-            />
-            {/* <ViroBox width={2} length={2} height={2} position={[0, -1.5, 0]} /> */}
+            /> */}
+            {/* <ViroBox
+              width={10}
+              length={10}
+              height={10}
+              position={[0, -1.5, 0]}
+            /> */}
           </ViroFlexView>
         </ViroNode>
       );
