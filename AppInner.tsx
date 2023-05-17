@@ -57,6 +57,7 @@ import {logout} from '@react-native-seoul/kakao-login';
 import NotiBox from './src/components/Common/NotiBox';
 import {StackNavigationProp} from '@react-navigation/stack';
 import CommingNoti from './src/components/Common/CommingNoti';
+import ARnavi from './src/pages/ARnavi';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -441,6 +442,11 @@ function AppInner() {
                 name="AddCard"
                 component={AddCard}
                 options={{title: '카드 추가'}}
+              />
+              <Stack.Screen
+                name="ARnavi"
+                component={ARnavi}
+                options={{title: 'AR Navigation'}}
               />
             </Stack.Group>
           </Stack.Navigator>

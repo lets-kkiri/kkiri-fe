@@ -87,6 +87,10 @@ function Setting() {
         title="카드 등록"
         onPress={() => navigation.navigate('AddCard')}
       />
+      <Button
+        title="AR Navigation"
+        onPress={() => navigation.navigate('ARnavi')}
+      />
       <Button title="로그아웃" onPress={() => signOutWithKakao()} />
     </SettingPageContainer>
   );
