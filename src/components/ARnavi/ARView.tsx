@@ -31,12 +31,14 @@ const Toast = message => {
   );
 };
 
+// 질감(및 색) 표현
 ViroMaterials.createMaterials({
   coloredLine: {
     diffuseColor: 'rgba(0, 0, 255, 0.3)',
   },
 });
 
+// 두 점 거리 구하는 함수
 const distanceBetweenPoints = (p1, p2) => {
   if (!p1 || !p2) {
     return 0;
@@ -56,12 +58,16 @@ const distanceBetweenPoints = (p1, p2) => {
   return d;
 };
 
+// 메인 함수
 const MyScene = props => {
-  let data = props.sceneNavigator.viroAppProps.places;
-  console.log('=========프롭스=========', data);
+  // const data = props.sceneNavigator.viroAppProps.places;
+  const nowHeading = props.sceneNavigator.viroAppProps.nowHeading;
+  const places = props.sceneNavigator.viroAppProps.places;
+  const myPosition = props.sceneNavigator.viroAppProps.myPosition;
+  // console.log('=========프롭스=========', data);
 
   usePermissions();
-
+  // 작업 확인해야함 --- 한별 ---
   // 최초 실행시 확인
   const [tracking, setTracking] = useState(false);
 
@@ -78,129 +84,16 @@ const MyScene = props => {
     setTracking(isTracking);
   }, []);
 
-  const [geoState, setGeoState] = useState({
-    cameraReady: true,
-    locationReady: false,
-    location: undefined,
-    nearbyPlaces: [],
-    tracking: false,
-    compassHeading: 0,
-  });
+  // const [geoState, setGeoState] = useState({
+  //   cameraReady: true,
+  //   locationReady: false,
+  //   location: undefined,
+  //   nearbyPlaces: [],
+  //   tracking: false,
+  //   compassHeading: 0,
+  // });
 
-  const [lineState, setLineState] = useState([]);
-
-  const listener = useRef(null);
-
-  const getLines = useCallback(() => {
-    console.log('getLines 들어옴');
-    if (
-      geoState.nearbyPlaces.length === 0 ||
-      lineState.length === geoState.nearbyPlaces.length
-    ) {
-      console.log('하지만 리턴 당함');
-      return [];
-    }
-
-    // const initGeo = geoState.nearbyPlaces[0];
-    // const initCoords = transformGpsToAR(initGeo.lat, initGeo.lng);
-    // const newLineState = [
-    //   [0, 0, 0],
-    //   [initCoords.x, 0, initCoords.z],
-    // ];
-    const newLineState = [];
-    for (let i = 0; i < geoState.nearbyPlaces.length - 1; i++) {
-      const startGeo = geoState.nearbyPlaces[i];
-      const endGeo = geoState.nearbyPlaces[i + 1];
-      const startGeoCoords = transformGpsToAR(
-        startGeo.latitude,
-        startGeo.longitude,
-      );
-      const endGeoCoords = transformGpsToAR(endGeo.latitude, endGeo.longitude);
-      const startPosition = [startGeoCoords.x, -1, startGeoCoords.z];
-      const relativePosition = [
-        endGeoCoords.x - startGeoCoords.x,
-        0,
-        endGeoCoords.z - startGeoCoords.z,
-      ];
-      newLineState.push([[...startPosition], [...relativePosition]]);
-    }
-    setLineState(newLineState);
-  }, [geoState.nearbyPlaces, lineState.length, transformGpsToAR]);
-
-  // compassHeading 처리를 위한 useEffect, mount시 설정, unmount시 해제
-  useEffect(() => {
-    CompassHeading.start(3, heading => {
-      if (geoState.compassHeading === 0) {
-        const newGeoState = {...geoState};
-        newGeoState.compassHeading = heading.heading;
-        newGeoState.locationReady = true;
-        setGeoState(newGeoState);
-        CompassHeading.stop();
-      }
-    });
-
-    return () => {
-      if (listener.current) {
-        Geolocation.clearWatch(listener.current);
-      }
-      CompassHeading.stop();
-    };
-  }, []);
-
-  useEffect(() => {
-    getCurrentLocation();
-  }, [geoState.compassHeading]);
-
-  // 최근 위치 받아오기
-  const getCurrentLocation = useCallback(() => {
-    if (
-      geoState.cameraReady &&
-      geoState.locationReady &&
-      geoState.compassHeading
-    ) {
-      const geoSuccess = result => {
-        console.log('geoSuccess', result);
-        const newGeoState = {...geoState};
-        newGeoState.location = result.coords;
-        console.log('newGeo', newGeoState);
-        setGeoState(newGeoState);
-      };
-
-      listener.current = Geolocation.watchPosition(
-        geoSuccess,
-        error => {
-          console.error('geoError', error.message);
-        },
-        {
-          distanceFilter: 10,
-        },
-      );
-    }
-  }, [geoState]);
-
-  // 목적지 값 받아오기
-  const getNearbyPlaces = useCallback(
-    async places => {
-      console.log('겟니어바이======', places);
-      const newGeoState = {...geoState};
-      newGeoState.nearbyPlaces = [...places];
-      setGeoState(newGeoState);
-    },
-    [geoState.location],
-  );
-
-  useEffect(() => {
-    if (geoState.location) {
-      getNearbyPlaces(data);
-    }
-  }, [geoState.location, getNearbyPlaces]);
-
-  useEffect(() => {
-    if (geoState.nearbyPlaces && geoState.nearbyPlaces.length > 0) {
-      getLines();
-    }
-  }, [geoState.nearbyPlaces, getLines]);
-
+  // ==================== 계산 함수들 ====================
   // 위도, 경도 값을 m 단위로로 계산
   const latLongToMerc = useCallback((latDeg, longDeg) => {
     // From: https://gist.github.com/scaraveos/5409402
@@ -218,8 +111,8 @@ const MyScene = props => {
       const isAndroid = Platform.OS === 'android';
       const latObj = lat;
       const longObj = lng;
-      const latMobile = geoState.location.latitude;
-      const longMobile = geoState.location.longitude;
+      const latMobile = myPosition.latitude;
+      const longMobile = myPosition.longitude;
 
       const deviceObjPoint = latLongToMerc(latObj, longObj);
       const mobilePoint = latLongToMerc(latMobile, longMobile);
@@ -227,7 +120,7 @@ const MyScene = props => {
       const objDeltaX = deviceObjPoint.x - mobilePoint.x;
 
       if (isAndroid) {
-        let degree = geoState.compassHeading;
+        let degree = nowHeading;
         let angleRadian = (degree * Math.PI) / 180;
         let newObjX =
           objDeltaX * Math.cos(angleRadian) - objDeltaY * Math.sin(angleRadian);
@@ -239,31 +132,158 @@ const MyScene = props => {
 
       return {x: objDeltaX, z: -objDeltaY};
     },
-    [latLongToMerc, geoState.compassHeading, geoState.location],
+    [latLongToMerc, nowHeading, myPosition],
   );
+  // ==================== 계산 함수들 ====================
+
+  // ==================== 연결 Lines 구하는 과정 ====================
+  const [lineState, setLineState] = useState([]);
+  const [lineRender, setLineRender] = useState(false);
+
+  const getLines = useCallback(() => {
+    console.log('getLines 들어옴');
+    if (places.length === 0 || lineState.length === places.length) {
+      console.log('하지만 리턴 당함');
+      return [];
+    }
+
+    const newLineState = [];
+    for (let i = 0; i < places.length - 1; i++) {
+      const startGeo = places[i];
+      const endGeo = places[i + 1];
+      const startGeoCoords = transformGpsToAR(
+        startGeo.latitude,
+        startGeo.longitude,
+      );
+      const endGeoCoords = transformGpsToAR(endGeo.latitude, endGeo.longitude);
+      const startPosition = [startGeoCoords.x, 0, startGeoCoords.z];
+      const relativePosition = [
+        endGeoCoords.x - startGeoCoords.x,
+        0,
+        endGeoCoords.z - startGeoCoords.z,
+      ];
+      newLineState.push([[...startPosition], [...relativePosition]]);
+    }
+    setLineState(newLineState);
+    setLineRender(true);
+  }, [places, lineState.length, transformGpsToAR]);
+
+  useEffect(() => {
+    if (places && places.length > 0 && lineRender === false) {
+      getLines();
+    }
+  }, [places, getLines, lineRender]);
+  // ==================== 연결 Lines 구하는 과정 ====================
+
+  // compassHeading 처리를 위한 useEffect, mount시 설정, unmount시 해제
+  // useEffect(() => {
+  //   if (!nowHeading || geoState.compassHeading !== 0) {
+  //     return;
+  //   }
+  //   const newGeoState = {...geoState};
+  //   newGeoState.compassHeading = nowHeading;
+  //   newmyPositionReady = true;
+  //   console.log('헤더 박았음==========', newGeoState);
+  //   setGeoState(newGeoState);
+  // }, [nowHeading]);
+
+  // useEffect(() => {
+  //   getCurrentLocation();
+
+  //   // Clean up function
+  //   return () => {
+  //     if (listener.current !== null) {
+  //       Geolocation.clearWatch(listener.current);
+  //     }
+  //   };
+  // }, [geoState.compassHeading]);
+
+  // 최근 위치 받아오기
+  // const getCurrentLocation = useCallback(() => {
+  //   if (
+  //     geoState.cameraReady &&
+  //     myPositionReady &&
+  //     geoState.compassHeading
+  //   ) {
+  //     const geoSuccess = result => {
+  //       console.log('geoSuccess', result);
+  //       const newGeoState = {...geoState};
+  //       newmyPosition = result.coords;
+  //       console.log('newGeo', newGeoState);
+  //       setGeoState(newGeoState);
+  //     };
+
+  //     listener.current = Geolocation.watchPosition(
+  //       geoSuccess,
+  //       error => {
+  //         console.error('geoError', error.message);
+  //       },
+  //       {
+  //         distanceFilter: 10,
+  //       },
+  //     );
+  //   }
+  // }, [geoState]);
+
+  // 목적지 값 받아오기
+  // const getNearbyPlaces = useCallback(
+  //   async places => {
+  //     // console.log('겟니어바이======', places);
+  //     const newGeoState = {...geoState};
+  //     newplaces = [...places];
+  //     setGeoState(newGeoState);
+  //   },
+  //   [myPosition],
+  // );
+
+  // useEffect(() => {
+  //   if (myPosition) {
+  //     getNearbyPlaces(data);
+  //   }
+  // }, [myPosition, getNearbyPlaces]);
+
+  const [startLoc, setStartLoc] = useState({latitude: 0, longitude: 0});
+  const [boxRender, setBoxRender] = useState(false);
+
+  useEffect(() => {
+    if (myPosition === undefined) {
+      return;
+    }
+    setStartLoc({
+      latitude: myPosition.latitude,
+      longitude: myPosition.longitude,
+    });
+  }, [myPosition]);
 
   // 지도 좌표값 위치 찍기
   const placeARObjects = useCallback(() => {
-    if (geoState.nearbyPlaces.length === 0) {
+    if (
+      !places ||
+      places.length === 0 ||
+      !startLoc ||
+      startLoc.latitude === 0 ||
+      startLoc.longitude === 0 ||
+      boxRender === true
+    ) {
       return undefined;
     }
 
-    const placePoints = geoState.nearbyPlaces.map((item, idx) => {
+    const placePoints = places.map((item, idx) => {
       const coords = transformGpsToAR(item.latitude, item.longitude);
       const scale = Math.abs(Math.round(coords.z / 15));
       // const scale = 100;
-      const distance = distanceBetweenPoints(geoState.location, {
+      const distance = distanceBetweenPoints(startLoc.location, {
         latitude: item.latitude,
         longitude: item.longitude,
       });
-      console.log(`${idx + 1}번째 포인트`);
-      console.log('coords :', coords);
-      console.log('distance :', distance);
-      console.log('scale :', scale);
+      // console.log(`${idx + 1}번째 포인트`);
+      // console.log('coords :', coords);
+      // console.log('distance :', distance);
+      // console.log('scale :', scale);
 
       return (
         <ViroNode
-          key={item.id}
+          key={idx}
           scale={[scale, scale, scale]}
           rotation={[0, 0, 0]}
           position={[coords.x, 0, coords.z]}>
@@ -290,18 +310,14 @@ const MyScene = props => {
               rotation={[90, 150, 180]}
               type="OBJ"
             /> */}
-            {/* <ViroBox
-              width={10}
-              length={10}
-              height={10}
-              position={[0, -1.5, 0]}
-            /> */}
+            <ViroBox width={1} length={1} height={1} position={[0, -1.5, 0]} />
           </ViroFlexView>
         </ViroNode>
       );
     });
+    setBoxRender(true);
     return placePoints;
-  }, [geoState.nearbyPlaces, geoState.location, transformGpsToAR]);
+  }, [boxRender, places, startLoc, transformGpsToAR]);
 
   // 지도 길 그리기
   const polyLines = useCallback(() => {
@@ -312,8 +328,8 @@ const MyScene = props => {
     const drawLines = lineState.map((line, idx) => {
       const startPoint = line[0];
       const endPoint = line[1];
-      console.log('start :', startPoint);
-      console.log('end :', endPoint);
+      // console.log('start :', startPoint);
+      // console.log('end :', endPoint);
 
       return (
         <ViroPolyline
@@ -335,8 +351,8 @@ const MyScene = props => {
       // onAnchorUpdated={() => console.log('onAnchorUpdated')}
       // onAnchorRemoved={() => console.log('onAnchorRemoved')}> */}
       {/* <ViroARPlane minHeight={0.5} minWidth={0.5} alignment={'Horizontal'}> */}
-      {geoState.locationReady && geoState.cameraReady && placeARObjects()}
-      {lineState && lineState.length > 0 && polyLines()}
+      {nowHeading && myPosition ? placeARObjects() : null}
+      {lineState && lineState.length > 0 ? polyLines() : null}
       {/* </ViroARPlane> */}
     </ViroARScene>
   );
@@ -353,8 +369,8 @@ let styles = StyleSheet.create({
   },
 });
 
-function ARMapView({places}) {
-  const [object, setObject] = useState('dog');
+function ARMapView({places, nowHeading, myPosition}) {
+  // const [object, setObject] = useState('cat');
   return (
     <View style={styles.f1}>
       <ViroARSceneNavigator
@@ -363,7 +379,7 @@ function ARMapView({places}) {
         initialScene={{
           scene: MyScene,
         }}
-        viroAppProps={{places}}
+        viroAppProps={{places, nowHeading, myPosition}}
         style={styles.f1}
       />
     </View>
