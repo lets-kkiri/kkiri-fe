@@ -18,6 +18,18 @@ module.exports = {
     }),
   },
   resolver: {
-    assetExts: [...defaultAssetExts, 'obj', 'mtl'], // Add "obj" and "mtl" to the list of asset extensions
+    assetExts: [
+      ...defaultAssetExts,
+      'obj',
+      'mtl',
+      'JPG',
+      'vrx',
+      'hdr',
+      'gltf',
+      'glb',
+      'bin',
+      'arobject',
+      'gif',
+    ], // Add "obj" and "mtl" to the list of asset extensions
   },
 };
