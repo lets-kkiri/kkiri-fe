@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import {Text, ScrollView, Button, Dimensions} from 'react-native';
+import {Text, ScrollView, Button, Dimensions, View} from 'react-native';
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../types';
@@ -19,6 +19,8 @@ import {RootState, useAppDispatch} from '../store';
 
 // Styled component
 const MoimContainer = styled.View<{theme: any}>`
+  position: relative;
+  height: ${() => Dimensions.get('window').height};
   flex-direction: column;
   flex: 1;
   background-color: ${({theme}) => theme.color.background};
@@ -110,6 +112,15 @@ const InfoText = styled.Text<{theme: any}>`
 const BottomContainer = styled.View`
   padding: 16px;
   padding-top: 24px;
+`;
+
+const ChatBtn = styled.TouchableHighlight<{theme: any}>`
+  border-radius: 15px;
+  background-color: ${({theme}) => theme.color.blue};
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 // Icons
@@ -277,36 +288,42 @@ function Moim({navigation, route}: MoimProps) {
               onPress={() => console.log('pressed')}
             />
           </MembersContainer>
-          {/* <Button
-            title="채팅방 입장"
-            onPress={() => {
-              const socket = new WebSocket(
-                `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
-              );
-              console.log('socket');
-              console.log('socket open');
-              socket.onopen = () => {
-                console.log('연결!');
-                // 소켓 열고 유저 정보 보내기
-                socket?.send(
-                  JSON.stringify({
-                    type: 'JOIN',
-                    content: {
-                      kakaoId: userInfo.id,
-                    },
-                  }),
-                );
-              };
-              if (socket) {
-                navigation.navigate('Chatroom', {
-                  moimId: moimId,
-                  socket: socket,
-                });
-              }
-            }}
-          /> */}
         </BottomContainer>
       </ScrollView>
+      <View
+        style={{position: 'absolute', width: '100%', padding: 16, bottom: 0}}>
+        <ChatBtn
+          activeOpacity={0.7}
+          underlayColor={theme.color.blue2}
+          theme={theme}
+          onPress={() => {
+            const socket = new WebSocket(
+              `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
+            );
+            console.log('socket');
+            console.log('socket open');
+            socket.onopen = () => {
+              console.log('연결!');
+              // 소켓 열고 유저 정보 보내기
+              socket?.send(
+                JSON.stringify({
+                  type: 'JOIN',
+                  content: {
+                    kakaoId: userInfo.id,
+                  },
+                }),
+              );
+            };
+            if (socket) {
+              navigation.navigate('Chatroom', {
+                moimId: moimId,
+                socket: socket,
+              });
+            }
+          }}>
+          <Text style={{color: theme.color.white}}>친구들과 소통하기</Text>
+        </ChatBtn>
+      </View>
     </MoimContainer>
   );
 }
