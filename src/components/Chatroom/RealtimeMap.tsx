@@ -72,7 +72,7 @@ interface MapProps {
   emojiMessages: {
     [key: number]: MessageData[];
   };
-  myEmojiMessages: numer[];
+  myEmojiMessages: number[];
 }
 
 function RealtimeMap({
