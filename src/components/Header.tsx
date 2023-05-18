@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {Text, View, TouchableHighlight} from 'react-native';
 import {WithLocalSvg} from 'react-native-svg';
 import {useNavigation} from '@react-navigation/native';
@@ -9,6 +9,7 @@ import {RootState} from '../store';
 
 // Icons
 const Notifi = require('../assets/icons/notification.svg');
+const HaveNotifi = require('../assets/icons/have_notification.svg');
 const Setting_icon = require('../assets/icons/setting.svg');
 const logo = require('../assets/logo.svg');
 
@@ -20,7 +21,7 @@ const HeaderContainer = styled.View<{theme: any}>`
   justify-content: space-between;
   padding-left: 16px;
   padding-right: 8px;
-  background-color: ${({theme}) => theme.color.background};
+  background-color: ${({theme}) => theme.color.backBlue};
 `;
 
 const IconContainer = styled.View`
@@ -40,8 +41,23 @@ const LogoArea = styled(IconArea)`
 
 const Header = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
-
+  const [haveNoti, setHaveNoti] = useState(false);
+  const notices = useSelector((state: RootState) => state.persisted.noti);
   const theme = useSelector((state: RootState) => state.persisted.theme.theme);
+
+  useEffect(() => {
+    if (!notices && notices.length === 0) {
+      return;
+    }
+    let flag = false;
+    notices.forEach(noti => {
+      if (noti.checked === false) {
+        flag = true;
+      }
+    });
+    setHaveNoti(flag);
+    console.log(flag);
+  }, [notices]);
 
   return (
     <HeaderContainer theme={theme}>
@@ -49,11 +65,19 @@ const Header = () => {
         <WithLocalSvg asset={logo} height={24} />
       </LogoArea>
       <IconContainer>
-        <IconArea
-          onPress={() => navigation.navigate('Notification')}
-          activeOpacity={0.6}>
-          <WithLocalSvg asset={Notifi} width={24} height={24} />
-        </IconArea>
+        {haveNoti === true ? (
+          <IconArea
+            onPress={() => navigation.navigate('Notification')}
+            activeOpacity={0.6}>
+            <WithLocalSvg asset={HaveNotifi} width={24} height={24} />
+          </IconArea>
+        ) : (
+          <IconArea
+            onPress={() => navigation.navigate('Notification')}
+            activeOpacity={0.6}>
+            <WithLocalSvg asset={Notifi} width={24} height={24} />
+          </IconArea>
+        )}
         <IconArea
           onPress={() => navigation.navigate('Setting')}
           activeOpacity={0.6}>

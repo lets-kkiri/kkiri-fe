@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, Alert} from 'react-native';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
 import NotiBox from '../Common/NotiBox';
@@ -8,6 +8,7 @@ import {guidesPost} from '../../slices/guidesSlice';
 import Pencil from '../../assets/icons/pencil.svg';
 import CustomButton from '../Common/Button';
 import notiSlice, {notiType} from '../../slices/noti';
+import * as Animatable from 'react-native-animatable';
 
 interface PathProps {
   startDraw: boolean;
@@ -22,6 +23,7 @@ interface PathProps {
   setDrawpath: React.Dispatch<React.SetStateAction<PathState[]>>;
   nickname: string;
   noti: notiType;
+  kakaoId: string;
 }
 
 interface PathState {
@@ -33,12 +35,12 @@ const DrawNoti = styled.View`
   flex-direction: row;
   align-items: center;
   background-color: #fff;
-  height: 50;
+  height: 50px;
   width: 90%;
   border-style: solid;
   border-color: #5968f2;
-  border-width: 1;
-  border-radius: 15;
+  border-width: 1px;
+  border-radius: 15px;
   margin-top: 15px;
   padding-left: 20px;
 `;
@@ -56,6 +58,7 @@ const AboutPath = ({
   setDrawpath,
   nickname,
   noti,
+  kakaoId,
 }: PathProps) => {
   const dispatch = useAppDispatch();
 
@@ -66,17 +69,21 @@ const AboutPath = ({
   }, [drawpoint]);
 
   // 서버로 그린 경로 보내는 함수
-  function sendPath() {
+  function sendPath(user: string) {
     // 임시 데이터
     const postData = {
-      receiverKakaoId: '2783374648',
+      receiverKakaoId: user,
       path: drawpath,
     };
-    dispatch(guidesPost(postData));
-    setModalVisible(true);
-    setModalType('sendpath');
-    setSendpath(false);
-    setStartDraw(false);
+    if (drawpath.length > 1) {
+      dispatch(guidesPost(postData));
+      setModalVisible(true);
+      setModalType('sendpath');
+      setSendpath(false);
+      setStartDraw(false);
+    } else {
+      Alert.alert('두 개 이상의 포인트를 찍어주세요!');
+    }
   }
 
   return (
@@ -124,10 +131,14 @@ const AboutPath = ({
               status="active"
               width="short"
               onPress={() => {
-                setDrawpoint(null);
-                setDrawpath([]);
-                sendPath();
-                dispatch(notiSlice.actions.clickNoti(noti));
+                if (drawpath.length < 2) {
+                  return;
+                } else {
+                  setDrawpoint(null);
+                  setDrawpath([]);
+                  sendPath(kakaoId);
+                  dispatch(notiSlice.actions.clickNoti(noti));
+                }
                 console.log(drawpath);
               }}
             />

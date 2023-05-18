@@ -9,6 +9,10 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../types';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../store';
+
+import KakaoShareLink from 'react-native-kakao-share-link';
 
 // Types
 interface CompleteCreatePageProps {
@@ -21,17 +25,18 @@ const before_send = require('../../assets/icons/complete_kkiri.svg');
 const after_send = require('../../assets/icons/complete_kkiri_shared.svg');
 
 // Styled-components
-const ContentContainer = styled.View`
+const ContentContainer = styled.View<{theme: any}>`
   flex: 0.8;
   flex-direction: column;
   padding: 16px;
+  background-color: ${({theme}) => theme.color.background};
 `;
 
 const HeaderContainer = styled.View`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 48px;
+  /* height: 48px; */
 `;
 
 const HeaderText = styled.Text`
@@ -45,20 +50,9 @@ const BodyContainer = styled.View`
 `;
 
 const BodyCommentContainer = styled.View`
-  height: 59px;
+  /* height: 59px; */
   flex-direction: column;
   margin-top: 36px;
-`;
-
-const BodyTextLight = styled.Text`
-  font-size: 18px;
-  font-weight: 500;
-  margin-bottom: 6px;
-`;
-
-const BodyTextBold = styled.Text`
-  font-size: 18px;
-  font-weight: 700;
 `;
 
 const BodyIconContainer = styled.View`
@@ -66,6 +60,17 @@ const BodyIconContainer = styled.View`
   flex-direction: column;
   padding-top: 50px;
   align-items: center;
+`;
+
+const BodyTextLight = styled.Text`
+  font-size: 16px;
+  font-weight: 200;
+  margin-bottom: 6px;
+`;
+
+const BodyTextBold = styled.Text`
+  font-size: 16px;
+  font-weight: 800;
 `;
 
 const KkiriContainer = styled.View`
@@ -81,12 +86,13 @@ const ButtonInfo = styled.Text`
   margin-bottom: 12px;
 `;
 
-const ButtonContainer = styled.View`
+const ButtonContainer = styled.View<{theme: any}>`
   flex: 0.2;
   flex-direction: column;
   justify-content: flex-end;
   padding-bottom: 20px;
   align-items: center;
+  background-color: ${({theme}) => theme.color.background};
 `;
 
 const Gap = styled.View`
@@ -98,6 +104,42 @@ function CompleteCreate() {
   const route = useRoute<RouteProp<RootStackParamList, 'CompleteCreate'>>();
   const {moimId} = route.params;
   const [isShared, setIsShared] = useState(false);
+
+  const theme = useSelector((state: RootState) => state.persisted.theme.theme);
+
+  // Kakao 링크 전송
+  const userInfo = useSelector((state: RootState) => state.persisted.user);
+  const kakaoShare = async () => {
+    try {
+      const response = await KakaoShareLink.sendFeed({
+        content: {
+          title: `${userInfo.nickname}님이 초대장을 보냈어요`,
+          imageUrl:
+            'https://file.notion.so/f/s/8a91b679-d1b8-463f-86f2-91d4f0437751/kkiri_message.png?id=8afe3828-3b82-4cab-8154-758af82df9e2&table=block&spaceId=311c747b-96e4-4792-b9d0-49185de412a1&expirationTimestamp=1684503106071&signature=fzXuXAvU4SZj8Dz3AuCn7a5He1tV08wp1REBKvO45u8&downloadName=kkiri_message.png',
+          link: {
+            webUrl: 'https://developers.kakao.com/',
+            mobileWebUrl: 'https://developers.kakao.com/',
+          },
+        },
+        buttons: [
+          {
+            title: '앱에서 보기',
+            link: {
+              androidExecutionParams: [{key: 'moimId', value: `${moimId}`}],
+              iosExecutionParams: [
+                {key: 'key1', value: 'value1'},
+                {key: 'key2', value: 'value2'},
+              ],
+            },
+          },
+        ],
+      });
+      console.log(response);
+    } catch (e) {
+      console.error(e);
+      console.error(e.message);
+    }
+  };
 
   return (
     <>
@@ -126,10 +168,11 @@ function CompleteCreate() {
             </KkiriContainer>
             {isShared === true ? null : (
               <CustomButton
-                text="링크 복사하기"
+                text="링크 공유하기"
                 status="blur"
                 width="short"
                 onPress={() => {
+                  kakaoShare();
                   setIsShared(true);
                 }}
               />
@@ -137,7 +180,7 @@ function CompleteCreate() {
           </BodyIconContainer>
         </BodyContainer>
       </ContentContainer>
-      <ButtonContainer>
+      <ButtonContainer theme={theme}>
         {isShared === true ? (
           <>
             <CustomButton
