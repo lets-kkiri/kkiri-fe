@@ -1,11 +1,20 @@
 import * as React from 'react';
 import {useState, useEffect, useRef, Linking} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import {
+  NativeStackNavigationProp,
+  createNativeStackNavigator,
+} from '@react-navigation/native-stack';
 import locationUpdater from './src/hooks/useLocationUpdater';
 // import BackgroundTimer from 'react-native-background-timer';
 // import {AppRegistry} from 'react-native';
-import {Text, View, useColorScheme, AppState} from 'react-native';
+import {
+  Text,
+  View,
+  useColorScheme,
+  AppState,
+  TouchableOpacity,
+} from 'react-native';
 import {ThemeProvider} from 'styled-components/native';
 import {lightTheme, darkTheme} from './src/styles/theme';
 
@@ -54,6 +63,12 @@ import {authInstance} from './src/api/axios';
 import AddCard from './src/components/MyPage/AddCard';
 import userSlice from './src/slices/user';
 import {logout} from '@react-native-seoul/kakao-login';
+import NotiBox from './src/components/Common/NotiBox';
+import {StackNavigationProp} from '@react-navigation/stack';
+import CommingNoti from './src/components/Common/CommingNoti';
+import ARnavi from './src/pages/ARnavi';
+import {WithLocalSvg} from 'react-native-svg';
+import {Image} from 'react-native';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -318,6 +333,19 @@ function AppInner() {
       console.log(`createChannel socket returned ${created}`),
   );
 
+  PushNotification.createChannel(
+    {
+      channelId: 'path',
+      channelName: '길 안내 알림',
+      channelDescription: '누군가 길 안내를 보냈을 때 울리는 알림', // (optional) default: undefined.
+      soundName: 'default', // (optional) See `soundName` parameter of `localNotification` function
+      importance: 4, // (optional) default: 4. Int value of the Android notification importance
+      vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+    },
+    (created: boolean) =>
+      console.log(`createChannel socket returned ${created}`),
+  );
+
   // 로그인 관리를 위한 Token 확인
   useEffect(() => {
     const getTokenAndRefresh = async () => {
@@ -381,6 +409,8 @@ function AppInner() {
     },
   };
 
+  // const navigation = useNavigation<NativeStackNavigationProp<any>>();
+
   const theme = useSelector((state: RootState) => state.persisted.theme.theme);
   return (
     <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
@@ -389,7 +419,22 @@ function AppInner() {
           <Stack.Navigator>
             <Stack.Group
               screenOptions={{
-                headerStyle: {backgroundColor: theme.color.background},
+                headerStyle: {
+                  backgroundColor: theme.color.background,
+                  elevation: 0,
+                },
+                headerShadowVisible: false,
+                headerTitleAlign: 'center',
+                headerTitleStyle: {
+                  fontSize: 16,
+                },
+                headerLeft: () => (
+                  <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+                    <Image
+                      source={require('./src/assets/icons/header_left.svg')}
+                    />
+                  </TouchableOpacity>
+                ),
               }}>
               <Stack.Screen
                 name="Tab"
@@ -409,7 +454,24 @@ function AppInner() {
               <Stack.Screen
                 name="Moim"
                 component={Moim}
-                options={{title: '모임 상세'}}
+                options={({navigation}) => ({
+                  title: '모임 상세',
+                  headerStyle: {
+                    backgroundColor: theme.color.backBlue,
+                    fontSize: 12,
+                  },
+                  headerLeft: () => (
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('Home')}
+                      style={{width: 44}}>
+                      <WithLocalSvg
+                        style={{width: 44, height: 44}}
+                        asset={require('./src/assets/icons/header_left.svg')}
+                      />
+                      {/* <Text>뒤로</Text> */}
+                    </TouchableOpacity>
+                  ),
+                })}
               />
               <Stack.Screen
                 name="Notification"
@@ -427,12 +489,12 @@ function AppInner() {
               <Stack.Screen
                 name="CreateMoim"
                 component={CreateMoim}
-                options={{title: '모임 생성'}}
+                options={{title: '모임 생성중'}}
               />
               <Stack.Screen
                 name="CompleteCreate"
                 component={CompleteCreate}
-                options={{title: '모임 생성 완료'}}
+                options={{headerShown: false}}
               />
               <Stack.Screen
                 name="Map"
@@ -443,6 +505,11 @@ function AppInner() {
                 name="AddCard"
                 component={AddCard}
                 options={{title: '카드 추가'}}
+              />
+              <Stack.Screen
+                name="ARnavi"
+                component={ARnavi}
+                options={{title: 'AR Navigation'}}
               />
             </Stack.Group>
           </Stack.Navigator>
