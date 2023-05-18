@@ -62,11 +62,12 @@ const EmojiPicker = ({onSelect, onClose}: EmojiPickerProp) => {
       </CloseRow>
       <ScrollView style={{width: (44 + 8) * 6}}>
         <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-          {emojis.map(emoji => (
+          {emojis.map((emoji, index) => (
             <TouchableHighlight
+              key={index}
               activeOpacity={0.6}
               underlayColor="#FFE8E1"
-              onPress={() => onSelect(emoji)}
+              onPress={() => onSelect(index)}
               style={{
                 borderRadius: 99,
                 display: 'flex',

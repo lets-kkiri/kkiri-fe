@@ -2,6 +2,7 @@ import React, {Suspense} from 'react';
 import {View, Text, ImageSourcePropType} from 'react-native';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
+import {emojis} from '../EmojiPicker/Emojis';
 
 // Icons
 import emoji_default from '../../assets/icons/emoji_default.svg';
@@ -21,7 +22,7 @@ const Container = styled.TouchableOpacity`
 type EmojiBtnProps = {
   onPress: () => void;
   isEmojiSelected: boolean;
-  selectedEmoji: string;
+  selectedEmoji: number;
 };
 
 const EmojiBtn = ({onPress, isEmojiSelected, selectedEmoji}: EmojiBtnProps) => {
@@ -31,7 +32,7 @@ const EmojiBtn = ({onPress, isEmojiSelected, selectedEmoji}: EmojiBtnProps) => {
         {!isEmojiSelected ? (
           <WithLocalSvg asset={emoji_default} width={32} height={32} />
         ) : (
-          <WithLocalSvg asset={selectedEmoji} width={32} height={32} />
+          <WithLocalSvg asset={emojis[selectedEmoji]} width={32} height={32} />
         )}
       </Suspense>
     </Container>

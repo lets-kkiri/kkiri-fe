@@ -81,7 +81,7 @@ const AboutMoim = ({setSideModal, count}: AboutProps) => {
             <WithLocalSvg width={15} height={20} asset={Grade} />
             <MainFont>현재 목적지 접근 순위</MainFont>
           </Row>
-          {users.map((user, index) => {
+          {users?.map((user, index) => {
             return (
               <Row style={{paddingHorizontal: 15, marginTop: 25}}>
                 <WithLocalSvg width={35} height={28} asset={Bear} />

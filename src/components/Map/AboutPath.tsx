@@ -7,7 +7,7 @@ import {useAppDispatch} from '../../store';
 import {guidesPost} from '../../slices/guidesSlice';
 import Pencil from '../../assets/icons/pencil.svg';
 import CustomButton from '../Common/Button';
-import notiSlice, { notiType } from '../../slices/noti';
+import notiSlice, {notiType} from '../../slices/noti';
 
 interface PathProps {
   startDraw: boolean;
@@ -87,6 +87,7 @@ const AboutPath = ({
           mainTitle="님이 도움을 요청했어요"
           subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
           onPress={() => setStartDraw(true)}
+          type="map"
         />
       ) : sendpath === false ? (
         <View style={{position: 'absolute', alignItems: 'center'}}>
