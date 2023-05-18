@@ -31,23 +31,23 @@ const HomeContainer = styled.View<{theme: any}>`
   background-color: ${({theme}) => theme.color.backBlue};
 `;
 const HeaderContainer = styled.View<{theme: any}>`
-  background-color: ${({theme}) => theme.color.background};
+  background-color: ${({theme}) => theme.color.backBlue};
   flex-direction: column;
   padding: 24px;
 `;
 const CalendarContainer = styled.View<{theme: any}>`
   /* flex-direction: column; */
   height: 120px;
-  background-color: ${({theme}) => theme.color.backBlue};
+  background-color: ${({theme}) => theme.color.background};
 `;
 const CardsContainer = styled.View<{theme: any}>`
-  background-color: ${({theme}) => theme.color.backBlue};
+  background-color: ${({theme}) => theme.color.background};
   /* flex-direction: row; */
   position: relative;
   bottom: 0px;
   justify-content: center;
-  padding-bottom: 8px;
-  padding-top: 8px;
+  padding-bottom: 24px;
+  padding-top: 24px;
 `;
 
 const MonthSelectBtn = styled.TouchableHighlight`
@@ -192,13 +192,14 @@ export default function Home() {
             }}
             onMonthChange={month => console.log('month :', month)}
             disabledOpacity={0.6}
-            style={{backgroundColor: theme.color.backBlue}}
+            style={{backgroundColor: theme.color.background}}
             theme={{
               todayButtonTextColor: theme.color.blue,
+              backgroundColor: theme.color.background,
             }}
             todayBottomMargin={16}>
             <WeekCalendar
-              style={{backgroundColor: theme.color.backBlue}}
+              style={{backgroundColor: theme.color.background}}
               allowShadow={false}
               current={selectedDay}
               markedDates={{
