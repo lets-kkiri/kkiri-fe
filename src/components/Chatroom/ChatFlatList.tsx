@@ -34,9 +34,9 @@ const HurryContainer = styled.View`
 function ChatFlatList({messages}: ChatFlatListProp) {
   // const [data, setData] = useState<MessageData[]>([]);
 
-  // useEffect(() => {
-  //   setData(messages);
-  // }, [messages]);
+  useEffect(() => {
+    console.log(messages);
+  }, []);
 
   const theme = useSelector((state: RootState) => state.persisted.theme.theme);
 
