@@ -40,7 +40,7 @@ function Map({places, nowHeading, myPosition}) {
   // const [modalVisible, setModalVisible] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log('========== 받아온 경로 정보 =========', places);
+    // console.log('========== 받아온 경로 정보 =========', places);
     if (!places && places.length < 1) {
       return;
     }
@@ -53,8 +53,8 @@ function Map({places, nowHeading, myPosition}) {
   }, [places]);
 
   useEffect(() => {
-    console.log('========== 받아온 내 위치 정보 정보 =========', myPosition);
-    console.log('========== 받아온 경로 도착지 정보 =========', destination);
+    // console.log('========== 받아온 내 위치 정보 정보 =========', myPosition);
+    // console.log('========== 받아온 경로 도착지 정보 =========', destination);
     if (!myPosition || !destination) {
       return;
     }
