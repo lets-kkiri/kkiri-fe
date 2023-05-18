@@ -56,9 +56,12 @@ function SignIn() {
   const signInWithKakao = async (): Promise<void> => {
     try {
       const token: KakaoOAuthToken = await login();
+      // console.log('여기', token);
       // setResult(JSON.stringify(token));
 
       const profile: KakaoProfile = await getProfile();
+      // console.log('여기', profile);
+
       // setResult(JSON.stringify(profile));
 
       const requestBody = {
@@ -68,10 +71,11 @@ function SignIn() {
         profileImageUrl: profile.profileImageUrl,
       };
 
-      // console.log(requests.SIGNIN());
-
+      // console.log('여기', requests.SIGNIN());
+      // console.log('야');
       // 로그인 요청
       const response = await baseInstance.post(requests.SIGNIN(), requestBody);
+      // console.log('여기여기', response.data.deviceTokens);
       const userInfo = {
         ...requestBody,
         accessToken: response.data.accessToken,

@@ -343,22 +343,17 @@ function RealtimeMap({
       ) : null}
       {notices.length > 0 ? (
         notices[0].channelId === 'path' && notices[0].checked === false ? (
-          <Animatable.View
-            animation="slideInDown"
-            iterationCount={1}
-            direction="alternate">
-            <NotiBox
-              nickname={notices[0].data.senderNickname}
-              mainTitle="가 길 안내를 보냈어요!"
-              subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
-              onPress={() => {
-                // 여기 한별 네비게이트해
-                navigation.navigate('ARnavi');
-                dispatch(notiSlice.actions.clickNoti(notices[0]));
-              }}
-              type="map"
-            />
-          </Animatable.View>
+          <NotiBox
+            nickname={notices[0].data.senderNickname}
+            mainTitle="가 길 안내를 보냈어요!"
+            subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
+            onPress={() => {
+              // 여기 한별 네비게이트해
+              navigation.navigate('ARnavi');
+              dispatch(notiSlice.actions.clickNoti(notices[0]));
+            }}
+            type="map"
+          />
         ) : null
       ) : null}
       {notices.length > 0 ? (

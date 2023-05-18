@@ -118,6 +118,7 @@ function Chatroom({route}: ChatroomProp) {
       try {
         const {data} = await authInstance.get(requests.GET_CHAT(id, 20));
         setMessages(data.chat);
+        console.log('뭐냐', data.chat);
       } catch (error) {
         console.log('get previous chat error :', error);
       }
@@ -179,7 +180,7 @@ function Chatroom({route}: ChatroomProp) {
     }
     return () => {
       console.log('=======================채팅방 나감========================');
-      // client.close(1000, 'Work complete');
+      client.close(1000, 'Work complete');
     };
   }, [moimId, userInfo]);
 
