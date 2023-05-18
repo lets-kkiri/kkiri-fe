@@ -90,10 +90,6 @@ const ChatArea = ({
   isEmojiSelected,
   selectedEmoji,
 }: ChatAreaProps) => {
-  // const [inputValue, setInputValue] = useState<string>('');
-
-  // const userInfo = useSelector((state: RootState) => state.persisted.user);
-
   return (
     <KeyboardAvoidingView style={{flex: 1}}>
       <ChatAreaContainer>

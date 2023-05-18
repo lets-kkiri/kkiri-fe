@@ -396,7 +396,7 @@ function AppInner() {
         SplashScreen.hide();
       }
     };
-    // getTokenAndRefresh();
+    getTokenAndRefresh();
   }, [dispatch]);
 
   // deep link를 위한 settings
