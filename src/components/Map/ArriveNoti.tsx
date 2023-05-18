@@ -9,6 +9,7 @@ interface BtnProps {
   setModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
   overall: number;
   ranking: number;
+  destinationTime: string;
 }
 
 const Container = styled.View`
@@ -48,7 +49,19 @@ const SubFont = styled.Text`
   font-size: 12;
 `;
 
-const ArriveNoti = ({setModalVisible, overall, ranking}: BtnProps) => {
+const ArriveNoti = ({
+  setModalVisible,
+  overall,
+  ranking,
+  destinationTime,
+}: BtnProps) => {
+  const currentTime = new Date(); // 현재 시간
+  const targetDate = new Date(destinationTime); // 특정 시간
+
+  // 시간 차이 계산 (밀리초 단위)
+  const timeDifference = targetDate.getTime() - currentTime.getTime();
+  const minutesDifference = Math.floor(timeDifference / (1000 * 60));
+  console.log(timeDifference, minutesDifference);
   return (
     <Container>
       <Inner>
@@ -60,7 +73,7 @@ const ArriveNoti = ({setModalVisible, overall, ranking}: BtnProps) => {
         <SubFont>
           유저님은 {overall}명 중 {ranking}등으로 도착했어요!
         </SubFont>
-        <SubFont>약속 시간까지 아직 분 남았어요!</SubFont>
+        <SubFont>약속 시간까지 아직 {timeDifference}분 남았어요!</SubFont>
       </Margin>
       <View style={{alignItems: 'flex-end'}}>
         <CustomButton

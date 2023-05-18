@@ -41,8 +41,7 @@ const DrawNoti = styled.View`
   border-color: #5968f2;
   border-width: 1px;
   border-radius: 15px;
-  margin-top: 15px;
-  padding-left: 20px;
+  padding-left: 15px;
 `;
 
 const AboutPath = ({
@@ -94,10 +93,15 @@ const AboutPath = ({
           mainTitle="님이 도움을 요청했어요"
           subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
           onPress={() => setStartDraw(true)}
-          type="map"
+          type="path"
         />
       ) : sendpath === false ? (
-        <View style={{position: 'absolute', alignItems: 'center'}}>
+        <View
+          style={{
+            position: 'absolute',
+            alignItems: 'center',
+            marginTop: 15,
+          }}>
           <DrawNoti>
             <WithLocalSvg
               asset={Pencil}
