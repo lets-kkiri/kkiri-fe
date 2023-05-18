@@ -349,34 +349,13 @@ function RealtimeMap({
           ) : null}
         </NaverMapView>
       ) : null}
-      <View style={{marginLeft: 20, marginTop: 15, position: 'absolute'}}>
-        <Animatable.View
-          animation="slideInDown"
-          iterationCount={1}
-          direction="alternate">
-          <AboutPath
-            startDraw={startDraw}
-            setStartDraw={setStartDraw}
-            sendpath={sendpath}
-            setModalVisible={setModalVisible}
-            setModalType={setModalType}
-            setSendpath={setSendpath}
-            drawpoint={drawpoint}
-            setDrawpoint={setDrawpoint}
-            drawpath={drawpath}
-            setDrawpath={setDrawpath}
-            nickname={notices[0].data.senderNickname}
-            noti={notices[0]}
-            kakaoId={notices[0].data.kakaoId}
-          />
-        </Animatable.View>
-      </View>
       {notices.length > 0 ? (
         notices[0].channelId === 'path' && notices[0].checked === false ? (
           <View style={{marginLeft: 20, marginTop: 15, position: 'absolute'}}>
             <Animatable.View
               animation="slideInDown"
               iterationCount={1}
+              s
               direction="alternate">
               <NotiBox
                 nickname={notices[0].data.senderNickname}
