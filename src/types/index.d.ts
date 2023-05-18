@@ -12,6 +12,7 @@ export type RootStackParamList = {
   CompleteCreate: {moimId: number};
   AddCard: undefined;
   CommingNoti: undefined;
+  ARnavi: undefined;
 };
 
 // 단일 메시지
