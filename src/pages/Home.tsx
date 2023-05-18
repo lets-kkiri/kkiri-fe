@@ -7,6 +7,7 @@ import MoimCard from '../components/Common/MoimCard';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState, useAppDispatch} from '../store';
 import CustomTheme from 'styled-components/native';
+import * as Animatable from 'react-native-animatable';
 
 // Icons
 import arrow from '../assets/icons/arrow_down.svg';
@@ -105,41 +106,52 @@ export default function Home() {
   return (
     <HomeContainer theme={theme}>
       <ScrollView style={{backgroundColor: theme.color.background}}>
+        {/* <Animatable.Text
+          animation="slideInDown"
+          iterationCount={5}
+          direction="alternate">
+          Up and down you go
+        </Animatable.Text> */}
         {notices.length > 0 ? (
           notices[0].channelId === 'comming' && !notices[0].checked ? (
             <HeaderContainer theme={theme}>
-              <NotiBox
-                nickname=""
-                mainTitle={notices[0].message}
-                subTitle="실시간으로 친구들의 위치를 확인해 보세요!"
-                onPress={() => {
-                  dispatch(notiSlice.actions.clickNoti(notices[0]));
-                  const socket = new WebSocket(
-                    `wss://k8a606.p.ssafy.io/ws/api/${notices[0].data.moimId}`,
-                  );
-                  console.log('socket');
-                  console.log('socket open');
-                  socket.onopen = () => {
-                    console.log('연결!');
-                    // 소켓 열고 유저 정보 보내기
-                    socket?.send(
-                      JSON.stringify({
-                        type: 'JOIN',
-                        content: {
-                          kakaoId: userInfo.id,
-                        },
-                      }),
+              <Animatable.View
+                animation="slideInDown"
+                iterationCount={1}
+                direction="alternate">
+                <NotiBox
+                  nickname={notices[0].data.moimName}
+                  mainTitle="모임이 1시간 남았어요."
+                  subTitle="실시간으로 친구들의 위치를 확인해 보세요!"
+                  onPress={() => {
+                    dispatch(notiSlice.actions.clickNoti(notices[0]));
+                    const socket = new WebSocket(
+                      `wss://k8a606.p.ssafy.io/ws/api/${notices[0].data.moimId}`,
                     );
-                  };
-                  if (socket) {
-                    navigation.navigate('Chatroom', {
-                      moimId: notices[0].data.moimId,
-                      socket: socket,
-                    });
-                  }
-                }}
-                type="commming"
-              />
+                    console.log('socket');
+                    console.log('socket open');
+                    socket.onopen = () => {
+                      console.log('연결!');
+                      // 소켓 열고 유저 정보 보내기
+                      socket?.send(
+                        JSON.stringify({
+                          type: 'JOIN',
+                          content: {
+                            kakaoId: userInfo.id,
+                          },
+                        }),
+                      );
+                    };
+                    if (socket) {
+                      navigation.navigate('Chatroom', {
+                        moimId: notices[0].data.moimId,
+                        socket: socket,
+                      });
+                    }
+                  }}
+                  type="commming"
+                />
+              </Animatable.View>
             </HeaderContainer>
           ) : (
             <HeaderContainer theme={theme}>

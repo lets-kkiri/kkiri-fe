@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, Alert} from 'react-native';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
 import NotiBox from '../Common/NotiBox';
@@ -8,6 +8,7 @@ import {guidesPost} from '../../slices/guidesSlice';
 import Pencil from '../../assets/icons/pencil.svg';
 import CustomButton from '../Common/Button';
 import notiSlice, {notiType} from '../../slices/noti';
+import * as Animatable from 'react-native-animatable';
 
 interface PathProps {
   startDraw: boolean;
@@ -74,23 +75,32 @@ const AboutPath = ({
       receiverKakaoId: user,
       path: drawpath,
     };
-    dispatch(guidesPost(postData));
-    setModalVisible(true);
-    setModalType('sendpath');
-    setSendpath(false);
-    setStartDraw(false);
+    if (drawpath.length > 1) {
+      dispatch(guidesPost(postData));
+      setModalVisible(true);
+      setModalType('sendpath');
+      setSendpath(false);
+      setStartDraw(false);
+    } else {
+      Alert.alert('두 개 이상의 포인트를 찍어주세요!');
+    }
   }
 
   return (
     <>
       {startDraw === false ? (
-        <NotiBox
-          nickname={nickname}
-          mainTitle="님이 도움을 요청했어요"
-          subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
-          onPress={() => setStartDraw(true)}
-          type="map"
-        />
+        <Animatable.View
+          animation="slideInDown"
+          iterationCount={1}
+          direction="alternate">
+          <NotiBox
+            nickname={nickname}
+            mainTitle="님이 도움을 요청했어요"
+            subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
+            onPress={() => setStartDraw(true)}
+            type="map"
+          />
+        </Animatable.View>
       ) : sendpath === false ? (
         <View style={{position: 'absolute', alignItems: 'center'}}>
           <DrawNoti>
