@@ -1,10 +1,13 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View, Vibration, Button} from 'react-native';
+import {View, Vibration, Dimensions} from 'react-native';
 import styled from 'styled-components/native';
 import {useSelector} from 'react-redux';
 import EmojiBtn from '../components/Chatroom/EmojiBtn';
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
+
+// Icons
+const send_btn = require('../assets/icons/chat_send_btn.svg');
 
 // API
 import {requests} from '../api/requests';
@@ -22,6 +25,7 @@ import {MessageData, RootStackParamList} from '../types/index';
 
 // Redux
 import {RootState} from '../store';
+import {WithLocalSvg} from 'react-native-svg';
 
 interface ChatroomProp {
   route: RouteProp<RootStackParamList, 'Chatroom'>;
@@ -46,6 +50,32 @@ const MessagePreviewContainer = styled.View`
   padding: 16px;
 `;
 
+const StyledTextInput = styled.TextInput`
+  font-size: 12px;
+  position: relative;
+  bottom: -1px;
+`;
+
+const TextInputContainer = styled.View`
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #ffd8cc;
+  border-radius: 15px;
+  border-color: #ff9270;
+  border-width: 1px;
+  width: ${Dimensions.get('window').width - 48 - 32}px;
+  padding-left: 8px;
+  margin-right: 8px;
+  height: 40px;
+`;
+
+const TextSendBtn = styled.TouchableHighlight`
+  position: absolute;
+  right: 8px;
+`;
+
 type EmojiMessagesType = {
   [key: number]: MessageData[];
 };
@@ -53,6 +83,7 @@ type EmojiMessagesType = {
 function Chatroom({route}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
   const [emojiMessages, setEmojiMessages] = useState<EmojiMessagesType>({});
+  const [myEmojiMessages, setMyEmojiMessages] = useState<number[]>([]);
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
   const [startDraw, setStartDraw] = useState<boolean>(false);
   const [showEmoji, setShowEmoji] = useState(false);
@@ -61,6 +92,7 @@ function Chatroom({route}: ChatroomProp) {
   const [user, setUser] = useState<UsersType>();
   const [theTimerId, setTheTimerId] = useState<null | number>(null);
   const [animateCounter, setAnimateCounter] = useState<number>(0);
+  const [inputValue, setInputValue] = useState<string>('');
 
   // 채팅방 id
   const moimId = route.params.moimId;
@@ -100,7 +132,7 @@ function Chatroom({route}: ChatroomProp) {
       socket.current.onmessage = event => {
         console.log(event.data);
         const data = JSON.parse(event.data);
-        console.log('onmessage :', data);
+        // console.log('onmessage :', data);
         // 채팅 메시지, 재촉 메시지인 경우
         if (data.messageType === 'MESSAGE' || data.messageType === 'URGENT') {
           let newMessages = [data];
@@ -152,6 +184,7 @@ function Chatroom({route}: ChatroomProp) {
   }, [moimId, userInfo]);
 
   const sendEmoji = () => {
+    setShowEmoji(false);
     if (theTimerId) {
       clearTimeout(theTimerId);
     }
@@ -169,7 +202,9 @@ function Chatroom({route}: ChatroomProp) {
           },
         }),
       );
+
       Vibration.vibrate();
+      setMyEmojiMessages(prev => [...prev, selectedEmoji]);
     }
   };
 
@@ -217,9 +252,33 @@ function Chatroom({route}: ChatroomProp) {
     ]);
   };
 
+  // 채팅메시지 발신
+  const sendMessage = () => {
+    if (!inputValue) {
+      return;
+    }
+    const msg = JSON.stringify({
+      type: 'MESSAGE',
+      content: {
+        moimId: moimId,
+        kakaoId: userInfo.id,
+        nickname: userInfo.nickname,
+        message: inputValue.trim(),
+      },
+    });
+
+    if (socket.current) {
+      socket.current.send(msg);
+      Vibration.vibrate();
+      socket.current.onerror = e => {
+        console.log('socket error :', e);
+      };
+      setInputValue('');
+    }
+  };
+
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
-      {/* <Button title="이모지" onPress={() => animateEmoji()} /> */}
       {/* 이모지 */}
       {showEmoji && (
         <EmojiPicker onSelect={onSelect} onClose={() => closeEmojiPicker()} />
@@ -232,14 +291,10 @@ function Chatroom({route}: ChatroomProp) {
         users={user ? user : null}
         socket={socket}
         emojiMessages={emojiMessages}
+        myEmojiMessages={myEmojiMessages}
       />
-      {/* {Object.keys(emojiMessages).map((emoji, index) => (
-        <View style={{position: 'absolute', bottom: 100}} key={index}>
-          <EmojiAnimation index={0} />
-        </View>
-      ))} */}
       {/* 채팅 */}
-      {showChatArea ? (
+      {showChatArea && (
         <ChatArea
           messages={messages}
           client={socket}
@@ -254,11 +309,12 @@ function Chatroom({route}: ChatroomProp) {
               : () => setShowEmoji(prev => !prev)
           }
           isEmojiSelected={isEmojiSelected}
-          selectedEmoji={selectedEmoji}
+          selectedEmoji={Number(selectedEmoji)}
         />
-      ) : (
-        !startDraw && (
-          <MessagePreviewContainer>
+      )}
+      {!startDraw && (
+        <MessagePreviewContainer>
+          {!showChatArea && (
             <MessagePreview
               message={messages ? messages[0] : null}
               onPress={() => {
@@ -266,20 +322,41 @@ function Chatroom({route}: ChatroomProp) {
                 setShowEmoji(false);
               }}
             />
-            <EmojiBtn
-              onPress={
-                isEmojiSelected
-                  ? () => {
-                      sendEmoji();
-                      onSelect(selectedEmoji);
-                    }
-                  : () => setShowEmoji(prev => !prev)
-              }
-              isEmojiSelected={isEmojiSelected}
-              selectedEmoji={selectedEmoji}
-            />
-          </MessagePreviewContainer>
-        )
+          )}
+          {showChatArea && (
+            <TextInputContainer>
+              <StyledTextInput
+                placeholder="메시지를 입력해주세요"
+                onChangeText={text => {
+                  setInputValue(text);
+                }}
+                value={inputValue}
+              />
+              <TextSendBtn onPress={() => sendMessage()}>
+                <WithLocalSvg asset={send_btn} />
+              </TextSendBtn>
+            </TextInputContainer>
+          )}
+          {myEmojiMessages.length
+            ? myEmojiMessages.map((emoji, index) => (
+                <View style={{position: 'absolute', left: 30}}>
+                  <EmojiAnimation index={String(emoji)} key={index} />
+                </View>
+              ))
+            : null}
+          <EmojiBtn
+            onPress={
+              isEmojiSelected
+                ? () => {
+                    sendEmoji();
+                    onSelect(selectedEmoji);
+                  }
+                : () => setShowEmoji(prev => !prev)
+            }
+            isEmojiSelected={isEmojiSelected}
+            selectedEmoji={Number(selectedEmoji)}
+          />
+        </MessagePreviewContainer>
       )}
     </View>
   );

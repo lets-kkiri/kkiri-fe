@@ -20,7 +20,7 @@ import close_blue from '../../assets/icons/close_blue.svg';
 // Styled components
 const EmojiPickerContainer = styled.View<{windowWidth: number; theme: any}>`
   position: absolute;
-  bottom: 68px;
+  bottom: 80px;
   right: 16px;
   display: flex;
   flex-direction: column;
