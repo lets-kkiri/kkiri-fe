@@ -90,6 +90,7 @@ const ChatArea = ({
   isEmojiSelected,
   selectedEmoji,
 }: ChatAreaProps) => {
+  console.log('메시지 어딨냐', messages);
   return (
     <KeyboardAvoidingView style={{flex: 1}}>
       <ChatAreaContainer>
