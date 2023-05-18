@@ -90,10 +90,7 @@ const ChatArea = ({
   isEmojiSelected,
   selectedEmoji,
 }: ChatAreaProps) => {
-  // const [inputValue, setInputValue] = useState<string>('');
-
-  // const userInfo = useSelector((state: RootState) => state.persisted.user);
-
+  console.log('메시지 어딨냐', messages);
   return (
     <KeyboardAvoidingView style={{flex: 1}}>
       <ChatAreaContainer>
