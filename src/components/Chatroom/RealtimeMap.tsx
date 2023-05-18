@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {View, Alert, Text} from 'react-native';
 import * as Animatable from 'react-native-animatable';
 
@@ -92,7 +92,6 @@ function RealtimeMap({
   const [modalType, setModalType] = useState<string>('');
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
-  const [moimList, setMoimList] = useState<any[]>([]);
   const date = new Date();
 
   const dispatch = useAppDispatch();
@@ -102,7 +101,7 @@ function RealtimeMap({
 
   const userGrades = useSelector((state: RootState) => state.persisted.arrives);
   const user = useSelector((state: RootState) => state.persisted.user);
-  const checkTime = (position: any) => {
+  const checkTime = async (position: any) => {
     // 두 위치의 거리 계산 함수
     const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
       const R = 6371e3; // 지구 반경 (m)
@@ -142,18 +141,35 @@ function RealtimeMap({
         moimId: moimId,
         isArrive: true,
       };
-      setMoimList((prev: any) => [...prev, type]);
-    }
-  };
-
-  async function checks() {
-    const moims = JSON.stringify(moimList);
-    await EncryptedStorage.setItem('isArrive', moims); // isArrive 값을 true로 변경
-    const getItem = await EncryptedStorage.getItem('isArrive');
-    if (getItem !== null) {
-      const check = JSON.parse(getItem);
-      const isCheck = check.some((item: any) => item.moimId === moimId);
-      if (isCheck === false) {
+      const moimList = [
+        {
+          moimId: 0,
+          isArrive: true,
+        },
+      ];
+      const updatemoimList = [...moimList, type];
+      const moims = JSON.stringify(updatemoimList);
+      await EncryptedStorage.setItem('isArrive', moims);
+      const getItem = await EncryptedStorage.getItem('isArrive');
+      if (getItem !== null) {
+        const check = JSON.parse(getItem);
+        const isCheck = check.some((item: any) => item.moimId === moimId);
+        if (isCheck === false) {
+          const destinationTime = date.toISOString();
+          dispatch(
+            arrivePost({
+              moimId: moimId,
+              destinationTime: destinationTime,
+            }),
+          );
+          setModalVisible(true);
+          console.log('이즈 췤 첫번째');
+        } else {
+          console.log('이즈 췤 두번째');
+          setModalVisible(false);
+        }
+      } else {
+        console.log('이즈 췤 3번째');
         const destinationTime = date.toISOString();
         dispatch(
           arrivePost({
@@ -163,17 +179,8 @@ function RealtimeMap({
         );
         setModalVisible(true);
       }
-    } else {
-      const destinationTime = date.toISOString();
-      dispatch(
-        arrivePost({
-          moimId: moimId,
-          destinationTime: destinationTime,
-        }),
-      );
-      setModalVisible(true);
     }
-  }
+  };
 
   const sendLocation = (position: any) => {
     // 위치 업데이트 처리 로직
@@ -192,12 +199,19 @@ function RealtimeMap({
   };
 
   // 컴포넌트가 마운트되었을 때 최초로 함수를 실행
+  let watchID: any = useRef(null);
   useEffect(() => {
-    let watchID: any;
-    // sendLocation();
-
-    const startWatchingLocation = () => {
-      watchID = Geolocation.watchPosition(
+    if (watchID === null) {
+      watchID.current = Geolocation.getCurrentPosition(
+        sendLocation,
+        error => console.log(error),
+        {
+          enableHighAccuracy: true,
+          timeout: 20000,
+        },
+      );
+    } else {
+      watchID.current = Geolocation.watchPosition(
         sendLocation,
         error => console.log(error),
         {
@@ -206,22 +220,16 @@ function RealtimeMap({
           distanceFilter: 5,
         },
       );
-    };
-
-    const stopWatchingLocation = () => {
-      if (watchID !== null) {
-        Geolocation.clearWatch(watchID);
-        watchID = null;
-      }
-    };
+    }
 
     // 컴포넌트 마운트 시 위치 업데이트 시작
-    startWatchingLocation();
-    checks();
+    // startWatchingLocation();
+    // checks();
 
-    // 컴포넌트가 언마운트될 때 clearTimeout을 사용하여 타이머를 정리해주는 것이 좋습니다.
     return () => {
-      stopWatchingLocation();
+      if (watchID.current !== null) {
+        Geolocation.clearWatch(watchID.current);
+      }
     };
   }, []);
 
@@ -335,16 +343,22 @@ function RealtimeMap({
       ) : null}
       {notices.length > 0 ? (
         notices[0].channelId === 'path' && notices[0].checked === false ? (
-          <NotiBox
-            nickname={notices[0].data.senderNickname}
-            mainTitle="가 길 안내를 보냈어요!"
-            subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
-            onPress={() => {
-              // 여기 한별 네비게이트해
-              navigation.navigate('ARnavi');
-            }}
-            type="map"
-          />
+          <Animatable.View
+            animation="slideInDown"
+            iterationCount={1}
+            direction="alternate">
+            <NotiBox
+              nickname={notices[0].data.senderNickname}
+              mainTitle="가 길 안내를 보냈어요!"
+              subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
+              onPress={() => {
+                // 여기 한별 네비게이트해
+                navigation.navigate('ARnavi');
+                dispatch(notiSlice.actions.clickNoti(notices[0]));
+              }}
+              type="map"
+            />
+          </Animatable.View>
         ) : null
       ) : null}
       {notices.length > 0 ? (
@@ -372,34 +386,28 @@ function RealtimeMap({
         setModalType={setModalType}
         moimId={moimId}
       />
-      {userGrades.length > 0 ? (
-        userGrades[0].overall !== userGrades[0].rank ? (
-          <CustomModal
-            modalVisible={modalVisible}
-            content={
-              modalType === 'sendhelp' ? (
-                <SendHelpNoti setModalVisible={setModalVisible} />
-              ) : modalType === 'sendpath' ? (
-                <SendPathNoti setModalVisible={setModalVisible} />
-              ) : (
-                <ArriveNoti
-                  setModalVisible={setModalVisible}
-                  overall={userGrades[0].overall}
-                  ranking={userGrades[0].rank}
-                />
-              )
-            }
-          />
-        ) : (
-          <CustomModal
-            modalVisible={modalVisible}
-            content={<GradeNoti setModalVisible={setModalVisible} />}
-          />
-        )
-      ) : null}
-      {/* {sideModal ? (
-        <AboutMoim setSideModal={setSideModal} count={count} />
-      ) : null} */}
+      <CustomModal
+        modalVisible={modalVisible}
+        content={
+          modalType === 'sendhelp' ? (
+            <SendHelpNoti setModalVisible={setModalVisible} />
+          ) : modalType === 'sendpath' ? (
+            <SendPathNoti setModalVisible={setModalVisible} />
+          ) : userGrades.length > 0 &&
+            userGrades[0].overall !== userGrades[0].rank ? (
+            <ArriveNoti
+              setModalVisible={setModalVisible}
+              overall={userGrades[0].overall}
+              ranking={userGrades[0].rank}
+            />
+          ) : (
+            <CustomModal
+              modalVisible={modalVisible}
+              content={<GradeNoti setModalVisible={setModalVisible} />}
+            />
+          )
+        }
+      />
     </View>
   );
 }
