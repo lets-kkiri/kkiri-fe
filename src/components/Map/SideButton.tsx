@@ -37,14 +37,12 @@ const SideButton = ({
     <>
       <TouchableOpacity
         style={{
-          width: '100%',
-          height: '100%',
           position: 'absolute',
           top: 110,
-          left: 350,
+          left: 360,
         }}
         onPress={sendHelp}>
-        <WithLocalSvg asset={Help} />
+        <WithLocalSvg asset={Help} width={50} height={50} />
       </TouchableOpacity>
       {/* <TouchableOpacity
         style={{

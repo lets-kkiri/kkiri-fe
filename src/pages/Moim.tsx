@@ -12,6 +12,7 @@ import {requests} from '../api/requests';
 import {getMoimInfo} from '../slices/moimInfo';
 import {RootState, useAppDispatch} from '../store';
 import {useSelector} from 'react-redux';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 // Styled component
 const MoimContainer = styled.View`
@@ -43,7 +44,7 @@ const Title = styled.Text`
   color: #5968f2;
 `;
 
-const Date = styled.Text`
+const Dates = styled.Text`
   font-size: 16px;
 `;
 
@@ -130,6 +131,7 @@ function Moim({navigation, route}: MoimProps) {
   const moimInfo = useSelector((state: RootState) => state.volatile.moimInfo);
   const notices = useSelector((state: RootState) => state.persisted.noti);
   const userInfo = useSelector((state: RootState) => state.persisted.user);
+  const [isButton, setIsButton] = useState<boolean>(false);
 
   const fetchData = async (id: number) => {
     try {
@@ -188,7 +190,8 @@ function Moim({navigation, route}: MoimProps) {
       return;
     }
     fetchData(moimId);
-  }, [moimId]);
+    // checkTime();
+  }, []);
 
   if (moimInfo === undefined || moimInfo.moimId === 0) {
     return null;
@@ -202,7 +205,7 @@ function Moim({navigation, route}: MoimProps) {
             <TitleContainer>
               <Title>{moimInfo.name}</Title>
             </TitleContainer>
-            <Date>{dateSplit(moimInfo.date)}</Date>
+            <Dates>{dateSplit(moimInfo.date)}</Dates>
           </HeaderContainer>
           <ListBinder>
             <ViewBinder>

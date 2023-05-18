@@ -7,18 +7,15 @@ interface ArriveProps {
   destinationTime: string;
 }
 
-const initialState = {
-  userGrade: {
-    moimId: 0,
-    kakaoId: '',
-    destinationTime: '',
-    ranking: {
-      rank: 0,
-      overall: 0,
-    },
-  },
-  checked: false,
+type ArriveType = {
+  moimId: number;
+  kakaoId: string;
+  destinationTime: string;
+  rank: number;
+  overall: number;
 };
+
+const initialState: ArriveType[] = [];
 
 export const arrivePost = createAsyncThunk(
   'arrives/post',
@@ -38,8 +35,14 @@ const arriveSlice = createSlice({
     });
     builder.addCase(arrivePost.fulfilled, (state, action) => {
       console.log('fulfilled');
-      state.userGrade = action.payload;
       console.log('유저 도착 순서 : ', action.payload);
+      state.unshift({
+        moimId: action.payload.moimId,
+        kakaoId: action.payload.kakaoId,
+        destinationTime: action.payload.destinationTime,
+        rank: action.payload.ranking.rank,
+        overall: action.payload.ranking.overall,
+      });
     });
     builder.addCase(arrivePost.rejected, (state, action) => {
       console.log('reject', action.error);
