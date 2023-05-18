@@ -212,9 +212,18 @@ export default function Home() {
             theme={{
               todayButtonTextColor: theme.color.blue,
               backgroundColor: theme.color.background,
+              calendarBackground: theme.color.background,
             }}
             todayBottomMargin={16}>
             <WeekCalendar
+              theme={{
+                todayButtonTextColor: theme.color.blue,
+                backgroundColor: theme.color.background,
+                calendarBackground: theme.color.background,
+                textSectionTitleColor: theme.color.background,
+                dotColor: theme.color.background,
+                todayBackgroundColor: theme.color.background,
+              }}
               style={{backgroundColor: theme.color.background}}
               allowShadow={false}
               current={selectedDay}
