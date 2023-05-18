@@ -53,7 +53,7 @@ const Title = styled.Text`
   color: #5968f2;
 `;
 
-const Dates = styled.Text`
+const Date = styled.Text`
   font-size: 16px;
 `;
 
