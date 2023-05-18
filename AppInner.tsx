@@ -1,11 +1,20 @@
 import * as React from 'react';
 import {useState, useEffect, useRef, Linking} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import {
+  NativeStackNavigationProp,
+  createNativeStackNavigator,
+} from '@react-navigation/native-stack';
 import locationUpdater from './src/hooks/useLocationUpdater';
 // import BackgroundTimer from 'react-native-background-timer';
 // import {AppRegistry} from 'react-native';
-import {Text, View, useColorScheme, AppState} from 'react-native';
+import {
+  Text,
+  View,
+  useColorScheme,
+  AppState,
+  TouchableOpacity,
+} from 'react-native';
 import {ThemeProvider} from 'styled-components/native';
 import {lightTheme, darkTheme} from './src/styles/theme';
 
@@ -19,6 +28,7 @@ import SignIn from './src/pages/SignIn';
 // Components
 import Header from './src/components/Header';
 import TabNavigator from './src/components/TabNavigator';
+import HeaderBackBtn from './src/components/Common/HeaderBackBtn';
 
 // Types
 import {RootStackParamList} from './src/types';
@@ -58,6 +68,8 @@ import NotiBox from './src/components/Common/NotiBox';
 import {StackNavigationProp} from '@react-navigation/stack';
 import CommingNoti from './src/components/Common/CommingNoti';
 import ARnavi from './src/pages/ARnavi';
+import {WithLocalSvg} from 'react-native-svg';
+import {Image} from 'react-native';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -147,6 +159,8 @@ function AppInner() {
       id: uniqueId,
       channelId: notiMsg?.android?.channelId,
       title: notiMsg?.title,
+      smallIcon: 'kkiri',
+      largeIcon: 'kkiri',
       message: notiMsg?.body,
       playSound: true,
       soundName: 'default',
@@ -398,6 +412,8 @@ function AppInner() {
     },
   };
 
+  // const navigation = useNavigation<NativeStackNavigationProp<any>>();
+
   const theme = useSelector((state: RootState) => state.persisted.theme.theme);
   return (
     <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
@@ -406,7 +422,15 @@ function AppInner() {
           <Stack.Navigator>
             <Stack.Group
               screenOptions={{
-                headerStyle: {backgroundColor: theme.color.background},
+                headerStyle: {
+                  backgroundColor: theme.color.background,
+                  elevation: 0,
+                },
+                headerShadowVisible: false,
+                headerTitleAlign: 'center',
+                headerTitleStyle: {
+                  fontSize: 16,
+                },
               }}>
               <Stack.Screen
                 name="Tab"
@@ -421,17 +445,42 @@ function AppInner() {
               <Stack.Screen
                 name="Setting"
                 component={Setting}
-                options={{title: '세팅'}}
+                options={({navigation}) => ({
+                  title: '설정',
+                  headerLeft: () => (
+                    <HeaderBackBtn
+                      onPress={() => navigation.navigate('Home')}
+                    />
+                  ),
+                })}
               />
               <Stack.Screen
                 name="Moim"
                 component={Moim}
-                options={{title: '모임 상세'}}
+                options={({navigation}) => ({
+                  title: '모임 상세',
+                  headerStyle: {
+                    backgroundColor: theme.color.backBlue,
+                    fontSize: 12,
+                  },
+                  headerLeft: () => (
+                    <HeaderBackBtn
+                      onPress={() => navigation.navigate('Home')}
+                    />
+                  ),
+                })}
               />
               <Stack.Screen
                 name="Notification"
                 component={Notification}
-                options={{title: '알림센터'}}
+                options={({navigation}) => ({
+                  title: '알림센터',
+                  headerLeft: () => (
+                    <HeaderBackBtn
+                      onPress={() => navigation.navigate('Home')}
+                    />
+                  ),
+                })}
               />
               {/* <Stack.Screen name="Chatroom" options={{title: '채팅방'}}>
                 {({route}) => <Chatroom route={route} client={newSocket} />}
@@ -439,23 +488,28 @@ function AppInner() {
               <Stack.Screen
                 name="Chatroom"
                 component={Chatroom}
-                options={{title: '채팅방'}}
+                options={({navigation}) => ({
+                  title: '채팅방',
+                  headerLeft: () => (
+                    <HeaderBackBtn onPress={() => navigation.goBack()} />
+                  ),
+                })}
               />
               <Stack.Screen
                 name="CreateMoim"
                 component={CreateMoim}
-                options={{title: '모임 생성'}}
+                options={{title: '모임 생성중'}}
               />
               <Stack.Screen
                 name="CompleteCreate"
                 component={CompleteCreate}
-                options={{title: '모임 생성 완료'}}
+                options={{headerShown: false}}
               />
-              <Stack.Screen
+              {/* <Stack.Screen
                 name="Map"
                 component={Map}
                 options={{title: '실시간 위치'}}
-              />
+              /> */}
               <Stack.Screen
                 name="AddCard"
                 component={AddCard}

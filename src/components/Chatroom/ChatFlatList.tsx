@@ -4,6 +4,8 @@ import MessageItem from './MessageItem';
 import styled from 'styled-components/native';
 
 import {MessageData} from '../../types/index';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../store';
 
 type ChatFlatListProp = {
   messages: MessageData[];
@@ -21,26 +23,40 @@ const ChatListContainer = styled.View`
   justify-content: flex-end;
 `;
 
+const HurryContainer = styled.View`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+`;
+
 function ChatFlatList({messages}: ChatFlatListProp) {
-  const [data, setData] = useState<MessageData[]>([]);
+  // const [data, setData] = useState<MessageData[]>([]);
 
   useEffect(() => {
-    setData(messages);
-  }, [messages]);
+    console.log(messages);
+  }, []);
+
+  const theme = useSelector((state: RootState) => state.persisted.theme.theme);
 
   return (
     <ChatListContainer>
-      {data?.length > 0 && (
+      {messages && (
         <FlatList
           inverted={true}
-          data={data}
+          data={messages}
           renderItem={({item}) => {
             // 메시지 타입이 채팅 메시지인 경우
             if (item.messageType === 'MESSAGE') {
               return <MessageItem message={item} />;
             }
             // 메시지 타입이 재촉 메시지인 경우
-            return <Text>{item.message}</Text>;
+            return (
+              <HurryContainer>
+                <Text style={{color: theme.color.white}}>{item.message}</Text>
+              </HurryContainer>
+            );
           }}
           keyExtractor={item => String(item.seq)}
         />

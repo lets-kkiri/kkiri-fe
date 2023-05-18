@@ -26,7 +26,7 @@ const ChatAreaContainer = styled.ScrollView`
   flex: 1;
   height: 100%;
   display: flex;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   padding: 16px;
 `;
 
@@ -90,32 +90,7 @@ const ChatArea = ({
   isEmojiSelected,
   selectedEmoji,
 }: ChatAreaProps) => {
-  const [inputValue, setInputValue] = useState<string>('');
-
-  const userInfo = useSelector((state: RootState) => state.persisted.user);
-
-  // 채팅메시지 발신
-  const sendMessage = () => {
-    if (!inputValue) {
-      return;
-    }
-    const msg = JSON.stringify({
-      type: 'MESSAGE',
-      content: {
-        moimId: moimId,
-        kakaoId: userInfo.id,
-        nickname: userInfo.nickname,
-        message: inputValue.trim(),
-      },
-    });
-    client.current.send(msg);
-    Vibration.vibrate();
-    client.current.onerror = e => {
-      console.log('socket error :', e);
-    };
-    setInputValue('');
-  };
-
+  console.log('메시지 어딨냐', messages);
   return (
     <KeyboardAvoidingView style={{flex: 1}}>
       <ChatAreaContainer>
@@ -125,25 +100,6 @@ const ChatArea = ({
           </TouchableHighlight>
         </CloseBtnRow>
         <ChatFlatList messages={messages} />
-        <InputContainer>
-          <TextInputContainer>
-            <StyledTextInput
-              placeholder="메시지를 입력해주세요"
-              onChangeText={text => {
-                setInputValue(text);
-              }}
-              value={inputValue}
-            />
-            <TextSendBtn onPress={() => sendMessage()}>
-              <WithLocalSvg asset={send_btn} />
-            </TextSendBtn>
-          </TextInputContainer>
-          <EmojiBtn
-            onPress={onPress}
-            isEmojiSelected={isEmojiSelected}
-            selectedEmoji={selectedEmoji}
-          />
-        </InputContainer>
       </ChatAreaContainer>
     </KeyboardAvoidingView>
   );

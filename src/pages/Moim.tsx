@@ -1,29 +1,39 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import {Text, ScrollView, FlatList, Button} from 'react-native';
+import {Text, ScrollView, Button, Dimensions, View} from 'react-native';
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../types';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
+import {useSelector} from 'react-redux';
+
+// Components
+import MemberItem from '../components/Moim/MemberItem';
+import InviteMemberItem from '../components/Moim/InviteMemberItem';
 
 // API
 import {authInstance} from '../api/axios';
 import {requests} from '../api/requests';
 import {getMoimInfo} from '../slices/moimInfo';
 import {RootState, useAppDispatch} from '../store';
-import {useSelector} from 'react-redux';
 
 // Styled component
-const MoimContainer = styled.View`
+const MoimContainer = styled.View<{theme: any}>`
+  position: relative;
+  height: ${() => Dimensions.get('window').height};
   flex-direction: column;
   flex: 1;
+  background-color: ${({theme}) => theme.color.background};
 `;
 
-const BannerContainer = styled.View`
+const BannerContainer = styled.View<{theme: any}>`
   flex-direction: column;
   flex: 1;
-  background-color: #f8f9ff;
+  background-color: ${({theme}) => theme.color.backBlue};
   border-radius: 20px;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+  padding-bottom: 16px;
 `;
 
 const HeaderContainer = styled.View`
@@ -58,23 +68,23 @@ const IconConatiner = styled.View`
 const ListBinder = styled.View`
   flex-direction: row;
   align-items: center;
-  margin: 12px 24px 12px 24px;
+  margin: 8px 0px 8px 24px;
 `;
 
 const ViewBinder = styled.View`
   flex-direction: row;
   align-items: center;
-  width: 80px;
-  margin-right: 10px;
+  width: 100px;
+  margin-right: 16px;
 `;
 
 const MembersContainer = styled.View`
-  flex-direction: column;
-  flex: 0.4;
+  flex-direction: row;
+  flex-wrap: wrap;
 `;
 
-const OptionText = styled.Text`
-  color: #5968f2;
+const OptionText = styled.Text<{theme: any}>`
+  color: ${({theme}) => theme.color.blue};
 `;
 
 const MemberContainer = styled.View`
@@ -92,6 +102,25 @@ const MemberThumbnail = styled.Image`
   height: 26px;
   border-radius: 25px;
   margin-right: 12px;
+`;
+
+const InfoText = styled.Text<{theme: any}>`
+  color: ${({theme}) => theme.color.text};
+  font-size: 13px;
+`;
+
+const BottomContainer = styled.View`
+  padding: 16px;
+  padding-top: 24px;
+`;
+
+const ChatBtn = styled.TouchableHighlight<{theme: any}>`
+  border-radius: 15px;
+  background-color: ${({theme}) => theme.color.blue};
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 // Icons
@@ -130,6 +159,7 @@ function Moim({navigation, route}: MoimProps) {
   const moimInfo = useSelector((state: RootState) => state.volatile.moimInfo);
   const notices = useSelector((state: RootState) => state.persisted.noti);
   const userInfo = useSelector((state: RootState) => state.persisted.user);
+  const [isButton, setIsButton] = useState<boolean>(false);
 
   const fetchData = async (id: number) => {
     try {
@@ -140,17 +170,7 @@ function Moim({navigation, route}: MoimProps) {
     }
   };
 
-  // const [moimInfo, setMoimInfo] = useState<MoimInfo>({
-  //   moimId: 0,
-  //   name: '',
-  //   placeName: '',
-  //   latitude: '',
-  //   longitude: '',
-  //   date: '',
-  //   time: '',
-  //   lateFee: 0,
-  //   members: [],
-  // });
+  const theme = useSelector((state: RootState) => state.persisted.theme.theme);
 
   const eachMember = useCallback(({item}: {item: MemberInfo}) => {
     return (
@@ -188,30 +208,37 @@ function Moim({navigation, route}: MoimProps) {
       return;
     }
     fetchData(moimId);
-  }, [moimId]);
+    // checkTime();
+  }, []);
 
   if (moimInfo === undefined || moimInfo.moimId === 0) {
     return null;
   }
 
+  const windowWidth = Dimensions.get('window').width;
+
   return (
-    <MoimContainer>
+    <MoimContainer theme={theme}>
       <ScrollView>
-        <BannerContainer>
+        <BannerContainer theme={theme}>
           <HeaderContainer>
             <TitleContainer>
               <Title>{moimInfo.name}</Title>
             </TitleContainer>
-            <Date>{dateSplit(moimInfo.date)}</Date>
+            <Date style={{color: theme.color.grey90, fontSize: 16}}>
+              {dateSplit(moimInfo.date)}
+            </Date>
           </HeaderContainer>
           <ListBinder>
             <ViewBinder>
               <IconConatiner>
                 <WithLocalSvg asset={timeIcon} height={20} />
               </IconConatiner>
-              <OptionText>시간</OptionText>
+              <OptionText theme={theme} style={{color: theme.color.blue}}>
+                시간
+              </OptionText>
             </ViewBinder>
-            <Text>{moimInfo.time}</Text>
+            <InfoText theme={theme}>{moimInfo.time}</InfoText>
           </ListBinder>
           <ListBinder>
             <ViewBinder>
@@ -220,7 +247,7 @@ function Moim({navigation, route}: MoimProps) {
               </IconConatiner>
               <OptionText>인원</OptionText>
             </ViewBinder>
-            <Text>{moimInfo.members.length}명</Text>
+            <InfoText theme={theme}>{moimInfo.members.length}명</InfoText>
           </ListBinder>
           <ListBinder>
             <ViewBinder>
@@ -229,7 +256,7 @@ function Moim({navigation, route}: MoimProps) {
               </IconConatiner>
               <OptionText>장소</OptionText>
             </ViewBinder>
-            <Text>{moimInfo.placeName}</Text>
+            <InfoText theme={theme}>{moimInfo.placeName}</InfoText>
           </ListBinder>
           <ListBinder>
             <ViewBinder>
@@ -238,22 +265,39 @@ function Moim({navigation, route}: MoimProps) {
               </IconConatiner>
               <OptionText>지각비</OptionText>
             </ViewBinder>
-            <Text>{moimInfo.lateFee}원</Text>
+            <InfoText theme={theme}>{moimInfo.lateFee}원</InfoText>
           </ListBinder>
         </BannerContainer>
-        <MembersContainer>
-          <ViewBinder>
-            <Text>참여자</Text>
-            <Text>{moimInfo.members.length}명</Text>
+        <BottomContainer>
+          <ViewBinder style={{marginBottom: 16}}>
+            <Text style={{color: theme.color.text, paddingRight: 12}}>
+              참여자
+            </Text>
+            <InfoText theme={theme} style={{color: theme.color.blue}}>
+              {moimInfo.members.length}명
+            </InfoText>
           </ViewBinder>
-          <FlatList
-            data={moimInfo.members}
-            keyExtractor={member => member.kakaoId}
-            renderItem={eachMember}
-          />
-        </MembersContainer>
-        <Button
-          title="채팅방 입장"
+          <MembersContainer>
+            {moimInfo.members.map(member => (
+              <MemberItem
+                key={member.kakaoId}
+                member={member}
+                width={windowWidth - 32}
+              />
+            ))}
+            <InviteMemberItem
+              width={windowWidth - 32}
+              onPress={() => console.log('pressed')}
+            />
+          </MembersContainer>
+        </BottomContainer>
+      </ScrollView>
+      <View
+        style={{position: 'absolute', width: '100%', padding: 16, bottom: 0}}>
+        <ChatBtn
+          activeOpacity={0.7}
+          underlayColor={theme.color.blue2}
+          theme={theme}
           onPress={() => {
             const socket = new WebSocket(
               `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
@@ -278,9 +322,10 @@ function Moim({navigation, route}: MoimProps) {
                 socket: socket,
               });
             }
-          }}
-        />
-      </ScrollView>
+          }}>
+          <Text style={{color: theme.color.white}}>친구들과 소통하기</Text>
+        </ChatBtn>
+      </View>
     </MoimContainer>
   );
 }

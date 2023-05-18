@@ -61,6 +61,7 @@ const EmojiAnimation = ({index}: EmojiAnimationProp) => {
 const styles = StyleSheet.create({
   emoji: {
     position: 'absolute',
+    bottom: 0,
   },
 });
 

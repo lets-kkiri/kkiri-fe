@@ -46,17 +46,17 @@ const Margin = styled.View`
   width: 300px;
 `;
 
-const SendHelpNoti = ({setModalVisible}: BtnProps) => {
+const GradeNoti = ({setModalVisible}: BtnProps) => {
   return (
     <Container>
       <Inner>
         <WithLocalSvg asset={Bear} style={{marginRight: 10}} />
-        <MainFont>도움을 요청했어요!</MainFont>
+        <MainFont>모임원이 모두 도착했어요!</MainFont>
       </Inner>
       <Hr />
       <Margin>
-        <SubFont>친구가 길을 그리면</SubFont>
-        <SubFont>알림을 통해 알려드려요!</SubFont>
+        <SubFont>오늘 모임의 친구들과</SubFont>
+        <SubFont>재미난 하루 보내세요!</SubFont>
       </Margin>
       <View style={{alignItems: 'flex-end'}}>
         <CustomButton
@@ -70,4 +70,4 @@ const SendHelpNoti = ({setModalVisible}: BtnProps) => {
   );
 };
 
-export default SendHelpNoti;
+export default GradeNoti;
