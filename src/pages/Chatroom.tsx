@@ -83,6 +83,7 @@ type EmojiMessagesType = {
 function Chatroom({route}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
   const [emojiMessages, setEmojiMessages] = useState<EmojiMessagesType>({});
+  const [myEmojiMessages, setMyEmojiMessages] = useState<number[]>([]);
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
   const [startDraw, setStartDraw] = useState<boolean>(false);
   const [showEmoji, setShowEmoji] = useState(false);
@@ -131,7 +132,7 @@ function Chatroom({route}: ChatroomProp) {
       socket.current.onmessage = event => {
         console.log(event.data);
         const data = JSON.parse(event.data);
-        console.log('onmessage :', data);
+        // console.log('onmessage :', data);
         // 채팅 메시지, 재촉 메시지인 경우
         if (data.messageType === 'MESSAGE' || data.messageType === 'URGENT') {
           let newMessages = [data];
@@ -183,6 +184,7 @@ function Chatroom({route}: ChatroomProp) {
   }, [moimId, userInfo]);
 
   const sendEmoji = () => {
+    setShowEmoji(false);
     if (theTimerId) {
       clearTimeout(theTimerId);
     }
@@ -200,7 +202,9 @@ function Chatroom({route}: ChatroomProp) {
           },
         }),
       );
+
       Vibration.vibrate();
+      setMyEmojiMessages(prev => [...prev, selectedEmoji]);
     }
   };
 
@@ -275,11 +279,6 @@ function Chatroom({route}: ChatroomProp) {
 
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
-      {/* {
-        <View style={{position: 'absolute', bottom: 80}}>
-          {emojiMessages?.map(emoji)}
-        </View>
-      } */}
       {/* 이모지 */}
       {showEmoji && (
         <EmojiPicker onSelect={onSelect} onClose={() => closeEmojiPicker()} />
@@ -292,12 +291,8 @@ function Chatroom({route}: ChatroomProp) {
         users={user ? user : null}
         socket={socket}
         emojiMessages={emojiMessages}
+        myEmojiMessages={myEmojiMessages}
       />
-      {Object.keys(emojiMessages).map((emoji, index) => (
-        <View style={{position: 'absolute', bottom: 100}} key={index}>
-          <EmojiAnimation index={0} />
-        </View>
-      ))}
       {/* 채팅 */}
       {showChatArea && (
         <ChatArea
@@ -314,7 +309,7 @@ function Chatroom({route}: ChatroomProp) {
               : () => setShowEmoji(prev => !prev)
           }
           isEmojiSelected={isEmojiSelected}
-          selectedEmoji={selectedEmoji}
+          selectedEmoji={Number(selectedEmoji)}
         />
       )}
       {!startDraw && (
@@ -342,6 +337,13 @@ function Chatroom({route}: ChatroomProp) {
               </TextSendBtn>
             </TextInputContainer>
           )}
+          {myEmojiMessages.length
+            ? myEmojiMessages.map((emoji, index) => (
+                <View style={{position: 'absolute', left: 30}}>
+                  <EmojiAnimation index={String(emoji)} key={index} />
+                </View>
+              ))
+            : null}
           <EmojiBtn
             onPress={
               isEmojiSelected
@@ -352,7 +354,7 @@ function Chatroom({route}: ChatroomProp) {
                 : () => setShowEmoji(prev => !prev)
             }
             isEmojiSelected={isEmojiSelected}
-            selectedEmoji={selectedEmoji}
+            selectedEmoji={Number(selectedEmoji)}
           />
         </MessagePreviewContainer>
       )}

@@ -29,8 +29,9 @@ import EmojiAnimation from '../EmojiAnimation/EmojiAnimation';
 import {MessageData} from '../../types';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import GradeNoti from '../Map/GradeNoti';
-import { useNavigation } from '@react-navigation/core';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import {useNavigation} from '@react-navigation/core';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {Image} from 'react-native';
 
 interface UserState {
   type: string;
@@ -71,6 +72,7 @@ interface MapProps {
   emojiMessages: {
     [key: number]: MessageData[];
   };
+  myEmojiMessages: numer[];
 }
 
 function RealtimeMap({
@@ -80,6 +82,7 @@ function RealtimeMap({
   users,
   socket,
   emojiMessages,
+  myEmojiMessages,
 }: MapProps) {
   const [myPosition, setMyPosition] = useState<UserState | null>(null);
   // const [startDraw, setStartDraw] = useState<boolean>(false);
@@ -233,6 +236,8 @@ function RealtimeMap({
     }
   };
 
+  console.log('');
+
   // 재촉 보내는 함수
   const sendPress = (kakaoId: string) => {
     if (!startDraw) {
@@ -276,34 +281,48 @@ function RealtimeMap({
             />
           )}
 
-          {Object.keys(emojiMessages).includes(user.id) &&
-            emojiMessages[user.id].map(emoji => (
-              <EmojiAnimation index={emoji.message} key={emoji.seq} />
-            ))}
           {myPosition?.content.latitude ? (
             <Marker
               coordinate={{
                 latitude: myPosition.content.latitude,
                 longitude: myPosition.content.longitude,
               }}
-              image={require('../../assets/icons/bear.png')}
-              width={45}
-              height={50}
-            />
+              // image={require('../../assets/icons/bear.png')}
+              width={60}
+              height={200}>
+              {myEmojiMessages.length
+                ? myEmojiMessages.map((emoji, index) => (
+                    <EmojiAnimation index={String(emoji)} key={index} />
+                  ))
+                : null}
+              <Image
+                source={require('../../assets/icons/bear.png')}
+                style={{position: 'absolute', bottom: 0}}
+              />
+            </Marker>
           ) : null}
           {users &&
             Object.entries(users).map(([kakaoId, data], index) => (
               <Marker
                 onClick={() => sendPress(kakaoId)}
-                key={index}
+                key={kakaoId}
                 coordinate={{
                   latitude: data.latitude,
                   longitude: data.longitude,
                 }}
-                image={require('../../assets/icons/cat.png')}
-                width={45}
-                height={50}
-              />
+                width={60}
+                height={200}>
+                {Object.keys(emojiMessages).includes(kakaoId)
+                  ? emojiMessages[kakaoId].map((emoji, index) => (
+                      <EmojiAnimation index={emoji.message} key={emoji.seq} />
+                    ))
+                  : null}
+                <Image
+                  source={require('../../assets/icons/bear.png')}
+                  style={{position: 'absolute', bottom: 0}}
+                />
+              </Marker>
+              // </View>
             ))}
           {drawpath.length > 1 ? (
             <Polyline

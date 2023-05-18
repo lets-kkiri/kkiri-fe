@@ -90,31 +90,9 @@ const ChatArea = ({
   isEmojiSelected,
   selectedEmoji,
 }: ChatAreaProps) => {
-  const [inputValue, setInputValue] = useState<string>('');
+  // const [inputValue, setInputValue] = useState<string>('');
 
-  const userInfo = useSelector((state: RootState) => state.persisted.user);
-
-  // 채팅메시지 발신
-  const sendMessage = () => {
-    if (!inputValue) {
-      return;
-    }
-    const msg = JSON.stringify({
-      type: 'MESSAGE',
-      content: {
-        moimId: moimId,
-        kakaoId: userInfo.id,
-        nickname: userInfo.nickname,
-        message: inputValue.trim(),
-      },
-    });
-    client.current.send(msg);
-    Vibration.vibrate();
-    client.current.onerror = e => {
-      console.log('socket error :', e);
-    };
-    setInputValue('');
-  };
+  // const userInfo = useSelector((state: RootState) => state.persisted.user);
 
   return (
     <KeyboardAvoidingView style={{flex: 1}}>
@@ -125,25 +103,6 @@ const ChatArea = ({
           </TouchableHighlight>
         </CloseBtnRow>
         <ChatFlatList messages={messages} />
-        {/* <InputContainer>
-          <TextInputContainer>
-            <StyledTextInput
-              placeholder="메시지를 입력해주세요"
-              onChangeText={text => {
-                setInputValue(text);
-              }}
-              value={inputValue}
-            />
-            <TextSendBtn onPress={() => sendMessage()}>
-              <WithLocalSvg asset={send_btn} />
-            </TextSendBtn>
-          </TextInputContainer>
-          <EmojiBtn
-            onPress={onPress}
-            isEmojiSelected={isEmojiSelected}
-            selectedEmoji={selectedEmoji}
-          />
-        </InputContainer> */}
       </ChatAreaContainer>
     </KeyboardAvoidingView>
   );
