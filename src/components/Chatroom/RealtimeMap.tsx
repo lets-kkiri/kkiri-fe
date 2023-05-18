@@ -33,6 +33,7 @@ import {useNavigation} from '@react-navigation/core';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Image} from 'react-native';
 import styled from 'styled-components/native';
+import { getMoimInfo } from '../../slices/moimInfo';
 
 interface UserState {
   type: string;
@@ -104,11 +105,24 @@ function RealtimeMap({
 
   const dispatch = useAppDispatch();
 
-  // 임시 목적지: 역삼 멀티캠퍼스
-  const destination = {latitude: 37.501303, longitude: 127.039603};
+  const fetchData = async (id: number) => {
+    try {
+      const res = dispatch(getMoimInfo(id));
+      console.log('moimDetailFetch:', res);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const userGrades = useSelector((state: RootState) => state.persisted.arrives);
-  const user = useSelector((state: RootState) => state.persisted.user);
+  const notices = useSelector((state: RootState) => state.persisted.noti);
+  const moimInfo = useSelector((state: RootState) => state.volatile.moimInfo);
+  const destination = {
+    latitude: parseFloat(moimInfo.latitude),
+    longitude: parseFloat(moimInfo.longitude),
+  };
+  console.log('목적지', destination);
+
   const checkTime = async (position: any) => {
     // 두 위치의 거리 계산 함수
     const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
@@ -139,30 +153,32 @@ function RealtimeMap({
     const distance = calculateDistance({
       lat1: position.coords.latitude,
       lon1: position.coords.longitude,
-      lat2: 37.501303,
-      lon2: 127.039603,
+      lat2: destination.latitude,
+      lon2: destination.longitude,
     });
 
     // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-    if (distance <= 100) {
-      const type = {
-        moimId: moimId,
-        isArrive: true,
-      };
+    if (distance <= 50) {
+      console.log('10m 이내에 들어옴');
       const moimList = [
         {
-          moimId: 0,
-          isArrive: true,
+          moimId: moimId,
         },
       ];
-      const updatemoimList = [...moimList, type];
-      const moims = JSON.stringify(updatemoimList);
-      await EncryptedStorage.setItem('isArrive', moims);
+      const updatemoimList = [...moimList, moimList];
       const getItem = await EncryptedStorage.getItem('isArrive');
+      // const moims = JSON.stringify(updatemoimList);
+      // await EncryptedStorage.setItem('isArrive', moims);
+      // const getItem = await EncryptedStorage.getItem('isArrive');
       if (getItem !== null) {
+        console.log('10m 이내에 들어옴-------222222222');
         const check = JSON.parse(getItem);
+        console.log(check);
         const isCheck = check.some((item: any) => item.moimId === moimId);
+        const moims = JSON.stringify(updatemoimList);
+        await EncryptedStorage.setItem('isArrive', moims);
         if (isCheck === false) {
+          console.log('10m 이내에 들어옴---------33333333333');
           const destinationTime = date.toISOString();
           dispatch(
             arrivePost({
@@ -209,6 +225,7 @@ function RealtimeMap({
   // 컴포넌트가 마운트되었을 때 최초로 함수를 실행
   let watchID: any = useRef(null);
   useEffect(() => {
+    fetchData(moimId);
     if (watchID === null) {
       watchID.current = Geolocation.getCurrentPosition(
         sendLocation,
@@ -267,8 +284,6 @@ function RealtimeMap({
     }
   };
 
-  const notices = useSelector((state: RootState) => state.persisted.noti);
-
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
       {myPosition ? (
@@ -282,12 +297,14 @@ function RealtimeMap({
             longitude: myPosition.content.longitude,
           }}>
           {/* 임시 목적지 역삼 멀티캠퍼스 */}
-          <Marker
-            coordinate={destination}
-            image={require('../../assets/icons/destination.png')}
-            width={30}
-            height={35}
-          />
+          {destination ? (
+            <Marker
+              coordinate={destination}
+              image={require('../../assets/icons/destination.png')}
+              width={30}
+              height={35}
+            />
+          ) : null}
           {/* 반경 n미터 원으로 표시 */}
           {!startDraw && (
             <Circle
@@ -349,28 +366,6 @@ function RealtimeMap({
           ) : null}
         </NaverMapView>
       ) : null}
-      <View style={{marginLeft: 20, marginTop: 15, position: 'absolute'}}>
-        <Animatable.View
-          animation="slideInDown"
-          iterationCount={1}
-          direction="alternate">
-          <AboutPath
-            startDraw={startDraw}
-            setStartDraw={setStartDraw}
-            sendpath={sendpath}
-            setModalVisible={setModalVisible}
-            setModalType={setModalType}
-            setSendpath={setSendpath}
-            drawpoint={drawpoint}
-            setDrawpoint={setDrawpoint}
-            drawpath={drawpath}
-            setDrawpath={setDrawpath}
-            nickname={notices[0].data.senderNickname}
-            noti={notices[0]}
-            kakaoId={notices[0].data.kakaoId}
-          />
-        </Animatable.View>
-      </View>
       {notices.length > 0 ? (
         notices[0].channelId === 'path' && notices[0].checked === false ? (
           <View style={{marginLeft: 20, marginTop: 15, position: 'absolute'}}>
@@ -395,28 +390,21 @@ function RealtimeMap({
       ) : null}
       {notices.length > 0 ? (
         notices[0].channelId === 'sos' && notices[0].checked === false ? (
-          <View style={{marginLeft: 20, marginTop: 15, position: 'absolute'}}>
-            <Animatable.View
-              animation="slideInDown"
-              iterationCount={1}
-              direction="alternate">
-              <AboutPath
-                startDraw={startDraw}
-                setStartDraw={setStartDraw}
-                sendpath={sendpath}
-                setModalVisible={setModalVisible}
-                setModalType={setModalType}
-                setSendpath={setSendpath}
-                drawpoint={drawpoint}
-                setDrawpoint={setDrawpoint}
-                drawpath={drawpath}
-                setDrawpath={setDrawpath}
-                nickname={notices[0].data.senderNickname}
-                noti={notices[0]}
-                kakaoId={notices[0].data.kakaoId}
-              />
-            </Animatable.View>
-          </View>
+          <AboutPath
+            startDraw={startDraw}
+            setStartDraw={setStartDraw}
+            sendpath={sendpath}
+            setModalVisible={setModalVisible}
+            setModalType={setModalType}
+            setSendpath={setSendpath}
+            drawpoint={drawpoint}
+            setDrawpoint={setDrawpoint}
+            drawpath={drawpath}
+            setDrawpath={setDrawpath}
+            nickname={notices[0].data.senderNickname}
+            noti={notices[0]}
+            kakaoId={notices[0].data.kakaoId}
+          />
         ) : null
       ) : null}
       <SideButton
@@ -438,12 +426,10 @@ function RealtimeMap({
               setModalVisible={setModalVisible}
               overall={userGrades[0].overall}
               ranking={userGrades[0].rank}
+              destinationTime={userGrades[0].destinationTime}
             />
           ) : (
-            <CustomModal
-              modalVisible={modalVisible}
-              content={<GradeNoti setModalVisible={setModalVisible} />}
-            />
+            <GradeNoti setModalVisible={setModalVisible} />
           )
         }
       />

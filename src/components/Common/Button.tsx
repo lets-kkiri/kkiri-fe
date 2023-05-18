@@ -46,7 +46,7 @@ const btnStatus: BtnStatusType = {
   },
 };
 
-const Button = styled.View`
+const Button = styled.TouchableOpacity`
   height: 50px;
   justify-content: center;
   align-items: center;
@@ -63,11 +63,11 @@ const Font = styled.Text`
 
 const CustomButton = ({text, status, width, onPress}: ButtonProps) => {
   return (
-    <TouchableOpacity onPress={onPress}>
-      <Button style={StyleSheet.flatten([btnStatus[status], btnStatus[width]])}>
-        <Font>{text}</Font>
-      </Button>
-    </TouchableOpacity>
+    <Button
+      onPress={onPress}
+      style={StyleSheet.flatten([btnStatus[status], btnStatus[width]])}>
+      <Font>{text}</Font>
+    </Button>
   );
 };
 
