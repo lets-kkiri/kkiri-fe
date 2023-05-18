@@ -89,18 +89,13 @@ const AboutPath = ({
   return (
     <>
       {startDraw === false ? (
-        <Animatable.View
-          animation="slideInDown"
-          iterationCount={1}
-          direction="alternate">
-          <NotiBox
-            nickname={nickname}
-            mainTitle="님이 도움을 요청했어요"
-            subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
-            onPress={() => setStartDraw(true)}
-            type="map"
-          />
-        </Animatable.View>
+        <NotiBox
+          nickname={nickname}
+          mainTitle="님이 도움을 요청했어요"
+          subTitle="길을 헤매는 친구에게 길 안내를 보내주세요!"
+          onPress={() => setStartDraw(true)}
+          type="map"
+        />
       ) : sendpath === false ? (
         <View style={{position: 'absolute', alignItems: 'center'}}>
           <DrawNoti>
