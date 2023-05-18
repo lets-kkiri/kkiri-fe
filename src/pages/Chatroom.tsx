@@ -219,7 +219,7 @@ function Chatroom({route}: ChatroomProp) {
 
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
-      <Button title="이모지" onPress={() => animateEmoji()} />
+      {/* <Button title="이모지" onPress={() => animateEmoji()} /> */}
       {/* 이모지 */}
       {showEmoji && (
         <EmojiPicker onSelect={onSelect} onClose={() => closeEmojiPicker()} />
@@ -233,11 +233,11 @@ function Chatroom({route}: ChatroomProp) {
         socket={socket}
         emojiMessages={emojiMessages}
       />
-      {Object.keys(emojiMessages).map((emoji, index) => (
+      {/* {Object.keys(emojiMessages).map((emoji, index) => (
         <View style={{position: 'absolute', bottom: 100}} key={index}>
           <EmojiAnimation index={0} />
         </View>
-      ))}
+      ))} */}
       {/* 채팅 */}
       {showChatArea ? (
         <ChatArea

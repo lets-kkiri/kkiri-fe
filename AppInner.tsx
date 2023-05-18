@@ -28,6 +28,7 @@ import SignIn from './src/pages/SignIn';
 // Components
 import Header from './src/components/Header';
 import TabNavigator from './src/components/TabNavigator';
+import HeaderBackBtn from './src/components/Common/HeaderBackBtn';
 
 // Types
 import {RootStackParamList} from './src/types';
@@ -428,13 +429,6 @@ function AppInner() {
                 headerTitleStyle: {
                   fontSize: 16,
                 },
-                headerLeft: () => (
-                  <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-                    <Image
-                      source={require('./src/assets/icons/header_left.svg')}
-                    />
-                  </TouchableOpacity>
-                ),
               }}>
               <Stack.Screen
                 name="Tab"
@@ -449,7 +443,14 @@ function AppInner() {
               <Stack.Screen
                 name="Setting"
                 component={Setting}
-                options={{title: '세팅'}}
+                options={({navigation}) => ({
+                  title: '설정',
+                  headerLeft: () => (
+                    <HeaderBackBtn
+                      onPress={() => navigation.navigate('Home')}
+                    />
+                  ),
+                })}
               />
               <Stack.Screen
                 name="Moim"
@@ -461,22 +462,23 @@ function AppInner() {
                     fontSize: 12,
                   },
                   headerLeft: () => (
-                    <TouchableOpacity
+                    <HeaderBackBtn
                       onPress={() => navigation.navigate('Home')}
-                      style={{width: 44}}>
-                      <WithLocalSvg
-                        style={{width: 44, height: 44}}
-                        asset={require('./src/assets/icons/header_left.svg')}
-                      />
-                      {/* <Text>뒤로</Text> */}
-                    </TouchableOpacity>
+                    />
                   ),
                 })}
               />
               <Stack.Screen
                 name="Notification"
                 component={Notification}
-                options={{title: '알림센터'}}
+                options={({navigation}) => ({
+                  title: '알림센터',
+                  headerLeft: () => (
+                    <HeaderBackBtn
+                      onPress={() => navigation.navigate('Home')}
+                    />
+                  ),
+                })}
               />
               {/* <Stack.Screen name="Chatroom" options={{title: '채팅방'}}>
                 {({route}) => <Chatroom route={route} client={newSocket} />}
@@ -484,7 +486,12 @@ function AppInner() {
               <Stack.Screen
                 name="Chatroom"
                 component={Chatroom}
-                options={{title: '채팅방'}}
+                options={({navigation}) => ({
+                  title: '채팅방',
+                  headerLeft: () => (
+                    <HeaderBackBtn onPress={() => navigation.goBack()} />
+                  ),
+                })}
               />
               <Stack.Screen
                 name="CreateMoim"
@@ -496,11 +503,11 @@ function AppInner() {
                 component={CompleteCreate}
                 options={{headerShown: false}}
               />
-              <Stack.Screen
+              {/* <Stack.Screen
                 name="Map"
                 component={Map}
                 options={{title: '실시간 위치'}}
-              />
+              /> */}
               <Stack.Screen
                 name="AddCard"
                 component={AddCard}

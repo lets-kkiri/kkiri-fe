@@ -91,8 +91,11 @@ export default function Home() {
       setMoimList(data.moimCardList);
     };
 
-    get_moim_list();
+    const unsubscribe = navigation.addListener('focus', () => {
+      get_moim_list();
+    });
     console.log('home');
+    return unsubscribe;
   }, []);
 
   if (!selectedDay) {
