@@ -200,6 +200,7 @@ function RealtimeMap({
     }
   };
 
+
   const sendLocation = (position: any) => {
     // 위치 업데이트 처리 로직
     const data = {
@@ -276,6 +277,8 @@ function RealtimeMap({
       dispatch(pressPost(postData));
     }
   };
+
+  console.log('노티노티노티 : ', notices);
 
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
@@ -375,7 +378,7 @@ function RealtimeMap({
                   navigation.navigate('ARnavi');
                   dispatch(notiSlice.actions.clickNoti(notices[0]));
                 }}
-                type="map"
+                type="gate"
               />
             </Animatable.View>
           </View>
