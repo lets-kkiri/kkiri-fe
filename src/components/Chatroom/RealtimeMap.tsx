@@ -161,15 +161,15 @@ function RealtimeMap({
       ];
       const updatemoimList = [...moimList, moimList];
       const getItem = await EncryptedStorage.getItem('isArrive');
-      const moims = JSON.stringify(updatemoimList);
-      await EncryptedStorage.setItem('isArrive', moims);
+      // const moims = JSON.stringify(updatemoimList);
+      // await EncryptedStorage.setItem('isArrive', moims);
       // const getItem = await EncryptedStorage.getItem('isArrive');
       if (getItem !== null) {
         console.log('10m 이내에 들어옴-------222222222');
         const check = JSON.parse(getItem);
         console.log(check);
         const isCheck = check.some((item: any) => item.moimId === moimId);
-        // const moims = JSON.stringify(updatemoimList);
+        const moims = JSON.stringify(updatemoimList);
         await EncryptedStorage.setItem('isArrive', moims);
         if (isCheck === false) {
           console.log('10m 이내에 들어옴---------33333333333');
