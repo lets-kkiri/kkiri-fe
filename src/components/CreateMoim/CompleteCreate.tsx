@@ -12,6 +12,8 @@ import {RootStackParamList} from '../../types';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../store';
 
+import KakaoShareLink from 'react-native-kakao-share-link';
+
 // Types
 interface CompleteCreatePageProps {
   navigation: StackNavigationProp<RootStackParamList, 'CompleteCreate'>;
@@ -105,6 +107,40 @@ function CompleteCreate() {
 
   const theme = useSelector((state: RootState) => state.persisted.theme.theme);
 
+  // Kakao 링크 전송
+  const userInfo = useSelector((state: RootState) => state.persisted.user);
+  const kakaoShare = async () => {
+    try {
+      const response = await KakaoShareLink.sendFeed({
+        content: {
+          title: `${userInfo.nickname}님이 초대장을 보냈어요`,
+          imageUrl:
+            'https://file.notion.so/f/s/8a91b679-d1b8-463f-86f2-91d4f0437751/kkiri_message.png?id=8afe3828-3b82-4cab-8154-758af82df9e2&table=block&spaceId=311c747b-96e4-4792-b9d0-49185de412a1&expirationTimestamp=1684503106071&signature=fzXuXAvU4SZj8Dz3AuCn7a5He1tV08wp1REBKvO45u8&downloadName=kkiri_message.png',
+          link: {
+            webUrl: 'https://developers.kakao.com/',
+            mobileWebUrl: 'https://developers.kakao.com/',
+          },
+        },
+        buttons: [
+          {
+            title: '앱에서 보기',
+            link: {
+              androidExecutionParams: [{key: 'moimId', value: `${moimId}`}],
+              iosExecutionParams: [
+                {key: 'key1', value: 'value1'},
+                {key: 'key2', value: 'value2'},
+              ],
+            },
+          },
+        ],
+      });
+      console.log(response);
+    } catch (e) {
+      console.error(e);
+      console.error(e.message);
+    }
+  };
+
   return (
     <>
       <ContentContainer>
@@ -132,10 +168,11 @@ function CompleteCreate() {
             </KkiriContainer>
             {isShared === true ? null : (
               <CustomButton
-                text="링크 복사하기"
+                text="링크 공유하기"
                 status="blur"
                 width="short"
                 onPress={() => {
+                  kakaoShare();
                   setIsShared(true);
                 }}
               />
