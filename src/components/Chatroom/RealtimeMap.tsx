@@ -32,6 +32,7 @@ import GradeNoti from '../Map/GradeNoti';
 import {useNavigation} from '@react-navigation/core';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Image} from 'react-native';
+import styled from 'styled-components/native';
 
 interface UserState {
   type: string;
@@ -73,7 +74,14 @@ interface MapProps {
     [key: number]: MessageData[];
   };
   myEmojiMessages: number[];
+  myEmojiMessages: number[];
 }
+
+const HeaderContainer = styled.View`
+  flex-direction: column;
+  padding: 24px;
+  width: 100%;
+`;
 
 function RealtimeMap({
   startDraw,
@@ -326,7 +334,7 @@ function RealtimeMap({
                     ))
                   : null}
                 <Image
-                  source={require('../../assets/icons/bear.png')}
+                  source={require('../../assets/icons/cat.png')}
                   style={{position: 'absolute', bottom: 0}}
                 />
               </Marker>
@@ -341,23 +349,11 @@ function RealtimeMap({
           ) : null}
         </NaverMapView>
       ) : null}
-      {notices.length > 0 ? (
-        notices[0].channelId === 'path' && notices[0].checked === false ? (
-          <NotiBox
-            nickname={notices[0].data.senderNickname}
-            mainTitle="가 길 안내를 보냈어요!"
-            subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
-            onPress={() => {
-              // 여기 한별 네비게이트해
-              navigation.navigate('ARnavi');
-              dispatch(notiSlice.actions.clickNoti(notices[0]));
-            }}
-            type="map"
-          />
-        ) : null
-      ) : null}
-      {notices.length > 0 ? (
-        notices[0].channelId === 'sos' && notices[0].checked === false ? (
+      <View style={{marginLeft: 20, marginTop: 15, position: 'absolute'}}>
+        <Animatable.View
+          animation="slideInDown"
+          iterationCount={1}
+          direction="alternate">
           <AboutPath
             startDraw={startDraw}
             setStartDraw={setStartDraw}
@@ -373,6 +369,54 @@ function RealtimeMap({
             noti={notices[0]}
             kakaoId={notices[0].data.kakaoId}
           />
+        </Animatable.View>
+      </View>
+      {notices.length > 0 ? (
+        notices[0].channelId === 'path' && notices[0].checked === false ? (
+          <View style={{marginLeft: 20, marginTop: 15, position: 'absolute'}}>
+            <Animatable.View
+              animation="slideInDown"
+              iterationCount={1}
+              direction="alternate">
+              <NotiBox
+                nickname={notices[0].data.senderNickname}
+                mainTitle="가 길 안내를 보냈어요!"
+                subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
+                onPress={() => {
+                  // 여기 한별 네비게이트해
+                  navigation.navigate('ARnavi');
+                  dispatch(notiSlice.actions.clickNoti(notices[0]));
+                }}
+                type="map"
+              />
+            </Animatable.View>
+          </View>
+        ) : null
+      ) : null}
+      {notices.length > 0 ? (
+        notices[0].channelId === 'sos' && notices[0].checked === false ? (
+          <View style={{marginLeft: 20, marginTop: 15, position: 'absolute'}}>
+            <Animatable.View
+              animation="slideInDown"
+              iterationCount={1}
+              direction="alternate">
+              <AboutPath
+                startDraw={startDraw}
+                setStartDraw={setStartDraw}
+                sendpath={sendpath}
+                setModalVisible={setModalVisible}
+                setModalType={setModalType}
+                setSendpath={setSendpath}
+                drawpoint={drawpoint}
+                setDrawpoint={setDrawpoint}
+                drawpath={drawpath}
+                setDrawpath={setDrawpath}
+                nickname={notices[0].data.senderNickname}
+                noti={notices[0]}
+                kakaoId={notices[0].data.kakaoId}
+              />
+            </Animatable.View>
+          </View>
         ) : null
       ) : null}
       <SideButton
