@@ -179,7 +179,7 @@ function Chatroom({route}: ChatroomProp) {
     }
     return () => {
       console.log('=======================채팅방 나감========================');
-      // client.close(1000, 'Work complete');
+      client.close(1000, 'Work complete');
     };
   }, [moimId, userInfo]);
 
