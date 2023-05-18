@@ -1,10 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
   Dimensions,
   TouchableWithoutFeedback,
   TouchableHighlight,
+  Animated,
+  ImageBackground,
 } from 'react-native';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
@@ -40,9 +42,12 @@ const Container = styled.View<{
   font-family: 'Pretendard-Thin';
   margin-left: ${({marginHorizontal}) => marginHorizontal}px;
   margin-right: ${({marginHorizontal}) => marginHorizontal}px;
+  display: flex;
+  align-items: center;
 `;
 
 const Head = styled.View`
+  width: 100%;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
@@ -105,6 +110,8 @@ const Bottom = styled.View`
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  /* background-color: red; */
 `;
 
 const TimeAndPeople = styled.View`
@@ -144,7 +151,91 @@ const MoimCard = ({item, width, marginHorizontal}: MoimCardProp) => {
 
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
 
+  const positionValue = useRef(new Animated.Value(-10)).current;
+  const positionValue2 = useRef(new Animated.Value(-10)).current;
+  const rotationValue = useRef(new Animated.Value(0)).current;
+  const rotationValu2 = useRef(new Animated.Value(0)).current;
+
+  const floatingImageStyle = {
+    transform: [
+      {
+        translateY: positionValue.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 15],
+        }),
+      },
+    ],
+  };
+
   useEffect(() => {
+    const duration1 = Math.random() * 2000 + 1210;
+    const duration2 = Math.random() * 2000 + 1320;
+    const duration3 = Math.random() * 2000 + 1630;
+    const duration4 = Math.random() * 2000 + 1740;
+
+    const value1 = Math.random() * 20 + Math.random() * 5;
+    const value2 = Math.random() * 20 + Math.random() * 5;
+
+    const floatingAnimation1 = Animated.loop(
+      Animated.sequence([
+        Animated.timing(positionValue, {
+          toValue: value1,
+          duration: duration1,
+          useNativeDriver: true,
+        }),
+        Animated.timing(positionValue, {
+          toValue: -10,
+          duration: duration2,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    const floatingAnimation2 = Animated.loop(
+      Animated.sequence([
+        Animated.timing(positionValue2, {
+          toValue: value2,
+          duration: duration3,
+          useNativeDriver: true,
+        }),
+        Animated.timing(positionValue2, {
+          toValue: -10,
+          duration: duration4,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    const rotationAnimation1 = Animated.loop(
+      Animated.sequence([
+        Animated.timing(rotationValue, {
+          toValue: 1,
+          duration: Math.random() + 1000 + Math.random() * 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(rotationValue, {
+          toValue: 1,
+          duration: Math.random() + 1000 + Math.random() * 100,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    const rotationAnimation2 = Animated.loop(
+      Animated.sequence([
+        Animated.timing(rotationValue, {
+          toValue: 1,
+          duration: Math.random() + 1000 + Math.random() * 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(rotationValue, {
+          toValue: 1,
+          duration: Math.random() + 1000 + Math.random() * 100,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
+    floatingAnimation1.start();
+    floatingAnimation2.start();
+
     setMonth(Number(date.slice(5, 7)));
     setDay(Number(date.slice(8, 10)));
 
@@ -156,6 +247,11 @@ const MoimCard = ({item, width, marginHorizontal}: MoimCardProp) => {
     const minute = Number(meetingTime?.slice(3, 5));
     setFormattedTime(`${zone} ${hour === 0 ? 12 : hour}시 ${minute}분`);
     setDday(cnt);
+
+    return () => {
+      floatingAnimation1.stop();
+      floatingAnimation2.stop();
+    };
   }, []);
 
   const numbers = [
@@ -170,6 +266,8 @@ const MoimCard = ({item, width, marginHorizontal}: MoimCardProp) => {
     require('../../assets/numbers/8.png'),
     require('../../assets/numbers/9.png'),
   ];
+
+  const imgWidth = [145, 94, 152, 145, 173, 143, 144, 138, 142, 141];
 
   return (
     <TouchableHighlight
@@ -195,23 +293,39 @@ const MoimCard = ({item, width, marginHorizontal}: MoimCardProp) => {
           </MainFont>
           <WithLocalSvg asset={Cash} />
         </Head>
-        {/* <ImageContainer>
+        <ImageContainer>
           {day
             .toString()
             .split('')
-            .map(number => {
+            .map((number, index) => {
               return (
-                <Image
-                  source={numbers[Number(number)]}
-                  style={{
-                    resizeMode: 'contain',
-                    height: 100,
-                    position: 'absolute',
-                  }}
-                />
+                <Animated.View
+                  key={index}
+                  style={[
+                    {width: imgWidth[number] * 0.5},
+                    {
+                      transform: [
+                        {
+                          translateY:
+                            index === 0 ? positionValue : positionValue2,
+                        },
+                      ],
+                    },
+                  ]}>
+                  <Image
+                    source={numbers[Number(number)]}
+                    style={{
+                      resizeMode: 'contain',
+                      height: 100,
+                      width: imgWidth[number] * 0.5,
+                      position: 'relative',
+                      // backgroundColor: 'blue',
+                    }}
+                  />
+                </Animated.View>
               );
             })}
-        </ImageContainer> */}
+        </ImageContainer>
         <Bottom>
           <MidFont>{name}</MidFont>
           <Location>

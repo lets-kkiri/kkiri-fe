@@ -20,11 +20,6 @@ import CompassHeading, {start} from 'react-native-compass-heading';
 import usePermissions from '../../hooks/usePermissions';
 // import {requestMultiple, PERMISSIONS, RESULTS} from 'react-native-permissions';
 
-// Geo 처리를 위한 세팅
-const MAPS_API_KEY = '';
-const PlacesAPIURL = (lat, lng) =>
-  `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=50&key=${MAPS_API_KEY}`;
-
 // Toast로 메시지 쏘기
 const Toast = message => {
   ToastAndroid.showWithGravityAndOffset(
@@ -38,7 +33,7 @@ const Toast = message => {
 
 ViroMaterials.createMaterials({
   coloredLine: {
-    diffuseColor: 'rgba(255, 0, 0, 1)',
+    diffuseColor: 'rgba(0, 0, 255, 0.3)',
   },
 });
 
@@ -62,7 +57,8 @@ const distanceBetweenPoints = (p1, p2) => {
 };
 
 const MyScene = props => {
-  let data = props.sceneNavigator.viroAppProps;
+  let data = props.sceneNavigator.viroAppProps.places;
+  console.log('=========프롭스=========', data);
 
   usePermissions();
 
@@ -115,9 +111,12 @@ const MyScene = props => {
     for (let i = 0; i < geoState.nearbyPlaces.length - 1; i++) {
       const startGeo = geoState.nearbyPlaces[i];
       const endGeo = geoState.nearbyPlaces[i + 1];
-      const startGeoCoords = transformGpsToAR(startGeo.lat, startGeo.lng);
-      const endGeoCoords = transformGpsToAR(endGeo.lat, endGeo.lng);
-      const startPosition = [startGeoCoords.x, 0, startGeoCoords.z];
+      const startGeoCoords = transformGpsToAR(
+        startGeo.latitude,
+        startGeo.longitude,
+      );
+      const endGeoCoords = transformGpsToAR(endGeo.latitude, endGeo.longitude);
+      const startPosition = [startGeoCoords.x, -1, startGeoCoords.z];
       const relativePosition = [
         endGeoCoords.x - startGeoCoords.x,
         0,
@@ -180,38 +179,19 @@ const MyScene = props => {
   }, [geoState]);
 
   // 목적지 값 받아오기
-  const getNearbyPlaces = useCallback(async () => {
-    const places = [
-      {
-        id: 0,
-        title: 'SSAFY',
-        lat: 37.50140451172083,
-        lng: 127.03979415506103,
-        isNode: true,
-      },
-      {
-        id: 1,
-        title: 'Hanti',
-        lat: 37.49622987173077,
-        lng: 127.05284412135079,
-        isNode: true,
-      },
-      {
-        id: 2,
-        title: 'Samsung',
-        lat: 37.50835257973258,
-        lng: 127.06271517820785,
-        isNode: true,
-      },
-    ];
-    const newGeoState = {...geoState};
-    newGeoState.nearbyPlaces = [...places];
-    setGeoState(newGeoState);
-  }, [geoState.location]);
+  const getNearbyPlaces = useCallback(
+    async places => {
+      console.log('겟니어바이======', places);
+      const newGeoState = {...geoState};
+      newGeoState.nearbyPlaces = [...places];
+      setGeoState(newGeoState);
+    },
+    [geoState.location],
+  );
 
   useEffect(() => {
     if (geoState.location) {
-      getNearbyPlaces();
+      getNearbyPlaces(data);
     }
   }, [geoState.location, getNearbyPlaces]);
 
@@ -269,12 +249,12 @@ const MyScene = props => {
     }
 
     const placePoints = geoState.nearbyPlaces.map((item, idx) => {
-      const coords = transformGpsToAR(item.lat, item.lng);
+      const coords = transformGpsToAR(item.latitude, item.longitude);
       const scale = Math.abs(Math.round(coords.z / 15));
       // const scale = 100;
       const distance = distanceBetweenPoints(geoState.location, {
-        latitude: item.lat,
-        longitude: item.lng,
+        latitude: item.latitude,
+        longitude: item.longitude,
       });
       console.log(`${idx + 1}번째 포인트`);
       console.log('coords :', coords);
@@ -303,13 +283,19 @@ const MyScene = props => {
               position={[0, -0.75, 0]}
             />
             <ViroAmbientLight color="#ffffff" />
-            <Viro3DObject
+            {/* <Viro3DObject
               source={require('../../assets/objects/Cat_v1_L3.123cc81ac858-7d2c-4c7e-bf80-81982996d26d/12222_Cat_v1_l3.obj')}
-              scale={[0.05, 0.05, 0.05]}
-              position={[0, 0, -10]}
+              scale={[0.5, 0.5, 0.5]}
+              position={[0, 0, 0]}
               rotation={[90, 150, 180]}
               type="OBJ"
-            />
+            /> */}
+            {/* <ViroBox
+              width={10}
+              length={10}
+              height={10}
+              position={[0, -1.5, 0]}
+            /> */}
           </ViroFlexView>
         </ViroNode>
       );
@@ -367,7 +353,7 @@ let styles = StyleSheet.create({
   },
 });
 
-function ARMapView() {
+function ARMapView({places}) {
   const [object, setObject] = useState('dog');
   return (
     <View style={styles.f1}>
@@ -377,7 +363,7 @@ function ARMapView() {
         initialScene={{
           scene: MyScene,
         }}
-        viroAppProps={{object: object}}
+        viroAppProps={{places}}
         style={styles.f1}
       />
     </View>

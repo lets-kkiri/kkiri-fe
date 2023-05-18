@@ -11,11 +11,14 @@ import {authInstance} from '../api/axios';
 import {requests} from '../api/requests';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useSelector} from 'react-redux';
+import {RootState} from '../store';
 
 // Styled component
-const CreateMoimConatiner = styled.View`
+const CreateMoimConatiner = styled.View<{theme: any}>`
   flex-direction: column;
   flex: 1;
+  background-color: ${({theme}) => theme.color.background};
 `;
 
 const ScrollViewStyled = styled.ScrollView`
@@ -221,11 +224,13 @@ function CreateMoim() {
     return `오전 ${Number(hour)}시 ${minute}분`;
   };
 
+  const theme = useSelector((state: RootState) => state.persisted.theme.theme);
+
   return (
     <CreateMoimConatiner>
       <ScrollViewStyled>
         <HeaderContainer>
-          <HeaderText>모임 생성 중</HeaderText>
+          {/* <HeaderText>모임 생성 중</HeaderText> */}
           <HeaderStepContainer>
             <HeaderStep isComplete={step > 0} />
             <HeaderStep isComplete={step > 1} />
@@ -248,9 +253,13 @@ function CreateMoim() {
             <IconConatiner>
               <WithLocalSvg asset={dateIcon} height={20} />
             </IconConatiner>
-            <Text>날짜</Text>
+            <Text style={{fontSize: 14, color: theme.color.text}}>날짜</Text>
           </ViewBinder>
-          {moim?.date !== '' ? <Text>{dateConvertKR(moim.date)}</Text> : null}
+          {moim?.date !== '' ? (
+            <Text style={{fontSize: 14, color: theme.color.blue}}>
+              {dateConvertKR(moim.date)}
+            </Text>
+          ) : null}
         </ListContainer>
         {formOpen && formOpen[0] === true && (
           <MyCalender moim={moim} setMoim={setMoim} />
@@ -261,9 +270,13 @@ function CreateMoim() {
             <IconConatiner>
               <WithLocalSvg asset={timeIcon} height={20} />
             </IconConatiner>
-            <Text>시간</Text>
+            <Text style={{fontSize: 14, color: theme.color.text}}>시간</Text>
           </ViewBinder>
-          {moim?.time !== '' ? <Text>{timeConvertKR(moim.time)}</Text> : null}
+          {moim?.time !== '' ? (
+            <Text style={{fontSize: 14, color: theme.color.blue}}>
+              {timeConvertKR(moim.time)}
+            </Text>
+          ) : null}
         </ListContainer>
         {formOpen && formOpen[1] === true && (
           <MyTimePicker moim={moim} setMoim={setMoim} />
@@ -274,9 +287,19 @@ function CreateMoim() {
             <IconConatiner>
               <WithLocalSvg asset={locationIcon} height={20} />
             </IconConatiner>
-            <Text>장소</Text>
+            <Text style={{fontSize: 14, color: theme.color.text}}>장소</Text>
           </ViewBinder>
-          {moim?.placeName !== '' ? <Text>{moim.placeName}</Text> : null}
+          {moim?.placeName !== '' ? (
+            <Text
+              style={{
+                fontSize: 14,
+                color: theme.color.blue,
+              }}
+              multiline={true}
+              numberOfLines={2}>
+              {moim.placeName}
+            </Text>
+          ) : null}
         </ListContainer>
         {formOpen && formOpen[2] === true && (
           <View>
@@ -297,7 +320,7 @@ function CreateMoim() {
             <IconConatiner>
               <WithLocalSvg asset={feeIcon} height={20} />
             </IconConatiner>
-            <Text>지각비</Text>
+            <Text style={{fontSize: 14, color: theme.color.text}}>지각비</Text>
           </ViewBinder>
           <ViewBinder>
             {isEnabled === true && (
