@@ -73,7 +73,6 @@ const ArriveNoti = ({
         <SubFont>
           유저님은 {overall}명 중 {ranking}등으로 도착했어요!
         </SubFont>
-        <SubFont>약속 시간까지 아직 {timeDifference}분 남았어요!</SubFont>
       </Margin>
       <View style={{alignItems: 'flex-end'}}>
         <CustomButton
