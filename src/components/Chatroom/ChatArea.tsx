@@ -26,7 +26,7 @@ const ChatAreaContainer = styled.ScrollView`
   flex: 1;
   height: 100%;
   display: flex;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   padding: 16px;
 `;
 
@@ -125,7 +125,7 @@ const ChatArea = ({
           </TouchableHighlight>
         </CloseBtnRow>
         <ChatFlatList messages={messages} />
-        <InputContainer>
+        {/* <InputContainer>
           <TextInputContainer>
             <StyledTextInput
               placeholder="메시지를 입력해주세요"
@@ -143,7 +143,7 @@ const ChatArea = ({
             isEmojiSelected={isEmojiSelected}
             selectedEmoji={selectedEmoji}
           />
-        </InputContainer>
+        </InputContainer> */}
       </ChatAreaContainer>
     </KeyboardAvoidingView>
   );
