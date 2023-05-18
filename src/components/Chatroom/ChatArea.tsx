@@ -78,7 +78,7 @@ type ChatAreaProps = {
   closeHandler: () => void;
   onPress: () => void;
   isEmojiSelected: boolean;
-  selectedEmoji: string;
+  selectedEmoji: number;
 };
 
 const ChatArea = ({

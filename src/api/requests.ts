@@ -103,4 +103,9 @@ export const requests = {
   GET_REISSUE() {
     return '/api/auth/reissue';
   },
+
+  // 마이페이지 정보 조회
+  GET_MYPAGE(period: string) {
+    return `/api/mypage?period=${period}`;
+  },
 };

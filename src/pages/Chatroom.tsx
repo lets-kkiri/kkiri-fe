@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View, Vibration} from 'react-native';
+import {View, Vibration, Button} from 'react-native';
 import styled from 'styled-components/native';
 import {useSelector} from 'react-redux';
 import EmojiBtn from '../components/Chatroom/EmojiBtn';
@@ -8,13 +8,14 @@ import {StackNavigationProp} from '@react-navigation/stack';
 
 // API
 import {requests} from '../api/requests';
-import {baseInstance} from '../api/axios';
+import {authInstance, baseInstance} from '../api/axios';
 
 // Components
 import ChatArea from '../components/Chatroom/ChatArea';
 import RealtimeMap from '../components/Chatroom/RealtimeMap';
 import MessagePreview from '../components/Chatroom/MessagePreview';
 import EmojiPicker from '../components/EmojiPicker/EmojiPicker';
+import EmojiAnimation from '../components/EmojiAnimation/EmojiAnimation';
 
 // types
 import {MessageData, RootStackParamList} from '../types/index';
@@ -45,27 +46,31 @@ const MessagePreviewContainer = styled.View`
   padding: 16px;
 `;
 
+type EmojiMessagesType = {
+  [key: number]: MessageData[];
+};
+
 function Chatroom({route}: ChatroomProp) {
   const [messages, setMessages] = useState<MessageData[]>([]);
+  const [emojiMessages, setEmojiMessages] = useState<EmojiMessagesType>({});
   const [showChatArea, setShowChatArea] = useState<boolean>(false);
   const [startDraw, setStartDraw] = useState<boolean>(false);
   const [showEmoji, setShowEmoji] = useState(false);
   const [isEmojiSelected, setIsEmojiSelected] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('');
-  // const [user, setUser] = useState<UserType | null>();
-  const [user, setUser] = useState<UsersType>();
+  const [user, setUser] = useState<UserType | null>();
+  // const [users, setUsers] = useState<UserType[]>([]);
   // const [socket, SetSocket] = useState<WebSocket | null>(null);
   const [theTimerId, setTheTimerId] = useState<null | number>(null);
+  const [animateCounter, setAnimateCounter] = useState<number>(0);
 
   // 채팅방 id
   const moimId = route.params.moimId;
   const client = route.params.socket;
   // 나 자신
   const userInfo = useSelector((state: RootState) => state.persisted.user);
-
+  console.log('moimId :', moimId);
   // socket 저장하는 변수
-  // const socket = locationUpdater({moimId: 9, myId: myId});
-  // const socket = new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`);
   const socket = useRef<WebSocket | null>(client);
 
   interface Data {
@@ -81,12 +86,13 @@ function Chatroom({route}: ChatroomProp) {
     // 이전 메시지 fetch
     const get_previous_chat = async (id: number) => {
       try {
-        const {data} = await baseInstance.get(requests.GET_CHAT(id, 20));
+        const {data} = await authInstance.get(requests.GET_CHAT(id, 20));
         setMessages(data.chat);
       } catch (error) {
         console.log('get previous chat error :', error);
       }
     };
+
     get_previous_chat(moimId);
 
     if (socket.current) {
@@ -104,8 +110,18 @@ function Chatroom({route}: ChatroomProp) {
         }
 
         // 이모티콘인 경우
-        if (event.data.messageType === 'EMOJI') {
-          // setMessages(prev => [...prev, event.data]);
+        if (data.messageType === 'EMOJI') {
+          setEmojiMessages(prev => {
+            const temp = {...prev};
+            if (temp[data.kakaoId]) {
+              temp[data.kakaoId] = [...temp[data.kakaoId], data];
+            } else {
+              temp[data.kakaoId] = [data];
+            }
+
+            console.log('emojis :', temp);
+            return temp;
+          });
         }
 
         // 모임원들의 실시간 위치일 경우
@@ -128,6 +144,7 @@ function Chatroom({route}: ChatroomProp) {
 
       socket.current.onclose = e => {
         console.log('socket close :', e.code, e.reason);
+        console.log('소켓 연결 닫힘', e);
       };
     }
     return () => {
@@ -185,8 +202,26 @@ function Chatroom({route}: ChatroomProp) {
     setShowEmoji(false);
   };
 
+  const animateEmoji = () => {
+    setAnimateCounter(prev => prev + 1);
+    console.log(animateCounter);
+    setEmojiMessages(prev => [
+      ...prev,
+      {
+        kakaoId: 2785529705,
+        message: '3',
+        messageType: 'EMOJI',
+        moimId: 94,
+        nickname: '이은지',
+        seq: 759,
+        time: '2023-05-16 06:27:11.243391',
+      },
+    ]);
+  };
+
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
+      <Button title="이모지" onPress={() => animateEmoji()} />
       {/* 이모지 */}
       {showEmoji && (
         <EmojiPicker onSelect={onSelect} onClose={() => closeEmojiPicker()} />
@@ -198,7 +233,13 @@ function Chatroom({route}: ChatroomProp) {
         moimId={moimId}
         users={user ? user : null}
         socket={socket}
+        emojiMessages={emojiMessages}
       />
+      {Object.keys(emojiMessages).map((emoji, index) => (
+        <View style={{position: 'absolute', bottom: 100}} key={index}>
+          <EmojiAnimation index={0} />
+        </View>
+      ))}
       {/* 채팅 */}
       {showChatArea ? (
         <ChatArea
