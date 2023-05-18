@@ -117,7 +117,10 @@ function Chatroom({route}: ChatroomProp) {
     const get_previous_chat = async (id: number) => {
       try {
         const {data} = await authInstance.get(requests.GET_CHAT(id, 20));
-        setMessages(data.chat);
+        if (data.chat) {
+          setMessages(data.chat);
+        }
+        console.log('뭐냐', messages);
       } catch (error) {
         console.log('get previous chat error :', error);
       }
@@ -132,7 +135,7 @@ function Chatroom({route}: ChatroomProp) {
       socket.current.onmessage = event => {
         console.log(event.data);
         const data = JSON.parse(event.data);
-        // console.log('onmessage :', data);
+        console.log('onmessage :', data);
         // 채팅 메시지, 재촉 메시지인 경우
         if (data.messageType === 'MESSAGE' || data.messageType === 'URGENT') {
           let newMessages = [data];

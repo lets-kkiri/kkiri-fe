@@ -74,6 +74,7 @@ interface MapProps {
     [key: number]: MessageData[];
   };
   myEmojiMessages: number[];
+  myEmojiMessages: number[];
 }
 
 const HeaderContainer = styled.View`
