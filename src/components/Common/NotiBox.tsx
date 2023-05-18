@@ -45,7 +45,12 @@ interface NotiProps {
 
 const NotiBox = ({nickname, mainTitle, subTitle, onPress, type}: NotiProps) => {
   return (
-    <Container style={type === 'map' ? {position: 'absolute'} : null}>
+    <Container
+      style={
+        type === 'map'
+          ? {position: 'absolute', marginLeft: 20, marginTop: 15}
+          : null
+      }>
       <Inner>
         <Font>
           {nickname}
