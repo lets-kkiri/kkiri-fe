@@ -372,6 +372,7 @@ function RealtimeMap({
             <Animatable.View
               animation="slideInDown"
               iterationCount={1}
+              s
               direction="alternate">
               <NotiBox
                 nickname={notices[0].data.senderNickname}
