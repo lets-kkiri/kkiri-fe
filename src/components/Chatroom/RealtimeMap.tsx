@@ -98,7 +98,7 @@ function RealtimeMap({
   const destination = {latitude: 37.501303, longitude: 127.039603};
 
   const userGrades = useSelector((state: RootState) => state.persisted.arrives);
-  // const user = useSelector((state: RootState) => state.persisted.user);
+  const user = useSelector((state: RootState) => state.persisted.user);
   const checkTime = (position: any) => {
     // 두 위치의 거리 계산 함수
     const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
@@ -276,10 +276,10 @@ function RealtimeMap({
             />
           )}
 
-          {/* {Object.keys(emojiMessages).includes(userInfo.id) &&
-            emojiMessages[userInfo.id].map(emoji => (
+          {Object.keys(emojiMessages).includes(user.id) &&
+            emojiMessages[user.id].map(emoji => (
               <EmojiAnimation index={emoji.message} key={emoji.seq} />
-            ))} */}
+            ))}
           {myPosition?.content.latitude ? (
             <Marker
               coordinate={{

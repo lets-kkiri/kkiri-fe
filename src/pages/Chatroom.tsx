@@ -233,11 +233,11 @@ function Chatroom({route}: ChatroomProp) {
         socket={socket}
         emojiMessages={emojiMessages}
       />
-      {/* {Object.keys(emojiMessages).map((emoji, index) => (
+      {Object.keys(emojiMessages).map((emoji, index) => (
         <View style={{position: 'absolute', bottom: 100}} key={index}>
           <EmojiAnimation index={0} />
         </View>
-      ))} */}
+      ))}
       {/* 채팅 */}
       {showChatArea ? (
         <ChatArea
