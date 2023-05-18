@@ -39,7 +39,7 @@ const SideButton = ({
         style={{
           position: 'absolute',
           top: 110,
-          left: 360,
+          left: 350,
         }}
         onPress={sendHelp}>
         <WithLocalSvg asset={Help} width={50} height={50} />
