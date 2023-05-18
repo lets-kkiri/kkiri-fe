@@ -159,6 +159,8 @@ function AppInner() {
       id: uniqueId,
       channelId: notiMsg?.android?.channelId,
       title: notiMsg?.title,
+      smallIcon: 'kkiri',
+      largeIcon: 'kkiri',
       message: notiMsg?.body,
       playSound: true,
       soundName: 'default',
