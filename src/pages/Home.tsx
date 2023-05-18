@@ -92,6 +92,7 @@ export default function Home() {
     };
 
     get_moim_list();
+    console.log('home');
   }, []);
 
   if (!selectedDay) {
@@ -100,7 +101,7 @@ export default function Home() {
 
   return (
     <HomeContainer theme={theme}>
-      <ScrollView>
+      <ScrollView style={{backgroundColor: theme.color.background}}>
         {notices.length > 0 ? (
           notices[0].channelId === 'comming' && !notices[0].checked ? (
             <HeaderContainer theme={theme}>

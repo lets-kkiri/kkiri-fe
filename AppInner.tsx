@@ -1,7 +1,10 @@
 import * as React from 'react';
 import {useState, useEffect, useRef, Linking} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import {
+  NativeStackNavigationProp,
+  createNativeStackNavigator,
+} from '@react-navigation/native-stack';
 import locationUpdater from './src/hooks/useLocationUpdater';
 // import BackgroundTimer from 'react-native-background-timer';
 // import {AppRegistry} from 'react-native';
@@ -65,6 +68,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import CommingNoti from './src/components/Common/CommingNoti';
 import ARnavi from './src/pages/ARnavi';
 import {WithLocalSvg} from 'react-native-svg';
+import {Image} from 'react-native';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -405,6 +409,8 @@ function AppInner() {
     },
   };
 
+  // const navigation = useNavigation<NativeStackNavigationProp<any>>();
+
   const theme = useSelector((state: RootState) => state.persisted.theme.theme);
   return (
     <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
@@ -422,6 +428,13 @@ function AppInner() {
                 headerTitleStyle: {
                   fontSize: 16,
                 },
+                headerLeft: () => (
+                  <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+                    <Image
+                      source={require('./src/assets/icons/header_left.svg')}
+                    />
+                  </TouchableOpacity>
+                ),
               }}>
               <Stack.Screen
                 name="Tab"
@@ -447,6 +460,17 @@ function AppInner() {
                     backgroundColor: theme.color.backBlue,
                     fontSize: 12,
                   },
+                  headerLeft: () => (
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('Home')}
+                      style={{width: 44}}>
+                      <WithLocalSvg
+                        style={{width: 44, height: 44}}
+                        asset={require('./src/assets/icons/header_left.svg')}
+                      />
+                      {/* <Text>뒤로</Text> */}
+                    </TouchableOpacity>
+                  ),
                 })}
               />
               <Stack.Screen
