@@ -4,6 +4,7 @@ import MessageItem from './MessageItem';
 import styled from 'styled-components/native';
 
 import {MessageData} from '../../types/index';
+import {useSelector} from 'react-redux';
 
 type ChatFlatListProp = {
   messages: MessageData[];
@@ -21,12 +22,22 @@ const ChatListContainer = styled.View`
   justify-content: flex-end;
 `;
 
+const HurryContainer = styled.View`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+`;
+
 function ChatFlatList({messages}: ChatFlatListProp) {
   const [data, setData] = useState<MessageData[]>([]);
 
   useEffect(() => {
     setData(messages);
   }, [messages]);
+
+  const theme = useSelector((state: RootState) => state.persisted.theme.theme);
 
   return (
     <ChatListContainer>
@@ -40,7 +51,11 @@ function ChatFlatList({messages}: ChatFlatListProp) {
               return <MessageItem message={item} />;
             }
             // 메시지 타입이 재촉 메시지인 경우
-            return <Text>{item.message}</Text>;
+            return (
+              <HurryContainer>
+                <Text style={{color: theme.color.white}}>{item.message}</Text>
+              </HurryContainer>
+            );
           }}
           keyExtractor={item => String(item.seq)}
         />
