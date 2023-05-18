@@ -22,7 +22,7 @@ const Inner = styled.View`
 `;
 
 const Hr = styled.View`
-  border-bottom-width: 1;
+  border-bottom-width: 1px;
   border-bottom-color: #b0bdff;
   margin: 10px 0;
 `;
