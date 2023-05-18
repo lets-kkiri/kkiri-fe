@@ -23,13 +23,13 @@ const Inner = styled.View`
 `;
 
 const Hr = styled.View`
-  border-bottom-width: 1;
+  border-bottom-width: 1px;
   border-bottom-color: #b0bdff;
   margin: 10px 0;
 `;
 
 const Margin = styled.View`
-  width: 300;
+  width: 300px;
   margin-left: 10px;
   margin-right: 10px;
   margin-top: 5px;

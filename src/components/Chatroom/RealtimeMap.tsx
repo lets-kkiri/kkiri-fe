@@ -10,7 +10,7 @@ import NaverMapView, {Marker, Polyline, Circle} from 'react-native-nmap';
 import {useSelector} from 'react-redux';
 import {useAppDispatch} from '../../store';
 import {PersistedRootState, RootState} from '../../store/reducer';
-import {arrivePost} from '../../slices/arriveSlice';
+import arriveSlice, {arrivePost} from '../../slices/arriveSlice';
 import {pressPost} from '../../slices/pressSlice';
 
 // component
@@ -27,6 +27,10 @@ import NotiBox from '../Common/NotiBox';
 import notiSlice from '../../slices/noti';
 import EmojiAnimation from '../EmojiAnimation/EmojiAnimation';
 import {MessageData} from '../../types';
+import EncryptedStorage from 'react-native-encrypted-storage';
+import GradeNoti from '../Map/GradeNoti';
+import { useNavigation } from '@react-navigation/core';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 interface UserState {
   type: string;
@@ -84,17 +88,89 @@ function RealtimeMap({
   const [sendpath, setSendpath] = useState<boolean>(false);
   const [modalType, setModalType] = useState<string>('');
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [sideModal, setSideModal] = useState<boolean>(false);
-  const [count, setCount] = useState<number>(0);
-  // const [sendArrive, setSendArrive] = useState<boolean>(false);
-  const [receivePath, setReceivePath] = useState<boolean>(false);
-  const [path, setPath] = useState();
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const [moimList, setMoimList] = useState<any[]>([]);
   const date = new Date();
 
   const dispatch = useAppDispatch();
 
   // 임시 목적지: 역삼 멀티캠퍼스
   const destination = {latitude: 37.501303, longitude: 127.039603};
+
+  const userGrades = useSelector((state: RootState) => state.persisted.arrives);
+  // const user = useSelector((state: RootState) => state.persisted.user);
+  const checkTime = (position: any) => {
+    // 두 위치의 거리 계산 함수
+    const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
+      const R = 6371e3; // 지구 반경 (m)
+      const cal1 = toRadians(lat1);
+      const cal2 = toRadians(lat2);
+      const cal3 = toRadians(lat2 - lat1);
+      const cal4 = toRadians(lon2 - lon1);
+
+      const a =
+        Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
+        Math.cos(cal1) *
+          Math.cos(cal2) *
+          Math.sin(cal4 / 2) *
+          Math.sin(cal4 / 2);
+      Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+      const distance = R * c; // 두 지점 사이의 거리 (m)
+
+      return distance;
+    };
+
+    const toRadians = (degrees: any) => {
+      return (degrees * Math.PI) / 180;
+    };
+
+    const distance = calculateDistance({
+      lat1: position.coords.latitude,
+      lon1: position.coords.longitude,
+      lat2: 37.501303,
+      lon2: 127.039603,
+    });
+
+    // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
+    if (distance <= 100) {
+      const type = {
+        moimId: moimId,
+        isArrive: true,
+      };
+      setMoimList((prev: any) => [...prev, type]);
+    }
+  };
+
+  async function checks() {
+    const moims = JSON.stringify(moimList);
+    await EncryptedStorage.setItem('isArrive', moims); // isArrive 값을 true로 변경
+    const getItem = await EncryptedStorage.getItem('isArrive');
+    if (getItem !== null) {
+      const check = JSON.parse(getItem);
+      const isCheck = check.some((item: any) => item.moimId === moimId);
+      if (isCheck === false) {
+        const destinationTime = date.toISOString();
+        dispatch(
+          arrivePost({
+            moimId: moimId,
+            destinationTime: destinationTime,
+          }),
+        );
+        setModalVisible(true);
+      }
+    } else {
+      const destinationTime = date.toISOString();
+      dispatch(
+        arrivePost({
+          moimId: moimId,
+          destinationTime: destinationTime,
+        }),
+      );
+      setModalVisible(true);
+    }
+  }
 
   const sendLocation = (position: any) => {
     // 위치 업데이트 처리 로직
@@ -109,31 +185,7 @@ function RealtimeMap({
     socket.current.send(JSON.stringify(data));
     console.log('서버로 내 위치 보내기');
     setMyPosition(data);
-
-    // 현재 위치와 목적지 위치의 거리 계산
-    // const distance = calculateDistance({
-    //   lat1: position.coords.latitude,
-    //   lon1: position.coords.longitude,
-    //   lat2: 37.501303,
-    //   lon2: 127.039603,
-    // });
-
-    // 거리가 50m 이내인 경우 목적지에 도착했다고 알림
-    // if (distance <= 50 && !sendArrive) {
-    //   console.log('목적지 도착');
-    //   const destinationTime = date.toISOString();
-    //   dispatch(
-    //     arrivePost({
-    //       moimId: moimId,
-    //       destinationTime: destinationTime,
-    //     }),
-    //   );
-    //   setSendArrive(true);
-    //   setModalVisible(true);
-    //   setModalType('arrive');
-    // }
-    // 재귀적으로 자기 자신을 호출하여 일정 시간 후에 함수를 다시 실행
-    // timerId = setTimeout(sendLocation, 30000);
+    checkTime(position);
   };
 
   // 컴포넌트가 마운트되었을 때 최초로 함수를 실행
@@ -162,39 +214,13 @@ function RealtimeMap({
 
     // 컴포넌트 마운트 시 위치 업데이트 시작
     startWatchingLocation();
+    checks();
 
     // 컴포넌트가 언마운트될 때 clearTimeout을 사용하여 타이머를 정리해주는 것이 좋습니다.
     return () => {
       stopWatchingLocation();
     };
   }, []);
-
-  // 두 위치의 거리 계산 함수
-  const calculateDistance = ({lat1, lon1, lat2, lon2}: LocateState) => {
-    const R = 6371e3; // 지구 반경 (m)
-    const cal1 = toRadians(lat1);
-    const cal2 = toRadians(lat2);
-    const cal3 = toRadians(lat2 - lat1);
-    const cal4 = toRadians(lon2 - lon1);
-
-    const a =
-      Math.sin(cal3 / 2) * Math.sin(cal3 / 2) +
-      Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
-    Math.cos(cal1) * Math.cos(cal2) * Math.sin(cal4 / 2) * Math.sin(cal4 / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    const distance = R * c; // 두 지점 사이의 거리 (m)
-
-    return distance;
-  };
-
-  const toRadians = (degrees: any) => {
-    return (degrees * Math.PI) / 180;
-  };
-
-  const userGrades = useSelector(
-    (state: RootState) => state.persisted.arrives.userGrade,
-  );
 
   const drawPath = (e: any) => {
     if (startDraw) {
@@ -221,13 +247,6 @@ function RealtimeMap({
   };
 
   const notices = useSelector((state: RootState) => state.persisted.noti);
-  console.log('노티노티 : ', notices[0]);
-
-  // 여기 한별 여기다
-  if (receivePath) {
-    const data = JSON.parse(`${notices[0].path}`);
-    setPath(data);
-  }
 
   return (
     <View style={{position: 'absolute', width: '100%', height: '100%'}}>
@@ -238,8 +257,8 @@ function RealtimeMap({
             drawPath(e);
           }}
           center={{
-            latitude: 37.501303,
-            longitude: 127.039603,
+            latitude: myPosition.content.latitude,
+            longitude: myPosition.content.longitude,
           }}>
           {/* 임시 목적지 역삼 멀티캠퍼스 */}
           <Marker
@@ -272,34 +291,23 @@ function RealtimeMap({
               height={50}
             />
           ) : null}
-
           {users &&
             Object.entries(users).map(([kakaoId, data], index) => (
-              <View>
-                {/* <EmojiAnimation index={'0'} /> */}
-                <Marker
-                  onClick={() => sendPress(kakaoId)}
-                  key={index}
-                  coordinate={{
-                    latitude: data.latitude,
-                    longitude: data.longitude,
-                  }}
-                  image={require('../../assets/icons/cat.png')}
-                  width={45}
-                  height={50}
-                />
-              </View>
+              <Marker
+                onClick={() => sendPress(kakaoId)}
+                key={index}
+                coordinate={{
+                  latitude: data.latitude,
+                  longitude: data.longitude,
+                }}
+                image={require('../../assets/icons/cat.png')}
+                width={45}
+                height={50}
+              />
             ))}
           {drawpath.length > 1 ? (
             <Polyline
               coordinates={drawpath}
-              strokeColor="#B0BDFF"
-              strokeWidth={5}
-            />
-          ) : null}
-          {receivePath && path ? (
-            <Polyline
-              coordinates={path}
               strokeColor="#B0BDFF"
               strokeWidth={5}
             />
@@ -314,8 +322,7 @@ function RealtimeMap({
             subTitle="AR 길 안내를 확인하고 목적지로 이동해보세요!"
             onPress={() => {
               // 여기 한별 네비게이트해
-              dispatch(notiSlice.actions.clickNoti(notices[0]));
-              setReceivePath(true);
+              navigation.navigate('ARnavi');
             }}
             type="map"
           />
@@ -346,23 +353,30 @@ function RealtimeMap({
         setModalType={setModalType}
         moimId={moimId}
       />
-      {userGrades.ranking.overall !== 0 ? (
-        <CustomModal
-          modalVisible={modalVisible}
-          content={
-            modalType === 'arrive' ? (
-              <ArriveNoti
-                setModalVisible={setModalVisible}
-                overall={userGrades.ranking.overall}
-                ranking={userGrades.ranking.rank}
-              />
-            ) : modalType === 'sendpath' ? (
-              <SendPathNoti setModalVisible={setModalVisible} />
-            ) : (
-              <SendHelpNoti setModalVisible={setModalVisible} />
-            )
-          }
-        />
+      {userGrades.length > 0 ? (
+        userGrades[0].overall !== userGrades[0].rank ? (
+          <CustomModal
+            modalVisible={modalVisible}
+            content={
+              modalType === 'sendhelp' ? (
+                <SendHelpNoti setModalVisible={setModalVisible} />
+              ) : modalType === 'sendpath' ? (
+                <SendPathNoti setModalVisible={setModalVisible} />
+              ) : (
+                <ArriveNoti
+                  setModalVisible={setModalVisible}
+                  overall={userGrades[0].overall}
+                  ranking={userGrades[0].rank}
+                />
+              )
+            }
+          />
+        ) : (
+          <CustomModal
+            modalVisible={modalVisible}
+            content={<GradeNoti setModalVisible={setModalVisible} />}
+          />
+        )
       ) : null}
       {/* {sideModal ? (
         <AboutMoim setSideModal={setSideModal} count={count} />

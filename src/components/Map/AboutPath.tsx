@@ -34,12 +34,12 @@ const DrawNoti = styled.View`
   flex-direction: row;
   align-items: center;
   background-color: #fff;
-  height: 50;
+  height: 50px;
   width: 90%;
   border-style: solid;
   border-color: #5968f2;
-  border-width: 1;
-  border-radius: 15;
+  border-width: 1px;
+  border-radius: 15px;
   margin-top: 15px;
   padding-left: 20px;
 `;

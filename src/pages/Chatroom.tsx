@@ -59,8 +59,6 @@ function Chatroom({route}: ChatroomProp) {
   const [isEmojiSelected, setIsEmojiSelected] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState('');
   const [user, setUser] = useState<UsersType>();
-  // const [users, setUsers] = useState<UserType[]>([]);
-  // const [socket, SetSocket] = useState<WebSocket | null>(null);
   const [theTimerId, setTheTimerId] = useState<null | number>(null);
   const [animateCounter, setAnimateCounter] = useState<number>(0);
 
