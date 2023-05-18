@@ -31,12 +31,14 @@ const Toast = message => {
   );
 };
 
+// 질감(및 색) 표현
 ViroMaterials.createMaterials({
   coloredLine: {
     diffuseColor: 'rgba(0, 0, 255, 0.3)',
   },
 });
 
+// 두 점 거리 구하는 함수
 const distanceBetweenPoints = (p1, p2) => {
   if (!p1 || !p2) {
     return 0;
@@ -56,12 +58,15 @@ const distanceBetweenPoints = (p1, p2) => {
   return d;
 };
 
+// 메인 함수
 const MyScene = props => {
-  let data = props.sceneNavigator.viroAppProps.places;
-  console.log('=========프롭스=========', data);
+  const data = props.sceneNavigator.viroAppProps.places;
+  const nowHeading = props.sceneNavigator.viroAppProps.nowHeading;
+  const places = props.sceneNavigator.viroAppProps.places;
+  // console.log('=========프롭스=========', data);
 
   usePermissions();
-
+  // 작업 확인해야함 --- 한별 ---
   // 최초 실행시 확인
   const [tracking, setTracking] = useState(false);
 
@@ -101,12 +106,6 @@ const MyScene = props => {
       return [];
     }
 
-    // const initGeo = geoState.nearbyPlaces[0];
-    // const initCoords = transformGpsToAR(initGeo.lat, initGeo.lng);
-    // const newLineState = [
-    //   [0, 0, 0],
-    //   [initCoords.x, 0, initCoords.z],
-    // ];
     const newLineState = [];
     for (let i = 0; i < geoState.nearbyPlaces.length - 1; i++) {
       const startGeo = geoState.nearbyPlaces[i];
@@ -116,7 +115,7 @@ const MyScene = props => {
         startGeo.longitude,
       );
       const endGeoCoords = transformGpsToAR(endGeo.latitude, endGeo.longitude);
-      const startPosition = [startGeoCoords.x, -1, startGeoCoords.z];
+      const startPosition = [startGeoCoords.x, 0, startGeoCoords.z];
       const relativePosition = [
         endGeoCoords.x - startGeoCoords.x,
         0,
@@ -128,27 +127,26 @@ const MyScene = props => {
   }, [geoState.nearbyPlaces, lineState.length, transformGpsToAR]);
 
   // compassHeading 처리를 위한 useEffect, mount시 설정, unmount시 해제
-  useEffect(() => {
-    CompassHeading.start(3, heading => {
-      if (geoState.compassHeading === 0) {
-        const newGeoState = {...geoState};
-        newGeoState.compassHeading = heading.heading;
-        newGeoState.locationReady = true;
-        setGeoState(newGeoState);
-        CompassHeading.stop();
-      }
-    });
-
-    return () => {
-      if (listener.current) {
-        Geolocation.clearWatch(listener.current);
-      }
-      CompassHeading.stop();
-    };
-  }, []);
+  // useEffect(() => {
+  //   if (!nowHeading || geoState.compassHeading !== 0) {
+  //     return;
+  //   }
+  //   const newGeoState = {...geoState};
+  //   newGeoState.compassHeading = nowHeading;
+  //   newGeoState.locationReady = true;
+  //   console.log('헤더 박았음==========', newGeoState);
+  //   setGeoState(newGeoState);
+  // }, [nowHeading]);
 
   useEffect(() => {
     getCurrentLocation();
+
+    // Clean up function
+    return () => {
+      if (listener.current !== null) {
+        Geolocation.clearWatch(listener.current);
+      }
+    };
   }, [geoState.compassHeading]);
 
   // 최근 위치 받아오기
@@ -181,7 +179,7 @@ const MyScene = props => {
   // 목적지 값 받아오기
   const getNearbyPlaces = useCallback(
     async places => {
-      console.log('겟니어바이======', places);
+      // console.log('겟니어바이======', places);
       const newGeoState = {...geoState};
       newGeoState.nearbyPlaces = [...places];
       setGeoState(newGeoState);
@@ -242,9 +240,26 @@ const MyScene = props => {
     [latLongToMerc, geoState.compassHeading, geoState.location],
   );
 
+  const [startLoc, setStartLoc] = useState({latitude: 0, longitude: 0});
+
+  useEffect(() => {
+    if (geoState.location === undefined) {
+      return;
+    }
+    setStartLoc({
+      latitude: geoState.location.latitude,
+      longitude: geoState.location.longitude,
+    });
+  }, [geoState.location]);
+
   // 지도 좌표값 위치 찍기
   const placeARObjects = useCallback(() => {
-    if (geoState.nearbyPlaces.length === 0) {
+    if (
+      geoState.nearbyPlaces.length === 0 ||
+      !startLoc ||
+      startLoc.latitude === 0 ||
+      startLoc.longitude === 0
+    ) {
       return undefined;
     }
 
@@ -252,18 +267,18 @@ const MyScene = props => {
       const coords = transformGpsToAR(item.latitude, item.longitude);
       const scale = Math.abs(Math.round(coords.z / 15));
       // const scale = 100;
-      const distance = distanceBetweenPoints(geoState.location, {
+      const distance = distanceBetweenPoints(startLoc.location, {
         latitude: item.latitude,
         longitude: item.longitude,
       });
-      console.log(`${idx + 1}번째 포인트`);
-      console.log('coords :', coords);
-      console.log('distance :', distance);
-      console.log('scale :', scale);
+      // console.log(`${idx + 1}번째 포인트`);
+      // console.log('coords :', coords);
+      // console.log('distance :', distance);
+      // console.log('scale :', scale);
 
       return (
         <ViroNode
-          key={item.id}
+          key={idx}
           scale={[scale, scale, scale]}
           rotation={[0, 0, 0]}
           position={[coords.x, 0, coords.z]}>
@@ -290,18 +305,13 @@ const MyScene = props => {
               rotation={[90, 150, 180]}
               type="OBJ"
             /> */}
-            {/* <ViroBox
-              width={10}
-              length={10}
-              height={10}
-              position={[0, -1.5, 0]}
-            /> */}
+            <ViroBox width={1} length={1} height={1} position={[0, -1.5, 0]} />
           </ViroFlexView>
         </ViroNode>
       );
     });
     return placePoints;
-  }, [geoState.nearbyPlaces, geoState.location, transformGpsToAR]);
+  }, [geoState.nearbyPlaces, startLoc, transformGpsToAR]);
 
   // 지도 길 그리기
   const polyLines = useCallback(() => {
@@ -312,8 +322,8 @@ const MyScene = props => {
     const drawLines = lineState.map((line, idx) => {
       const startPoint = line[0];
       const endPoint = line[1];
-      console.log('start :', startPoint);
-      console.log('end :', endPoint);
+      // console.log('start :', startPoint);
+      // console.log('end :', endPoint);
 
       return (
         <ViroPolyline
@@ -353,8 +363,8 @@ let styles = StyleSheet.create({
   },
 });
 
-function ARMapView({places}) {
-  const [object, setObject] = useState('dog');
+function ARMapView({places, nowHeading, myPosition}) {
+  // const [object, setObject] = useState('cat');
   return (
     <View style={styles.f1}>
       <ViroARSceneNavigator
@@ -363,7 +373,7 @@ function ARMapView({places}) {
         initialScene={{
           scene: MyScene,
         }}
-        viroAppProps={{places}}
+        viroAppProps={{places, nowHeading, myPosition}}
         style={styles.f1}
       />
     </View>
