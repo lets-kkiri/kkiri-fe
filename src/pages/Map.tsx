@@ -41,7 +41,7 @@ function Map({places}) {
   }, [places]);
 
   useEffect(() => {
-    Geolocation.getCurrentPosition(
+    Geolocation.watchPosition(
       position => {
         setMyPosition({
           latitude: position.coords.latitude,
