@@ -20,7 +20,7 @@ const HeaderContainer = styled.View<{theme: any}>`
   justify-content: space-between;
   padding-left: 16px;
   padding-right: 8px;
-  background-color: ${({theme}) => theme.color.background};
+  background-color: ${({theme}) => theme.color.backBlue};
 `;
 
 const IconContainer = styled.View`

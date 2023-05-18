@@ -5,7 +5,13 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import locationUpdater from './src/hooks/useLocationUpdater';
 // import BackgroundTimer from 'react-native-background-timer';
 // import {AppRegistry} from 'react-native';
-import {Text, View, useColorScheme, AppState} from 'react-native';
+import {
+  Text,
+  View,
+  useColorScheme,
+  AppState,
+  TouchableOpacity,
+} from 'react-native';
 import {ThemeProvider} from 'styled-components/native';
 import {lightTheme, darkTheme} from './src/styles/theme';
 
@@ -54,6 +60,7 @@ import {authInstance} from './src/api/axios';
 import AddCard from './src/components/MyPage/AddCard';
 import userSlice from './src/slices/user';
 import {logout} from '@react-native-seoul/kakao-login';
+import {WithLocalSvg} from 'react-native-svg';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -394,6 +401,10 @@ function AppInner() {
                   elevation: 0,
                 },
                 headerShadowVisible: false,
+                headerTitleAlign: 'center',
+                headerTitleStyle: {
+                  fontSize: 16,
+                },
               }}>
               <Stack.Screen
                 name="Tab"
@@ -413,10 +424,13 @@ function AppInner() {
               <Stack.Screen
                 name="Moim"
                 component={Moim}
-                options={{
+                options={({navigation}) => ({
                   title: '모임 상세',
-                  headerStyle: {backgroundColor: theme.color.backBlue},
-                }}
+                  headerStyle: {
+                    backgroundColor: theme.color.backBlue,
+                    fontSize: 12,
+                  },
+                })}
               />
               <Stack.Screen
                 name="Notification"
