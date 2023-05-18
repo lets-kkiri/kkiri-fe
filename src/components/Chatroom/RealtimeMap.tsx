@@ -78,12 +78,6 @@ interface MapProps {
   myEmojiMessages: number[];
 }
 
-const HeaderContainer = styled.View`
-  flex-direction: column;
-  padding: 24px;
-  width: 100%;
-`;
-
 function RealtimeMap({
   startDraw,
   setStartDraw,
@@ -167,15 +161,15 @@ function RealtimeMap({
       ];
       const updatemoimList = [...moimList, moimList];
       const getItem = await EncryptedStorage.getItem('isArrive');
-      // const moims = JSON.stringify(updatemoimList);
-      // await EncryptedStorage.setItem('isArrive', moims);
+      const moims = JSON.stringify(updatemoimList);
+      await EncryptedStorage.setItem('isArrive', moims);
       // const getItem = await EncryptedStorage.getItem('isArrive');
       if (getItem !== null) {
         console.log('10m 이내에 들어옴-------222222222');
         const check = JSON.parse(getItem);
         console.log(check);
         const isCheck = check.some((item: any) => item.moimId === moimId);
-        const moims = JSON.stringify(updatemoimList);
+        // const moims = JSON.stringify(updatemoimList);
         await EncryptedStorage.setItem('isArrive', moims);
         if (isCheck === false) {
           console.log('10m 이내에 들어옴---------33333333333');
@@ -223,20 +217,13 @@ function RealtimeMap({
   };
 
   // 컴포넌트가 마운트되었을 때 최초로 함수를 실행
-  let watchID: any = useRef(null);
   useEffect(() => {
+    let watchID: any;
+    // sendLocation();
     fetchData(moimId);
-    if (watchID === null) {
-      watchID.current = Geolocation.getCurrentPosition(
-        sendLocation,
-        error => console.log(error),
-        {
-          enableHighAccuracy: true,
-          timeout: 20000,
-        },
-      );
-    } else {
-      watchID.current = Geolocation.watchPosition(
+
+    const startWatchingLocation = () => {
+      watchID = Geolocation.watchPosition(
         sendLocation,
         error => console.log(error),
         {
@@ -245,16 +232,22 @@ function RealtimeMap({
           distanceFilter: 5,
         },
       );
-    }
+    };
+
+    const stopWatchingLocation = () => {
+      if (watchID !== null) {
+        Geolocation.clearWatch(watchID);
+        watchID = null;
+      }
+    };
 
     // 컴포넌트 마운트 시 위치 업데이트 시작
-    // startWatchingLocation();
+    startWatchingLocation();
     // checks();
 
+    // 컴포넌트가 언마운트될 때 clearTimeout을 사용하여 타이머를 정리해주는 것이 좋습니다.
     return () => {
-      if (watchID.current !== null) {
-        Geolocation.clearWatch(watchID.current);
-      }
+      stopWatchingLocation();
     };
   }, []);
 
@@ -372,7 +365,6 @@ function RealtimeMap({
             <Animatable.View
               animation="slideInDown"
               iterationCount={1}
-              s
               direction="alternate">
               <NotiBox
                 nickname={notices[0].data.senderNickname}
