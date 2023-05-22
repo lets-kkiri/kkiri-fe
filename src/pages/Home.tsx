@@ -8,6 +8,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {RootState, useAppDispatch} from '../store';
 import CustomTheme from 'styled-components/native';
 import * as Animatable from 'react-native-animatable';
+import Config from 'react-native-config';
 
 // Icons
 import arrow from '../assets/icons/arrow_down.svg';
@@ -126,7 +127,7 @@ export default function Home() {
                   onPress={() => {
                     dispatch(notiSlice.actions.clickNoti(notices[0]));
                     const socket = new WebSocket(
-                      `wss://k8a606.p.ssafy.io/ws/api/${notices[0].data.moimId}`,
+                      `${Config.WS_BASE_URL}/ws/api/${notices[0].data.moimId}`,
                     );
                     console.log('socket');
                     console.log('socket open');

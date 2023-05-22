@@ -1,7 +1,10 @@
+import Config from 'react-native-config';
+
+
 export const requests = {
-  base_url: 'https://k8a606.p.ssafy.io',
-  ws_base_url: 'ws://k8a606.p.ssafy.io:8080',
-  naver_url: 'https://naveropenapi.apigw.ntruss.com/map-reversegeocode',
+  base_url: Config.BASE_URL,
+  ws_base_url: Config.WS_BASE_URL,
+  naver_url: Config.NAVER_URL,
 
   // stomp 연결
   CONNECT: '/stomp',

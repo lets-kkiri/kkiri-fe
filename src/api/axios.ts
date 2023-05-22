@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {requests} from './requests';
 import TokenRefreshService from './TokenRefreshService';
+import Config from 'react-native-config';
 
 const BASE_URL = requests.base_url;
 const NAVER_URL = requests.naver_url;
@@ -17,8 +18,8 @@ const naverAPI = (url: string, options?: any) => {
   return axios.create({
     baseURL: url,
     headers: {
-      'X-NCP-APIGW-API-KEY-ID': 'NAVER_CLIENT_ID',
-      'X-NCP-APIGW-API-KEY': 'NAVER_API_KEY',
+      'X-NCP-APIGW-API-KEY-ID': Config.NAVER_CLIENT_ID,
+      'X-NCP-APIGW-API-KEY': Config.NAVER_API_KEY,
     },
     ...options,
   });

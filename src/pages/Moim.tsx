@@ -6,6 +6,7 @@ import {RootStackParamList} from '../types';
 import styled from 'styled-components/native';
 import {WithLocalSvg} from 'react-native-svg';
 import {useSelector} from 'react-redux';
+import Config from 'react-native-config';
 
 // Components
 import MemberItem from '../components/Moim/MemberItem';
@@ -300,7 +301,7 @@ function Moim({navigation, route}: MoimProps) {
           theme={theme}
           onPress={() => {
             const socket = new WebSocket(
-              `wss://k8a606.p.ssafy.io/ws/api/${moimId}`,
+              `${Config.WS_BASE_URL}/ws/api/${moimId}`,
             );
             console.log('socket');
             console.log('socket open');

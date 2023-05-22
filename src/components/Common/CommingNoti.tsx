@@ -5,6 +5,7 @@ import NotiBox from './NotiBox';
 import notiSlice from '../../slices/noti';
 import {RootStackParamList} from '../../types';
 import {StackNavigationProp} from '@react-navigation/stack';
+import Config from 'react-native-config';
 
 interface ChatProps {
   navigation: StackNavigationProp<RootStackParamList, 'Chatroom'>;
@@ -25,7 +26,7 @@ const CommingNoti = ({navigation, setNewSocket}: ChatProps) => {
       subTitle="실시간으로 친구들의 위치를 확인해 보세요!"
       onPress={() => {
         const socket = new WebSocket(
-          `wss://k8a606.p.ssafy.io/ws/api/${notices[0].data.moimId}`,
+          `${Config.WS_BASE_URL}/ws/api/${notices[0].data.moimId}`,
         );
         socket.onopen = () => {
           console.log('연결!');
