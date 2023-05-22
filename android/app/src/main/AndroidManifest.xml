@@ -31,7 +31,7 @@
       android:usesCleartextTraffic="true">
       <meta-data
         android:name="com.naver.maps.map.CLIENT_ID"
-        android:value="NAVER_CLIENT_ID" />
+        android:value="@string/NAVER_CLIENT_ID" />
       <meta-data android:name="com.google.ar.core" android:value="optional" />
       <activity
         android:name=".MainActivity"
@@ -106,7 +106,7 @@
               
               <!-- Redirect URI: "kakao${NATIVE_APP_KEY}://oauth" -->
               <data android:host="oauth"
-                      android:scheme="KAKAO_SCHEME" />
+                      android:scheme="@string/KAKAO_SCHEME" />
           </intent-filter>
       </activity>
     </application>

@@ -132,6 +132,9 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        resValue "string", "KAKAO_SCHEME", project.env.get("KAKAO_SCHEME")
+        resValue "string", "KAKAO_APP_KEY", project.env.get("KAKAO_APP_KEY")
+        resValue "string", "NAVER_CLIENT_ID", project.env.get("NAVER_CLIENT_ID")
     }
     splits {
         abi {
@@ -204,7 +207,7 @@ dependencies {
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
-      exclude group:'com.facebook.fbjni'
+        exclude group:'com.facebook.fbjni'
     }
     
     // Import the Firebase BoM
