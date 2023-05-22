@@ -1,4 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
+import Config from 'react-native-config';
 
 const initialState = {
   moimId: 0,
@@ -9,7 +10,7 @@ const initialState = {
 //   'sockets/connect',
 //   async (data: number, thunkAPI) => {
 //     const response = await JSON.stringify(
-//       new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${data}`),
+//       new WebSocket(`${Config.WS_BASE_URL}/ws/api/${data}`),
 //     );
 //     return thunkAPI.fulfillWithValue(response);
 //   },
@@ -18,7 +19,7 @@ export const socketConnect = createAsyncThunk(
   'sockets/connect',
   async (data: number, thunkAPI) => {
     const response = await JSON.stringify(
-      new WebSocket('wss://k8a606.p.ssafy.io/ws/api'),
+      new WebSocket(`${Config.WS_BASE_URL}/ws/api`),
     );
     return thunkAPI.fulfillWithValue(response);
   },
