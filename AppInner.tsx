@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import {ThemeProvider} from 'styled-components/native';
 import {lightTheme, darkTheme} from './src/styles/theme';
+import Config from 'react-native-config';
 
 // Page
 import Setting from './src/pages/Setting';
@@ -104,7 +105,7 @@ function AppInner() {
   // const moimId = 101;
 
   // useEffect(() => {
-  //   const socket = new WebSocket(`wss://k8a606.p.ssafy.io/ws/api/${moimId}`);
+  //   const socket = new WebSocket(`${Config.WS_BASE_URL}/ws/api/${moimId}`);
   //   console.log('socket');
   //   console.log('socket open');
   //   socket.onopen = () => {
@@ -404,7 +405,7 @@ function AppInner() {
   // deep link를 위한 settings
   // lets.kkiri://moim/1
   const linking = {
-    prefixes: ['KAKAO_SCHEME://'],
+    prefixes: [`${Config.KAKAO_SCHEME}://`],
     config: {
       screens: {
         Moim: 'kakaolink?moimId=:moimId',
