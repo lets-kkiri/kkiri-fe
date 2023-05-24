@@ -64,4 +64,5 @@ yarn-error.log
 
 # key 값들 관리
 android/gradle.properties
+android/app/google-services.json
 .env
