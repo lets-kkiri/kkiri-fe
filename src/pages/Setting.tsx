@@ -1,11 +1,13 @@
 import {useNavigation} from '@react-navigation/native';
 import React from 'react';
-import {Button, Text, View} from 'react-native';
+import {Image, StyleSheet} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../store';
 import styled from 'styled-components/native';
 import {toggleTheme} from '../slices/themeSlice';
+import Profile from '../components/Settings/Profile';
+import {WithLocalSvg} from 'react-native-svg';
 
 // 로그아웃 버튼
 import {authInstance} from '../api/axios';
@@ -14,7 +16,63 @@ import {requests} from '../api/requests';
 import userSlice from '../slices/user';
 import EncryptedStorage from 'react-native-encrypted-storage';
 
-authInstance;
+// Styled Components
+const SettingPageContainer = styled.View`
+  flex: 1;
+  padding: 16px;
+  background-color: #fff;
+  align-items: center;
+`;
+const SettingTitle = styled.View`
+  height: 70px;
+  /* padding: 16px; */
+  display: flex;
+  justify-content: center;
+  /* align-items: center; */
+`;
+const DivideLine = styled.View`
+  width: 110%;
+  height: 8px;
+  background-color: #f4f4f4;
+  margin-top: 20px;
+  margin-bottom: 5px;
+`;
+
+const ButtonContainer = styled.View`
+  width: 100%;
+`;
+
+const SettingText = styled.Text`
+  font-size: 16px;
+  font-weight: 600;
+`;
+
+const SettingBtn = styled.TouchableOpacity`
+  height: 55px;
+  border-bottom-width: 1px;
+  border-bottom-color: #e2e2e2;
+  margin: 0px 8px 0px 8px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const IconContainer = styled.View``;
+
+const Theme = styled.Image`
+  height: 20px;
+`;
+
+const styles = StyleSheet.create({
+  themeImage: {
+    height: 20,
+    width: 20,
+    resizeMode: 'contain',
+  },
+});
+
+// Icons
+const Right = require('../assets/icons/right.svg');
 
 function Setting() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
@@ -26,7 +84,7 @@ function Setting() {
     (state: RootState) => state.persisted.theme.darkmode,
   );
 
-  // 로그아웃 버튼 위함
+  // 로그아웃 버튼 로직
   const isLoggedIn = useSelector(
     (state: RootState) => state.persisted.user.isLoggedIn,
   );
@@ -63,52 +121,39 @@ function Setting() {
 
   return (
     <SettingPageContainer>
-      <SettingTitle>
-        <Text>내 프로필 설정</Text>
-      </SettingTitle>
-      <View>
-        <Text>{userInfo.nickname}님</Text>
-        <Text>수정버튼</Text>
-      </View>
-      <View>
-        <Text>계좌정보</Text>
-      </View>
+      <Profile />
       <DivideLine />
-      {/* <Button
-        title="채팅방 입장"
-        onPress={() => navigation.navigate('Chatroom', {moimId: 49})}
-      /> */}
-      {/* <Button title="지도" onPress={() => navigation.navigate('Map')} /> */}
-      <Button
-        title={darkMode ? '테마 : 다크' : '테마 : 라이트'}
-        onPress={() => dispatch(toggleTheme())}
-      />
-      <Button
-        title="카드 등록"
-        onPress={() => navigation.navigate('AddCard')}
-      />
-      <Button
-        title="AR Navigation"
-        onPress={() => navigation.navigate('ARnavi')}
-      />
-      <Button title="로그아웃" onPress={() => signOutWithKakao()} />
+      <ButtonContainer>
+        <SettingBtn onPress={() => dispatch(toggleTheme())}>
+          <SettingText>테마 설정</SettingText>
+          <Theme
+            source={
+              darkMode
+                ? require('../assets/mypage/time_icon.png')
+                : require('../assets/mypage/day_icon.png')
+            }
+            style={styles.themeImage}
+          />
+        </SettingBtn>
+        {/* <SettingBtn onPress={() => navigation.navigate('AddCard')}>
+          <Text>카드 등록</Text>
+        </SettingBtn> */}
+        {/* <SettingBtn
+          title="AR Navigation"
+          onPress={() => navigation.navigate('ARnavi')}
+        /> */}
+        <SettingBtn onPress={() => console.log('알림 설정')}>
+          <SettingText>알림 설정</SettingText>
+          <IconContainer>
+            <WithLocalSvg asset={Right} width={6} height={12} />
+          </IconContainer>
+        </SettingBtn>
+        <SettingBtn onPress={() => signOutWithKakao()}>
+          <SettingText>로그아웃</SettingText>
+        </SettingBtn>
+      </ButtonContainer>
     </SettingPageContainer>
   );
 }
 
 export default Setting;
-
-// Styled Components
-const SettingPageContainer = styled.View`
-  padding: 16px;
-`;
-const SettingTitle = styled.View`
-  height: 70px;
-  /* padding: 16px; */
-  display: flex;
-  justify-content: center;
-  /* align-items: center; */
-`;
-const DivideLine = styled.View`
-  width: 100%;
-`;
